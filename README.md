@@ -19,12 +19,12 @@ This small program is designed to download video content in audio and video form
 
 ## Download
 
-**[Current version](https://github.com/Rayness/YouTube-Downloader/releases/tag/v1.5.1)** - 1.5.2
+**[Current version](https://github.com/Rayness/YouTube-Downloader/releases/tag/v1.6.1)** - 1.6.1
 
 ## How to run:
 - Like any other application;
-- If you downloaded the installer, then run it and follow the installation instructions;
-- If you downloaded the archive, then extract the contents to any folder and run "ClipTide.exe"
+  - If you downloaded the installer, then run it and follow the installation instructions;
+  - If you downloaded the archive, then extract the contents to any folder and run "ClipTide.exe"
 
 ## How to use:
 After launching the graphical interface, you need to:
@@ -34,18 +34,12 @@ After launching the graphical interface, you need to:
 4. Repeat the first three steps as many times as necessary, or go to the fifth;
 5. Click the "Start download" button;
 6. Wait until all the videos are downloaded, or close the program if you want, the queue will be saved;
-- If you closed the program, then launch it and repeat the action from the fifth step, but this time without closing the program.
+  - If you closed the program, then launch it and repeat the action from the fifth step, but this time without closing the program.
 7. After downloading, the folder with the downloaded videos will open and you can close the program.
 
 ## Known errors:
 1. Problem: Incorrect display of playlist downloads, how to determine: the indicator spins for a very long time and nothing happens for a long time. If you wait, the playlist name will appear in the queue without a preview. The entire playlist will be downloaded.
-- Solution: Do not add playlists to the queue, or wait;
-
-2. Some videos with certain symbols may not be added to the download queue.
-- Solution: Send the error to issue and wait for the problematic Unicode character to be added to the program exceptions, or enable a special setting in the system.
-
-3. After clicking the "delete" button, the video may not be deleted from the interface, although it is no longer in the queue itself.
-- Solution: Restarting the program.
+  - Solution: Do not add playlists to the queue, or wait;
 
 ## Future plans:
 - [x] Add auto-update ( Updater added );
