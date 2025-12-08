@@ -123,3 +123,6 @@ class PublicWebViewApi:
     def mark_notification_as_read(self, id):
         from app.utils.notifications.notifications import mark_notification_as_read
         self._api.ctx.notifications = mark_notification_as_read(id)
+        
+    def import_theme(self):
+        self._api.settings.import_theme_from_zip()

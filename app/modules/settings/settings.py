@@ -3,8 +3,7 @@
 import json
 import subprocess
 import platform
-# from tkinter import Tk, filedialog
-from app.utils.const import download_dir, UPDATER
+from app.utils.const import download_dir, UPDATER, THEME_DIR
 from app.utils.locale.translations import load_translations
 
 # Эту функцию можно оставить здесь или вынести в utils.py
@@ -95,9 +94,71 @@ class SettingsManager:
             path = folder_path[0]
             self.switch_converter_folder(path)
 
-    # def _open_dialog(self):
-    #     root = Tk()
-    #     root.withdraw()
-    #     path = filedialog.askdirectory()
-    #     root.destroy()
-    #     return path
+    def import_theme_from_zip(self):
+        import os
+        import zipfile
+        import shutil
+        import webview
+        
+        # 1. Открываем диалог выбора файла
+        file_types = ("Zip Archives (*.zip)", "All files (*.*)")
+        result = self.ctx.window.create_file_dialog(
+            webview.OPEN_DIALOG,
+            allow_multiple=False,
+            file_types=file_types
+        )
+        
+        if not result:
+            return
+
+        zip_path = result[0]
+        
+        try:
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                # 2. Проверяем, есть ли там config.json
+                file_list = zip_ref.namelist()
+                
+                # Ищем config.json (он может быть в корне архива или в папке)
+                config_file = next((f for f in file_list if f.endswith('config.json')), None)
+                
+                if not config_file:
+                    self.ctx.js_exec('alert("Ошибка: В архиве нет config.json")')
+                    return
+
+                # Определяем имя папки темы
+                # Если config лежит в "MyTheme/config.json", берем "MyTheme"
+                # Если просто "config.json", берем имя архива
+                if '/' in config_file:
+                    theme_folder_name = config_file.split('/')[0]
+                else:
+                    theme_folder_name = os.path.splitext(os.path.basename(zip_path))[0]
+
+                target_dir = os.path.join(THEME_DIR, theme_folder_name)
+                
+                # 3. Распаковка
+                if os.path.exists(target_dir):
+                    # Если тема уже есть - спрашиваем или удаляем (тут просто перезапишем)
+                    shutil.rmtree(target_dir)
+                
+                os.makedirs(target_dir)
+                
+                # Извлекаем аккуратно
+                for member in file_list:
+                    # Защита от Zip Slip уязвимости (выход за пределы папки)
+                    if ".." in member or member.startswith("/") or member.startswith("\\"):
+                        continue
+                        
+                    # Если файлы в архиве лежат в папке, извлекаем содержимое папки в корень темы
+                    # Или просто извлекаем как есть, если структура правильная.
+                    # Для простоты: извлекаем всё в target_dir
+                    zip_ref.extract(member, THEME_DIR)
+
+            # 4. Обновляем список тем в UI
+            from app.utils.ui.themes import get_themes
+            themes = get_themes()
+            self.ctx.js_exec(f'updateThemeList({json.dumps(themes)})')
+            self.ctx.js_exec('alert("Тема успешно импортирована!")')
+
+        except Exception as e:
+            print(f"Import error: {e}")
+            self.ctx.js_exec(f'alert("Ошибка импорта: {str(e)}")')

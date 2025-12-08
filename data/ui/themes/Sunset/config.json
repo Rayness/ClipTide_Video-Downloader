@@ -1,0 +1,9 @@
+{
+    "title" : "Sunset",
+    "author" : "ClipTide",
+    "version" : "1.0",
+    "styles" : [
+        "default",
+        "morning"
+    ]
+}

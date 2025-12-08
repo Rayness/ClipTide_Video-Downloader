@@ -1,0 +1,103 @@
+/* Sunset Theme - Теплые градиенты и мягкие тени */
+
+/* === DEFAULT STYLE (Dusk/Evening) === */
+:root {
+    /* Фон - Глубокий фиолетовый */
+    --bg-color: #201a2b; 
+    
+    /* Карточки - Чуть светлее, с теплым оттенком */
+    --card-bg: #2d2438;
+    --card-bg-transparent: rgba(45, 36, 56, 0.9);
+    
+    --dark-bg: #16121f;
+    --dark-bg-transparent: rgba(22, 18, 31, 0.7);
+
+    --btn-bg: rgba(255, 158, 100, 0.15); 
+
+    /* Инпуты */
+    --input-bg: #362c42;
+    --input-bg-transparent: rgba(54, 44, 66, 0.6);
+
+    /* Текст - Теплый белый */
+    --text-color: #f0e6f5;
+
+    /* Акцент - Закатный оранжевый */
+    --accent-color: #ff9e64; 
+    --accent-dark: #db7b42;
+    
+    --accent-color-transparent: rgba(255, 158, 100, 0.3);
+    --accent-dark-transparent: rgba(219, 123, 66, 0.2);
+
+    /* Опасность - Красно-розовый */
+    --danger-color: #f7768e;
+    --danger-dark: #c94f66;
+
+    /* Градиенты - От фиолетового к оранжевому */
+    --progress-gradient: linear-gradient(90deg, #bb9af7, #ff9e64);
+    --main-gradient: linear-gradient(135deg, rgba(187, 154, 247, 0.2), rgba(255, 158, 100, 0.2));
+    
+    /* Скругления - Средние */
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 20px;
+
+    /* Тени - Цветные */
+    --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 6px 12px rgba(20, 10, 30, 0.3);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.4);
+
+    --titlebar-bg: #16121f;
+    --titlebar-text: #ff9e64;
+    --titlebar-btn-hover: #362c42;
+}
+
+/* === STYLE: MORNING (Light Sub-theme) === */
+body.style-morning {
+    /* Фон - Нежный персиковый */
+    --bg-color: #fff9f5;
+    
+    --card-bg: #ffffff;
+    --card-bg-transparent: rgba(255, 255, 255, 0.85);
+    
+    --dark-bg: #f2e9e1;
+    --dark-bg-transparent: rgba(242, 233, 225, 0.7);
+
+    --btn-bg: rgba(255, 158, 100, 0.2);
+
+    --input-bg: #fcf4ee;
+    --input-bg-transparent: rgba(252, 244, 238, 0.8);
+
+    /* Текст - Темно-коричневый */
+    --text-color: #5c4f4a;
+
+    /* Акцент - Яркий коралловый */
+    --accent-color: #ff8f70;
+    --accent-dark: #e06c4d;
+    
+    --accent-color-transparent: rgba(255, 143, 112, 0.3);
+
+    --danger-color: #e65c5c;
+    
+    /* Градиент - Утреннее солнце */
+    --progress-gradient: linear-gradient(90deg, #ffcc66, #ff8f70);
+    
+    --shadow-sm: 0 2px 5px rgba(100, 50, 0, 0.05);
+    --shadow-md: 0 5px 15px rgba(100, 50, 0, 0.08);
+    
+    --titlebar-bg: #fff0e6;
+    --titlebar-text: #5c4f4a;
+    --titlebar-btn-hover: #ffdac2;
+}
+
+/* Дополнительная стилизация кнопок для этой темы */
+.primary-btn {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px var(--accent-color-transparent);
+}
