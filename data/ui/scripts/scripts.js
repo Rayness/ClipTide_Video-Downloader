@@ -30,25 +30,46 @@ document.addEventListener('DOMContentLoaded', function() {
     if(buttons.length > 0) buttons[0].click();
 });
 
-// --- Converter Logic ---
 
 
 // --- CONVERTER NEW LOGIC ---
-
+const FILE_TYPES = {
+    VIDEO: ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'],
+    AUDIO: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'],
+    IMAGE: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'ico', 'heic', 'pdf']
+};
 // Хранилище индивидуальных настроек: { "task-id": { format: 'mp4', ... } }
 window.convSettingsMap = {};
 
 // Текущий выделенный ID (null = глобальный режим)
 let selectedConvId = null;
 
+function getFileType(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    if (FILE_TYPES.VIDEO.includes(ext) || FILE_TYPES.AUDIO.includes(ext)) return 'video';
+    if (FILE_TYPES.IMAGE.includes(ext)) return 'image';
+    return 'unknown';
+}
+
+
 // Дефолтные настройки (значения инпутов при старте)
-function getDefaultSettings() {
-    return {
-        format: document.getElementById('cv-format').value,
-        codec: document.getElementById('cv-codec').value,
-        quality: document.getElementById('cv-quality').value,
-        resolution: document.getElementById('cv-res').value
-    };
+function getDefaultSettings(type = 'video') {
+    if (type === 'image') {
+        return {
+            type: 'image', // Метка для Python
+            format: document.getElementById('cv-img-format').value,
+            quality: document.getElementById('cv-img-quality').value,
+            resize: document.getElementById('cv-img-resize').value
+        };
+    } else {
+        return {
+            type: 'video', // Метка для Python
+            format: document.getElementById('cv-format').value,
+            codec: document.getElementById('cv-codec').value,
+            quality: document.getElementById('cv-quality').value,
+            resolution: document.getElementById('cv-res').value
+        };
+    }
 }
 
 // 1. Кнопка "Добавить файлы"
@@ -59,7 +80,8 @@ document.getElementById('dropZoneConv').addEventListener('click', () => {
 // 2. Добавление элемента (вызывается из Python)
 window.addConverterItem = function(item) {
     // Сохраняем дефолтные настройки для нового файла
-    window.convSettingsMap[item.id] = getDefaultSettings();
+    const type = getFileType(item.filename);
+    window.convSettingsMap[item.id] = getDefaultSettings(type);
 
     const list = document.getElementById('converter-queue');
     const li = document.createElement('li');
@@ -73,7 +95,10 @@ window.addConverterItem = function(item) {
         selectConverterItem(item.id);
     };
 
-    const thumbSrc = item.thumbnail || "src/default_thumbnail.png";
+    let thumbSrc = item.thumbnail || "src/default_thumbnail.png";
+    if (type === 'image' && item.thumbnail) {
+        thumbSrc = item.thumbnail;
+    }
     const durationStr = formatDuration(item.duration);
     const d = item.details || { resolution: '?', codec: '?', bitrate: 0, fps: 0, audio: '?' };
     const txtQueued = window.i18n.converter?.status_queued || 'Queued';
@@ -135,6 +160,9 @@ function selectConverterItem(id) {
 function updateSidebarUI(settings, id) {
     const title = document.getElementById('setting-header-title');
     const btnApplyAll = document.getElementById('btn-apply-all');
+    const videoBlock = document.getElementById('settings-video');
+    const imageBlock = document.getElementById('settings-image');
+
 
     if (id && settings) {
         // Режим файла
@@ -152,7 +180,26 @@ function updateSidebarUI(settings, id) {
         title.innerText = window.i18n.converter?.global_settings || "Global settings";
         btnApplyAll.style.display = 'none';
     }
-    
+
+    let type = 'video';
+    if (settings && settings.type) {
+        type = settings.type;
+    } else if (id) {
+        // Пытаемся определить по файлу
+        const filename = document.getElementById(`conv-item-${id}`).querySelector('.conv-filename').innerText;
+        type = getFileType(filename);
+    }
+
+    if (type === 'image') {
+        videoBlock.style.display = 'none';
+        imageBlock.style.display = 'block';
+        if (settings) setImageInputValues(settings);
+    } else {
+        videoBlock.style.display = 'block';
+        imageBlock.style.display = 'none';
+        if (settings) setInputValues(settings); // Старая функция для видео
+    }
+
     // Триггерим событие change для обновления зависимостей (mp3 -> disabled codec)
     document.getElementById('cv-format').dispatchEvent(new Event('change'));
 }
@@ -161,8 +208,15 @@ function setInputValues(s) {
     document.getElementById('cv-format').value = s.format;
     document.getElementById('cv-codec').value = s.codec;
     document.getElementById('cv-quality').value = s.quality;
-    document.getElementById('cv-quality-val').innerText = s.quality;
+    document.getElementById('cv-quality-val').innerText = s.quality + '%'
     document.getElementById('cv-res').value = s.resolution;
+}
+
+function setImageInputValues(s) {
+    document.getElementById('cv-img-format').value = s.format;
+    document.getElementById('cv-img-quality').value = s.quality;
+    document.getElementById('cv-img-quality-val').innerText = s.quality + '%';
+    document.getElementById('cv-img-resize').value = s.resize;
 }
 
 // 4. Слушатели изменений в инпутах
@@ -178,6 +232,24 @@ inputs.forEach(id => {
             // Или просто оставляем инпуты как "шаблон" для новых файлов.
             // Давай сделаем так: изменение глобальных настроек НЕ меняет уже добавленные файлы,
             // но меняет "шаблон" для будущих.
+        }
+    });
+});
+
+// Слушатели для НОВЫХ инпутов
+['cv-img-format', 'cv-img-quality', 'cv-img-resize'].forEach(id => {
+    document.getElementById(id).addEventListener('input', (e) => {
+        if (selectedConvId) {
+            // Убираем префикс cv-img-
+            const field = id.replace('cv-img-', '');
+            window.convSettingsMap[selectedConvId][field] = e.target.value;
+            // Не забываем обновить тип, если вдруг он потерялся
+            window.convSettingsMap[selectedConvId].type = 'image';
+        }
+        
+        // Обновляем текст ползунка
+        if (id === 'cv-img-quality') {
+            document.getElementById('cv-img-quality-val').innerText = e.target.value + '%';
         }
     });
 });

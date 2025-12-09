@@ -3,8 +3,10 @@
 import json
 import subprocess
 import platform
+import threading
 from app.utils.const import download_dir, UPDATER, THEME_DIR
 from app.utils.locale.translations import load_translations
+from app.utils.network import check_proxy_connection
 
 # Эту функцию можно оставить здесь или вынести в utils.py
 def open_folder(folder_path):
@@ -93,6 +95,24 @@ class SettingsManager:
         if folder_path and len(folder_path) > 0:
             path = folder_path[0]
             self.switch_converter_folder(path)
+
+    def test_user_proxy(self, proxy_url):
+        """Запускает проверку прокси в отдельном потоке"""
+        
+        # Колбэк, который выполнится в потоке
+        def run_check():
+            self.ctx.js_exec('setProxyCheckStatus("loading", "Проверка...")')
+            
+            success, message = check_proxy_connection(proxy_url)
+            
+            if success:
+                self.ctx.js_exec(f'setProxyCheckStatus("success", "{message}")')
+            else:
+                # Экранируем кавычки на всякий случай
+                safe_msg = message.replace('"', "'")
+                self.ctx.js_exec(f'setProxyCheckStatus("error", "{safe_msg}")')
+
+        threading.Thread(target=run_check, daemon=True).start()
 
     def import_theme_from_zip(self):
         import os

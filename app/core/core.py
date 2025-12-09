@@ -126,3 +126,6 @@ class PublicWebViewApi:
         
     def import_theme(self):
         self._api.settings.import_theme_from_zip()
+        
+    def test_proxy(self, proxy_url):
+        self._api.settings.test_user_proxy(proxy_url)

@@ -7,7 +7,8 @@ import time
 import uuid
 import subprocess
 import ffmpeg
-# from tkinter import Tk, filedialog
+import io 
+import fitz
 from app.utils.converter_utils import get_thumbnail_base64, print_video_info
 from app.modules.settings.settings import open_folder
 
@@ -30,7 +31,7 @@ class Converter:
     def openFile(self):
         import webview
         # Заменяем Tkinter на pywebview
-        ft =  ("Video and Audio files (*.mp4;*.avi;*.mkv;*.mov;*.mp3;*.wav)", "All files (*.*)")
+        ft =  ("Media Files (*.mp4;*.avi;*.mkv;*.mov;*.mp3;*.wav)", "Image Files (*.jpg;*.jpeg;*.png;*.webp;*.bmp;*.tiff;*.ico;*.heic;*.pdf)", "All Files (*.*)")
         file_paths = self.ctx.window.create_file_dialog(
             webview.OPEN_DIALOG,
             allow_multiple=True,
@@ -74,6 +75,44 @@ class Converter:
                         fps = meta[5]
                         a_codec = meta[6]
                         a_bitrate = meta[7]
+                    
+                    ext = path.split('.')[-1].lower()
+                    
+                    if ext in [('.jpg', '.jpeg', '.png', '.webp', '.bmp', '.ico', '.tiff', '.heic', '.pdf')]:
+                        try:
+                            # Если это PDF - берем первую страницу через PyMuPDF
+                            if ext == 'pdf':
+                                doc = fitz.open(path)
+                                page = doc.load_page(0) # 0 = первая страница
+                                pix = page.get_pixmap(alpha=False) # Рендерим
+                                # Конвертируем в формат, понятный Pillow
+                                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                                doc.close()
+                            else:
+                                # ОПТИМИЗАЦИЯ: Создаем маленькое превью, а не грузим весь файл
+                                with Image.open(path) as img:
+                                    # Конвертируем в RGB, чтобы JPEG не ругался на прозрачность
+                                    if img.mode in ('RGBA', 'LA'):
+                                        background = Image.new('RGB', img.size, (255, 255, 255))
+                                        background.paste(img, mask=img.split()[-1])
+                                        img = background
+                                    
+                                    # Уменьшаем до иконки (например 100x100)
+                                    img.thumbnail((100, 100))
+                                    
+                                    # Сохраняем в буфер памяти
+                                    buffer = io.BytesIO()
+                                    img.save(buffer, format="JPEG", quality=70)
+                                    
+                                    import base64
+                                    encoded = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                                    thumb = f"data:image/jpeg;base64,{encoded}"
+                        except Exception as e:
+                            print(f"Error creating thumbnail: {e}")
+                            thumb = None
+                    else:
+                        # Для видео используем старый метод
+                        thumb, error = get_thumbnail_base64(path)
                     
                     item = {
                         "id": task_id,
@@ -151,6 +190,7 @@ class Converter:
 
             # === Берем индивидуальные настройки ===
             s = item.get("settings", {})
+            file_type = s.get("type", "video")
             out_fmt = s.get('format', 'mp4')
             codec = s.get('codec', 'libx264')
             crf = s.get('quality', '23')
@@ -168,54 +208,170 @@ class Converter:
                 # --- Сборка команды (та же, но использует переменные выше) ---
                 command = ['ffmpeg', '-y', '-i', item["path"]]
                 
-                if out_fmt in ['mp3', 'aac', 'wav']:
-                    command.extend(['-vn'])
-                    if out_fmt == 'mp3': command.extend(['-c:a', 'libmp3lame', '-q:a', '2'])
-                    elif out_fmt == 'aac': command.extend(['-c:a', 'aac', '-b:a', '192k'])
-                else:
-                    if codec == 'copy':
-                        command.extend(['-c', 'copy'])
+                # === ЛОГИКА ДЛЯ ИЗОБРАЖЕНИЙ ===
+                if file_type == 'image':
+                    import PIL
+                    from PIL import Image
+                    
+                    out_fmt = s.get('format', 'jpg')
+                    quality = int(s.get('quality', 90))
+                    resize = s.get('resize', 'original')
+                    
+                    # Коррекция расширения для Pillow
+                    if out_fmt == 'jpg': pil_fmt = 'JPEG'
+                    elif out_fmt == 'webp': pil_fmt = 'WEBP'
+                    elif out_fmt == 'png': pil_fmt = 'PNG'
+                    elif out_fmt == 'ico': pil_fmt = 'ICO'
+                    elif out_fmt == 'pdf': pil_fmt = 'PDF'
+                    else: pil_fmt = out_fmt.upper()
+
+                    def process_and_save_image(pil_image, save_path):
+                    # Конвертация в RGB
+                        if out_fmt in ['jpg', 'pdf'] and pil_image.mode in ('RGBA', 'LA', 'P'):
+                            if pil_image.mode == 'P': pil_image = pil_image.convert('RGBA')
+                            background = Image.new('RGB', pil_image.size, (255, 255, 255))
+                            background.paste(pil_image, mask=pil_image.split()[-1] if 'A' in pil_image.mode else None)
+                            pil_image = background.convert('RGB')
+                        
+                        # Ресайз (как и было)
+                        if resize != 'original':
+                            w, h = pil_image.size
+                            if resize.endswith('%'):
+                                factor = int(resize.strip('%')) / 100
+                                new_size = (int(w * factor), int(h * factor))
+                            elif resize.isdigit():
+                                max_dim = int(resize)
+                                ratio = min(max_dim / w, max_dim / h)
+                                new_size = (int(w * ratio), int(h * ratio))
+                            else:
+                                new_size = (w, h)
+                            pil_image = pil_image.resize(new_size, Image.Resampling.LANCZOS)
+
+                        # Параметры сохранения
+                        save_args = {}
+                        if out_fmt in ['jpg', 'webp']:
+                            save_args['quality'] = quality
+                        
+                        if out_fmt == 'ico':
+                            if pil_image.size[0] > 256 or pil_image.size[1] > 256:
+                                pil_image = pil_image.resize((256, 256), Image.Resampling.LANCZOS)
+
+                        pil_image.save(output_path, format=pil_fmt, **save_args)
+                    
+                    
+                    self.log(f"Конвертация IMG: {item['filename']} -> {out_fmt}")
+                    # СЛУЧАЙ 1: ВХОДНОЙ ФАЙЛ - PDF
+                    input_ext = item["path"].split('.')[-1].lower()
+                    if input_ext == 'pdf':
+                        doc = fitz.open(item["path"])
+                        total_pages = len(doc)
+                        
+                        for i, page in enumerate(doc):
+                            # Рендерим страницу в картинку (dpi=300 для хорошего качества)
+                            pix = page.get_pixmap(dpi=300, alpha=False)
+                            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                            
+                            # Формируем имя: Document_page1.jpg
+                            page_name = f"{base_name}_page{i+1}.{out_fmt}"
+                            out_path = os.path.join(out_folder, page_name)
+                            
+                            process_and_save_image(img, out_path)
+                            
+                            # Обновляем прогресс (грубо)
+                            percent = int(((i + 1) / total_pages) * 100)
+                            self._js_exec(f'updateConvStatus("{task_id}", "{percent}%", {percent})')
+                            
+                        doc.close()
+                        
                     else:
-                        command.extend(['-c:v', codec, '-preset', 'medium', '-crf', crf])
-                        command.extend(['-c:a', 'aac', '-b:a', '128k'])
-                        if res != 'original':
-                            command.extend(['-vf', f'scale=-2:{res}'])
+                        output_path = os.path.join(out_folder, f"conv_{base_name}.{out_fmt}")
+                        with Image.open(item["path"]) as img:
+                            # Конвертация в RGB если сохраняем в JPEG (убираем альфа-канал)
+                            if out_fmt in ['jpg', 'pdf'] and img.mode in ('RGBA', 'LA'):
+                                background = Image.new(img.mode[:-1], img.size, (255, 255, 255))
+                                background.paste(img, img.split()[-1])
+                                img = background.convert('RGB')
+                            
+                            # Ресайз
+                            if resize != 'original':
+                                w, h = img.size
+                                if resize.endswith('%'):
+                                    factor = int(resize.strip('%')) / 100
+                                    new_size = (int(w * factor), int(h * factor))
+                                elif resize.isdigit():
+                                    max_dim = int(resize)
+                                    ratio = min(max_dim / w, max_dim / h)
+                                    new_size = (int(w * ratio), int(h * ratio))
+                                else:
+                                    new_size = (w, h)
+                                    
+                                img = img.resize(new_size, Image.Resampling.LANCZOS)
 
-                command.append(output_path)
-                
-                self.log(f"[{out_fmt}] {item['filename']}")
-                
-                self.current_process = subprocess.Popen(
-                    command,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    universal_newlines=True,
-                    encoding='utf-8',
-                    errors='ignore',
-                    creationflags=subprocess.CREATE_NO_WINDOW
-                )
-
-                # ... (цикл чтения прогресса без изменений) ...
-                duration = item.get("duration", 0)
-                for line in self.current_process.stdout:
-                    if "time=" in line:
-                        try:
-                            time_str = line.split("time=")[1].split()[0]
-                            h, m, s = map(float, time_str.split(":"))
-                            curr_seconds = h*3600 + m*60 + s
-                            if duration > 0:
-                                percent = min(round((curr_seconds / duration) * 100), 99)
-                                self._js_exec(f'updateConvStatus("{task_id}", "{percent}%", {percent})')
-                        except: pass
-                
-                self.current_process.wait()
-
-                if self.current_process.returncode == 0:
-                    item["status"] = "done"
-                    self._js_exec(f'updateConvStatus("{task_id}", "Done", 100)')
+                            # Сохранение
+                            save_args = {}
+                            if out_fmt in ['jpg', 'webp']:
+                                save_args['quality'] = quality
+                            
+                            if out_fmt == 'ico':
+                                # ICO требует определенных размеров
+                                if img.size[0] > 256 or img.size[1] > 256:
+                                    img = img.resize((256, 256), Image.Resampling.LANCZOS)
+                            
+                            img.save(output_path, format=pil_fmt, **save_args)
+                        
+                        # Успех для картинки
+                        item["status"] = "done"
+                        self._js_exec(f'updateConvStatus("{item["id"]}", "Done", 100)')
                 else:
-                    item["status"] = "error"
-                    self._js_exec(f'updateConvStatus("{task_id}", "Error", 0)')
+                    if out_fmt in ['mp3', 'aac', 'wav']:
+                        command.extend(['-vn'])
+                        if out_fmt == 'mp3': command.extend(['-c:a', 'libmp3lame', '-q:a', '2'])
+                        elif out_fmt == 'aac': command.extend(['-c:a', 'aac', '-b:a', '192k'])
+                    else:
+                        if codec == 'copy':
+                            command.extend(['-c', 'copy'])
+                        else:
+                            command.extend(['-c:v', codec, '-preset', 'medium', '-crf', crf])
+                            command.extend(['-c:a', 'aac', '-b:a', '128k'])
+                            if res != 'original':
+                                command.extend(['-vf', f'scale=-2:{res}'])
+
+                    command.append(output_path)
+                    
+                    self.log(f"[{out_fmt}] {item['filename']}")
+                    
+                    self.current_process = subprocess.Popen(
+                        command,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        universal_newlines=True,
+                        encoding='utf-8',
+                        errors='ignore',
+                        creationflags=subprocess.CREATE_NO_WINDOW
+                    )
+
+                    # ... (цикл чтения прогресса без изменений) ...
+                    duration = item.get("duration", 0)
+                    for line in self.current_process.stdout:
+                        if "time=" in line:
+                            try:
+                                time_str = line.split("time=")[1].split()[0]
+                                h, m, s = map(float, time_str.split(":"))
+                                curr_seconds = h*3600 + m*60 + s
+                                if duration > 0:
+                                    percent = min(round((curr_seconds / duration) * 100), 99)
+                                    self._js_exec(f'updateConvStatus("{task_id}", "{percent}%", {percent})')
+                            except: pass
+                    
+                    self.current_process.wait()
+
+                    if self.current_process.returncode == 0:
+                        item["status"] = "done"
+                        self._js_exec(f'updateConvStatus("{task_id}", "Done", 100)')
+                    else:
+                        item["status"] = "error"
+                        self._js_exec(f'updateConvStatus("{task_id}", "Error", 0)')
+                    pass
 
             except Exception as e:
                 self.log(f"Error: {e}")

@@ -51,7 +51,7 @@
 
 }
 
-body.theme-wave {
+body.style-wave {
     --bg-color: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-pink) 100%); /* чуть затемнён, оставлен как базовый */
     
     --btn-bg: var(--accent-color-transparent);
@@ -92,7 +92,7 @@ body.theme-wave {
     --titlebar-btn-hover: #2a2a3d;
 }
 
-body.theme-light {
+body.style-light {
     --bg-color: white;
 }
 

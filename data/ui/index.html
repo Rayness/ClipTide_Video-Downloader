@@ -271,52 +271,89 @@
                                         <i class="fa-solid fa-copy"></i>
                                     </button>
                                 </div>
-                                
-                                <div class="setting-item">
-                                    <label id="lbl-cv-fmt">Формат:</label>
-                                    <select id="cv-format" class="select-control">
-                                        <option value="mp4">MP4 (Video)</option>
-                                        <option value="avi">AVI (Video)</option>
-                                        <option value="mkv">MKV (Video)</option>
-                                        <option value="mov">MOV (Video)</option>
-                                        <option disabled>──────────</option>
-                                        <option value="mp3">MP3 (Audio)</option>
-                                        <option value="aac">AAC (Audio)</option>
-                                        <option value="wav">WAV (Audio)</option>
-                                    </select>
-                                </div>
+                                <div id="settings-video">  
+                                    <div class="setting-item">
+                                        <label id="lbl-cv-fmt">Формат:</label>
+                                        <select id="cv-format" class="select-control">
+                                            <option value="mp4">MP4 (Video)</option>
+                                            <option value="avi">AVI (Video)</option>
+                                            <option value="mkv">MKV (Video)</option>
+                                            <option value="mov">MOV (Video)</option>
+                                            <option disabled>──────────</option>
+                                            <option value="mp3">MP3 (Audio)</option>
+                                            <option value="aac">AAC (Audio)</option>
+                                            <option value="wav">WAV (Audio)</option>
+                                        </select>
+                                    </div>
 
-                                <div class="setting-item">
-                                    <label id="lbl-cv-codec">Кодек:</label>
-                                    <select id="cv-codec" class="select-control">
-                                        <option value="libx264">H.264 (Стандарт)</option>
-                                        <option value="libx265">H.265 (HEVC)</option>
-                                        <option value="copy">Без перекодирования (Copy)</option>
-                                    </select>
-                                </div>
+                                    <div class="setting-item">
+                                        <label id="lbl-cv-codec">Кодек:</label>
+                                        <select id="cv-codec" class="select-control">
+                                            <option value="libx264">H.264 (Стандарт)</option>
+                                            <option value="libx265">H.265 (HEVC)</option>
+                                            <option value="copy">Без перекодирования (Copy)</option>
+                                        </select>
+                                    </div>
 
-                                <div class="setting-item">
-                                    <label id="lbl-cv-qual">Качество (CRF):</label>
-                                    <input type="range" id="cv-quality" min="18" max="35" value="23" step="1">
-                                    <div class="range-value">
-                                        <span id="txt-cv-better">Лучше</span>
-                                        <span id="cv-quality-val">23</span>
-                                        <span id="txt-cv-worse">Хуже</span>
+                                    <div class="setting-item">
+                                        <label id="lbl-cv-qual">Качество (CRF):</label>
+                                        <input type="range" id="cv-quality" min="18" max="35" value="23" step="1">
+                                        <div class="range-value">
+                                            <span id="txt-cv-better">Лучше</span>
+                                            <span id="cv-quality-val">23</span>
+                                            <span id="txt-cv-worse">Хуже</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label id="lbl-cv-res">Разрешение:</label> 
+                                        <select id="cv-res" class="select-control">
+                                            <option value="original" id="cv-res-orig">Оригинал</option>
+                                            <option value="4K">2160p</option>
+                                            <option value="2K">1440p</option>
+                                            <option value="1080">1080p</option>
+                                            <option value="720">720p</option>
+                                            <option value="480">480p</option>
+                                        </select>
                                     </div>
                                 </div>
 
-                                <div class="setting-item">
-                                    <label id="lbl-cv-res">Разрешение:</label> 
-                                    <select id="cv-res" class="select-control">
-                                        <option value="original" id="cv-res-orig">Оригинал</option>
-                                        <option value="4K">2160p</option>
-                                        <option value="2K">1440p</option>
-                                        <option value="1080">1080p</option>
-                                        <option value="720">720p</option>
-                                        <option value="480">480p</option>
-                                    </select>
-                                </div>
+                                <!-- === НАСТРОЙКИ ИЗОБРАЖЕНИЙ (Новые) === -->
+                                <div id="settings-image" style="display: none;">
+                                    <div class="setting-item">
+                                        <label>Формат:</label>
+                                        <select id="cv-img-format" class="select-control">
+                                            <option value="jpg">JPG (JPEG)</option>
+                                            <option value="png">PNG</option>
+                                            <option value="webp">WEBP</option>
+                                            <option value="bmp">BMP</option>
+                                            <option value="ico">ICO</option>
+                                            <option value="pdf">PDF</option>
+                                        </select>
+                                    </div>
 
+                                    <div class="setting-item">
+                                        <label>Качество:</label>
+                                        <input type="range" id="cv-img-quality" min="10" max="100" value="90" step="5">
+                                        <div class="range-value">
+                                            <span>Низкое</span>
+                                            <span id="cv-img-quality-val">90%</span>
+                                            <span>Выс.</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label>Размер:</label>
+                                        <select id="cv-img-resize" class="select-control">
+                                            <option value="original">Оригинал</option>
+                                            <option value="50%">50%</option>
+                                            <option value="25%">25%</option>
+                                            <option value="1920">Max 1920px</option>
+                                            <option value="1080">Max 1080px</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
                                 <div class="converter-actions">
                                     <button class="primary-btn" id="btn-convert-start">
                                         <i class="fa-solid fa-rotate"></i> <span id="txt-btn-conv">Конвертировать</span>
@@ -508,19 +545,48 @@
                                 <div class="section">
                                     <h3 id="proxy-title">Управление прокси сервером</h3>
                                     <div class="proxy-settings">
-                                        <label class="switch">
-                                            <input type="checkbox" id="switch_proxy">
-                                            <span class="slider"></span>
-                                        </label>
-                                        <label for="switch_proxy" id="turn_on_proxy">Включить Прокси-сервер</label for="">
-                                        <div class="folder-controls">
-                                            <input class="input-folder" type="text" name="" id="input_proxy">
-                                            <button class="icon-btn small" id="proxy_apply"><i class="fa-solid fa-check"></i></button>
-                                            <div class="tooltip-wrap">
-                                                <button class="icon-btn small" id="help-proxy"><i class="fa-solid fa-question"></i></button>
-                                                <span class="tooltip" id="themes-tooltip-help"></span>
+                                        
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                            <div>
+                                                <label class="switch">
+                                                    <input type="checkbox" id="switch_proxy">
+                                                    <span class="slider"></span>
+                                                </label>
+                                                <label for="switch_proxy" id="turn_on_proxy" style="margin-left: 10px;">Включить Прокси</label>
                                             </div>
-                                            <!-- <button class="icon-btn"><i class="fa-solid fa-clock-rotate-left"></i></button> -->
+                                            <!-- Статус проверки -->
+                                            <span id="proxy-status-text" style="font-size: 0.8rem; color: #888;"></span>
+                                        </div>
+
+                                        <div class="folder-controls">
+                                            <input class="input-folder" type="text" id="input_proxy" placeholder="http://user:pass@ip:port">
+                                            
+                                            <!-- Кнопка Проверить -->
+                                            <div class="tooltip-wrap">
+                                                <button class="icon-btn small" id="proxy_check">
+                                                    <i class="fa-solid fa-bolt"></i>
+                                                </button>
+                                                <span class="tooltip">Проверить соединение</span>
+                                            </div>
+
+                                            <!-- Кнопка Применить -->
+                                            <div class="tooltip-wrap">
+                                                <button class="icon-btn small" id="proxy_apply">
+                                                    <i class="fa-solid fa-check"></i>
+                                                </button>
+                                                <span class="tooltip">Сохранить</span>
+                                            </div>
+
+                                            <div class="tooltip-wrap">
+                                                <button class="icon-btn small" id="help-proxy">
+                                                    <i class="fa-solid fa-question"></i>
+                                                </button>
+                                                <span class="tooltip">Справка</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="margin-top: 5px; font-size: 0.75rem; color: #666;">
+                                            Format: <code>protocol://user:pass@ip:port</code> (http, https, socks5)
                                         </div>
                                     </div>
                                 </div>
