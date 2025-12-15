@@ -8,6 +8,7 @@ import uuid
 import subprocess
 import ffmpeg
 import io 
+from PIL import Image
 import fitz
 from app.utils.converter_utils import get_thumbnail_base64, print_video_info
 from app.modules.settings.settings import open_folder
@@ -31,7 +32,7 @@ class Converter:
     def openFile(self):
         import webview
         # Заменяем Tkinter на pywebview
-        ft =  ("Media Files (*.mp4;*.avi;*.mkv;*.mov;*.mp3;*.wav)", "Image Files (*.jpg;*.jpeg;*.png;*.webp;*.bmp;*.tiff;*.ico;*.heic;*.pdf)", "All Files (*.*)")
+        ft =  ("Media Files (*.mp4;*.avi;*.mkv;*.mov;*.mp3;*.wav)", "Image Files (*.jpg;*.jpeg;*.png;*.webp;*.bmp;*.tiff;*.ico;*.heic)", "PDF Files (*.pdf)", "All Files (*.*)")
         file_paths = self.ctx.window.create_file_dialog(
             webview.OPEN_DIALOG,
             allow_multiple=True,
@@ -50,94 +51,95 @@ class Converter:
                 try:
                     task_id = str(uuid.uuid4())
                     filename = os.path.basename(path)
+                    ext = filename.split('.')[-1].lower()
                     
-                    # Пробуем получить метаданные
-                    thumb, error = get_thumbnail_base64(path)
-                    meta = print_video_info(path)
+                    thumb = None
+                    error = None
                     
-                    # Дефолтные значения
-                    duration = 0
-                    bitrate = 0
-                    width = "?"
-                    height = "?"
-                    codec = "?"
-                    fps = 0
-                    a_codec = "?"
-                    a_bitrate = 0
+                    # Дефолтные метаданные
+                    meta_data = {
+                        "duration": 0, "bitrate": 0, "resolution": "?", 
+                        "codec": "?", "fps": 0, "audio": "?"
+                    }
 
-                    # Распаковка метаданных (если они есть)
-                    if meta and isinstance(meta, tuple) and len(meta) >= 8:
-                        duration = meta[0]
-                        bitrate = meta[1]
-                        width = meta[2]
-                        height = meta[3]
-                        codec = meta[4]
-                        fps = meta[5]
-                        a_codec = meta[6]
-                        a_bitrate = meta[7]
+                    # --- ЛОГИКА ГЕНЕРАЦИИ ПРЕВЬЮ ---
                     
-                    ext = path.split('.')[-1].lower()
-                    
-                    if ext in [('.jpg', '.jpeg', '.png', '.webp', '.bmp', '.ico', '.tiff', '.heic', '.pdf')]:
+                    # 1. Изображения и PDF
+                    if ext in ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'ico', 'pdf']:
                         try:
-                            # Если это PDF - берем первую страницу через PyMuPDF
+                            img = None
+                            import base64
+                            # Если PDF - рендерим первую страницу
                             if ext == 'pdf':
                                 doc = fitz.open(path)
-                                page = doc.load_page(0) # 0 = первая страница
-                                pix = page.get_pixmap(alpha=False) # Рендерим
-                                # Конвертируем в формат, понятный Pillow
+                                page = doc.load_page(0)
+                                pix = page.get_pixmap(alpha=False)
                                 img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
                                 doc.close()
+                                meta_data["resolution"] = f"{pix.width}x{pix.height}"
+                                meta_data["codec"] = "PDF Document"
+                            
+                            # Если Картинка - открываем Pillow
                             else:
-                                # ОПТИМИЗАЦИЯ: Создаем маленькое превью, а не грузим весь файл
-                                with Image.open(path) as img:
-                                    # Конвертируем в RGB, чтобы JPEG не ругался на прозрачность
-                                    if img.mode in ('RGBA', 'LA'):
-                                        background = Image.new('RGB', img.size, (255, 255, 255))
-                                        background.paste(img, mask=img.split()[-1])
-                                        img = background
-                                    
-                                    # Уменьшаем до иконки (например 100x100)
-                                    img.thumbnail((100, 100))
-                                    
-                                    # Сохраняем в буфер памяти
-                                    buffer = io.BytesIO()
-                                    img.save(buffer, format="JPEG", quality=70)
-                                    
-                                    import base64
-                                    encoded = base64.b64encode(buffer.getvalue()).decode('utf-8')
-                                    thumb = f"data:image/jpeg;base64,{encoded}"
+                                img = Image.open(path)
+                                meta_data["resolution"] = f"{img.width}x{img.height}"
+                                meta_data["codec"] = img.format
+
+                            if img:
+                                # Конвертируем в RGB (убираем прозрачность для превью)
+                                if img.mode in ('RGBA', 'LA', 'P'):
+                                    img = img.convert('RGB')
+                                
+                                # Создаем миниатюру (быстро)
+                                img.thumbnail((120, 120))
+                                
+                                # Сохраняем в память
+                                buffer = io.BytesIO()
+                                img.save(buffer, format="JPEG", quality=70)
+                                
+                                b64_str = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                                thumb = f"data:image/jpeg;base64,{b64_str}"
+                                
                         except Exception as e:
-                            print(f"Error creating thumbnail: {e}")
-                            thumb = None
+                            print(f"[Thumb Error] Не удалось создать превью для {filename}: {e}")
+                            thumb = None # Будет дефолтная заглушка
+
+                    # 2. Видео и Аудио (через FFmpeg)
                     else:
-                        # Для видео используем старый метод
                         thumb, error = get_thumbnail_base64(path)
-                    
+                        
+                        # Получаем метаданные видео
+                        meta = print_video_info(path)
+                        if meta and isinstance(meta, tuple) and len(meta) >= 8:
+                            meta_data["duration"] = meta[0]
+                            meta_data["bitrate"] = meta[1]
+                            meta_data["resolution"] = f"{meta[2]}x{meta[3]}" if meta[2] != "?" else "?"
+                            meta_data["codec"] = meta[4]
+                            meta_data["fps"] = meta[5]
+                            meta_data["audio"] = f"{meta[6]} ({meta[7]} kbps)"
+
+                    # --- ФОРМИРОВАНИЕ ОБЪЕКТА ---
                     item = {
                         "id": task_id,
                         "path": path,
                         "filename": filename,
-                        "thumbnail": thumb,
-                        "duration": duration,
+                        "thumbnail": thumb, # Если None, JS поставит дефолтную
+                        "duration": meta_data["duration"],
                         "status": "queued",
                         "error": error,
-                        # Добавляем подробности для UI
-                        "details": {
-                            "bitrate": bitrate,
-                            "resolution": f"{width}x{height}" if width != "?" else "N/A",
-                            "codec": codec,
-                            "fps": fps,
-                            "audio": f"{a_codec} ({a_bitrate} kbps)"
-                        }
+                        "details": meta_data
                     }
                     
                     self.queue.append(item)
-                    json_item = json.dumps(item) 
+                    
+                    # Отправляем в JS
+                    json_item = json.dumps(item)
                     self._js_exec(f'addConverterItem({json_item})')
                     
+                    self.log(f"Добавлен: {filename}")
+                    
                 except Exception as e:
-                    self.log(f"Ошибка добавления {path}: {e}")
+                    self.log(f"Критическая ошибка добавления {path}: {e}")
             
             self._js_exec('hideSpinner()')
 
@@ -256,31 +258,41 @@ class Converter:
                             if pil_image.size[0] > 256 or pil_image.size[1] > 256:
                                 pil_image = pil_image.resize((256, 256), Image.Resampling.LANCZOS)
 
-                        pil_image.save(output_path, format=pil_fmt, **save_args)
+                        pil_image.save(save_path, format=pil_fmt, **save_args)
                     
                     
                     self.log(f"Конвертация IMG: {item['filename']} -> {out_fmt}")
                     # СЛУЧАЙ 1: ВХОДНОЙ ФАЙЛ - PDF
                     input_ext = item["path"].split('.')[-1].lower()
                     if input_ext == 'pdf':
+                        self.log(f"Обработка PDF: {item['filename']}")
+                        
+                        # 1. Создаем папку с именем PDF файла
+                        pdf_folder = os.path.join(out_folder, base_name)
+                        if not os.path.exists(pdf_folder):
+                            os.makedirs(pdf_folder)
+                        
+                        import fitz # PyMuPDF
                         doc = fitz.open(item["path"])
                         total_pages = len(doc)
                         
                         for i, page in enumerate(doc):
-                            # Рендерим страницу в картинку (dpi=300 для хорошего качества)
+                            if self.stop_requested: break
+                            
+                            # Рендерим страницу (dpi=300 для качества)
                             pix = page.get_pixmap(dpi=300, alpha=False)
                             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
                             
-                            # Формируем имя: Document_page1.jpg
-                            page_name = f"{base_name}_page{i+1}.{out_fmt}"
-                            out_path = os.path.join(out_folder, page_name)
+                            # Имя файла: Page_1.jpg
+                            page_filename = f"Page_{i+1}.{out_fmt}"
+                            out_path = os.path.join(pdf_folder, page_filename)
                             
                             process_and_save_image(img, out_path)
                             
-                            # Обновляем прогресс (грубо)
+                            # Обновляем прогресс бар (Страница X из Y)
                             percent = int(((i + 1) / total_pages) * 100)
                             self._js_exec(f'updateConvStatus("{task_id}", "{percent}%", {percent})')
-                            
+                        
                         doc.close()
                         
                     else:

@@ -33,7 +33,8 @@ HEADERS = {
 # Путь к папке с переводами
 TRANSLATIONS_DIR = os.path.abspath("./data/localization")
 
-THEME_DIR = os.path.abspath("./data/ui/themes")
+# THEME_DIR = os.path.abspath("./data/ui/themes")
+THEME_DIR = os.path.join(appdata_local, "themes")
 
 # HTML-контент для отображения в окне
 html_file_path = os.path.abspath("./data/ui/index.html")
