@@ -1,5 +1,4 @@
 # app/core/core.py
-
 from app.modules.downloader.downloader import Downloader
 from app.modules.converter.converter import Converter
 from app.modules.settings.settings import SettingsManager, open_folder
@@ -129,3 +128,15 @@ class PublicWebViewApi:
         
     def test_proxy(self, proxy_url):
         self._api.settings.test_user_proxy(proxy_url)
+        
+    def downloader_stop_task(self, task_id):
+        self._api.downloader.stop_single_task(task_id)
+        
+    def downloader_start_task(self, task_id):
+        self._api.downloader.start_single_task(task_id)
+        
+    def open_path(self, path):
+        from app.modules.settings.settings import open_folder
+        open_folder(path)
+        
+        

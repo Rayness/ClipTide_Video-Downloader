@@ -12,6 +12,23 @@ import yt_dlp
 from app.utils.const import COOKIES_FILE
 from app.utils.queue.queue import save_queue_to_file
 from app.utils.notifications.notifications import add_notification
+# Импортируем resource_path для поиска qjs.exe
+from app.utils.utils import resource_path 
+
+# Класс для фильтрации шума в консоли
+class YtLogger:
+    def debug(self, msg):
+        # Игнорируем отладочные сообщения
+        pass
+
+    def warning(self, msg):
+        # Игнорируем предупреждения о JS и Safari, если они не критичны
+        # Но если хочешь видеть их - раскомментируй print
+        print(f"[YTDLP WARN] {msg}") 
+        pass
+
+    def error(self, msg):
+        print(f"[YTDLP ERROR] {msg}")
 
 class Downloader:
     def __init__(self, context):
@@ -21,6 +38,13 @@ class Downloader:
         self.active_tasks = 0   
         self.max_concurrent = 3
         self.semaphore = threading.Semaphore(self.max_concurrent)
+        self.interrupt_flags = {}
+
+        # Определяем путь к JS движку один раз при инициализации
+        self.qjs_path = resource_path(os.path.join("data", "bin", "qjs.exe"))
+        if not os.path.exists(self.qjs_path):
+            print(f"WARNING: QuickJS not found at {self.qjs_path}. YouTube downloads might be slow.")
+            self.qjs_path = None
 
     def _js_exec(self, code):
         if self.ctx.window:
@@ -49,25 +73,27 @@ class Downloader:
         except Exception as e:
             self.log(f"Error opening folder: {e}")
 
-    # Обновленный метод
     def addVideoToQueue(self, video_url, selected_format, selectedResolution, temp_id=None):
         task_id = str(uuid.uuid4())
-        
         status_pending = self.get_trans('status', 'status_text', 'Pending...')
         self.log(f"{status_pending} ({video_url})")
         
-        # Мы больше не вызываем глобальный showSpinner(), так как у нас теперь локальный лоадер!
-        # self._js_exec('showSpinner()') 
-
         def _analyze():
             try:
+                # Настройки для анализа
                 opt = {
                     'proxy': self.ctx.proxy_url if self.ctx.proxy_enabled == "True" else '',
                     'nocheckcertificate': True,
                     'cookies': COOKIES_FILE,
                     'quiet': True,
-                    'extract_flat': True
+                    'extract_flat': True,
+                    'logger': YtLogger() # Подключаем наш тихий логгер
                 }
+                
+                # Если qjs.exe найден, подключаем его
+                if self.qjs_path:
+                    opt['extractor_args'] = {"ytdl_js": ["js"]}
+                    opt['javascript_executable'] = self.qjs_path
 
                 with yt_dlp.YoutubeDL(opt) as ydl:
                     info = ydl.extract_info(video_url, download=False)
@@ -87,12 +113,11 @@ class Downloader:
                     "status": "queued",
                     "fmt_label": t_fmt, 
                     "res_label": t_res,
-                    "temp_id": temp_id # <--- Возвращаем temp_id обратно в JS
+                    "temp_id": temp_id
                 }
                 
                 self.ctx.download_queue.append(video_data)
                 save_queue_to_file(self.ctx.download_queue)
-
                 self._js_exec(f'addVideoToList({video_data})')
                 
                 msg_added = self.get_trans('status', 'to_queue', 'Added to queue')
@@ -101,42 +126,31 @@ class Downloader:
             except Exception as e:
                 err_msg = self.get_trans('status', 'error_adding', 'Error adding')
                 self.log(f"{err_msg}: {str(e)}")
-                
-                # Если ошибка - удаляем временный блок
                 if temp_id:
                     self._js_exec(f'removeLoadingItem("{temp_id}")')
-                    
-            # finally:
-                # self._js_exec('hideSpinner()') # Больше не нужно
 
         threading.Thread(target=_analyze, daemon=True).start()
 
     def update_item_settings(self, task_id, new_fmt, new_res):
-        # Ищем видео по ID
         found = False
         for item in self.ctx.download_queue:
             if item["id"] == task_id:
-                # Обновляем значения
                 item["format"] = new_fmt
                 item["resolution"] = new_res
-                
-                # Если статус был 'error', можно сбросить на 'queued', 
-                # так как пользователь мог исправить настройки
                 if item["status"] == "error":
                     item["status"] = "queued"
                     self._js_exec(f'updateItemProgress("{task_id}", 0, "", "Queued")')
-                
                 found = True
                 break
         
         if found:
             save_queue_to_file(self.ctx.download_queue)
-            # self.log(f"Settings updated for {task_id}: {new_fmt} / {new_res}")
         else:
             print(f"Video {task_id} not found for update")
 
-
     def removeVideoFromQueue(self, task_id):
+        self.interrupt_flags[task_id] = True
+        
         title = "Video"
         for v in self.ctx.download_queue:
             if v.get("id") == task_id:
@@ -149,8 +163,22 @@ class Downloader:
         msg_removed = self.get_trans('status', 'removed_from_queue', 'Removed')
         self.log(f"{msg_removed}: {title}")
 
+    def stop_single_task(self, task_id):
+        self.interrupt_flags[task_id] = True
+        self.log(f"Stopping task: {task_id}")
+
+    def start_single_task(self, task_id):
+        if not self.is_running:
+            self.startDownload()
+        
+        for v in self.ctx.download_queue:
+            if v.get("id") == task_id:
+                if v.get("status") in ["error", "paused", "stopped"]:
+                    v["status"] = "queued"
+                    self._js_exec(f'updateItemProgress("{task_id}", 0, "", "Queued")')
+                break
+
     def startDownload(self):
-        # Если очередь пуста, выходим
         if not self.ctx.download_queue:
             msg_empty = self.get_trans('status', 'the_queue_is_empty', 'Queue empty')
             self.log(msg_empty)
@@ -160,15 +188,11 @@ class Downloader:
             self.log("Download manager is already running.")
             return
 
-        # === FIX: Сброс зависших статусов ===
-        # Если мы нажимаем старт, значит мы хотим возобновить все, что не завершено.
-        # Переводим "downloading" (зависшие) обратно в "queued".
         resumed_count = 0
         for task in self.ctx.download_queue:
             if task.get("status") == "downloading":
                 task["status"] = "queued"
                 resumed_count += 1
-                # Визуально обновляем статус
                 self._js_exec(f'updateItemProgress("{task["id"]}", 0, "", "Queued")')
         
         if resumed_count > 0:
@@ -190,10 +214,8 @@ class Downloader:
         self.log(msg_start)
         
         while self.is_running and not self.stop_requested:
-            # Ищем задачи
             queued_tasks = [v for v in self.ctx.download_queue if v.get("status") == "queued"]
             
-            # Если нет задач и нет активных потоков -> все готово, выключаемся
             if not queued_tasks and self.active_tasks == 0:
                 msg_fin = self.get_trans('status', 'queue_finished', 'Queue finished.')
                 self.log(msg_fin)
@@ -217,7 +239,6 @@ class Downloader:
             
             time.sleep(0.5)
         
-        # Если вышли из цикла по stop_requested
         if self.stop_requested:
             self.is_running = False
             self.log("Download Manager Stopped.")
@@ -225,6 +246,9 @@ class Downloader:
     def _download_worker(self, task):
         task_id = task["id"]
         title = task["title"]
+        
+        if task_id in self.interrupt_flags:
+            del self.interrupt_flags[task_id]
         
         try:
             msg_start = self.get_trans('status', 'downloading', 'Downloading')
@@ -239,14 +263,15 @@ class Downloader:
                 if self.stop_requested:
                     raise yt_dlp.utils.DownloadCancelled("Stop requested")
                 
+                if self.interrupt_flags.get(task_id, False):
+                    raise yt_dlp.utils.DownloadCancelled("Task stop requested")
+                
                 if d['status'] == 'downloading':
                     total = d.get('total_bytes') or d.get('total_bytes_estimate', 1)
                     downloaded = d.get('downloaded_bytes', 0)
                     progress = round((downloaded / total) * 100, 1) if total else 0
-                    
                     speed = d.get('speed', 0) or 0
                     speed_str = f"{speed / 1024 / 1024:.1f} {t_mbs}"
-                    
                     eta = d.get('eta', 0)
                     if eta and eta > 60:
                         eta_str = f"{eta // 60}{t_min} {eta % 60}{t_sec}"
@@ -257,15 +282,20 @@ class Downloader:
 
             out_tmpl = os.path.join(self.ctx.download_folder, f"{title}.%(ext)s")
             
+            # Базовые опции
             ydl_opts = {
                 'proxy': self.ctx.proxy_url if self.ctx.proxy_enabled == "True" else '',
                 'outtmpl': out_tmpl,
                 'progress_hooks': [progress_hook],
                 'quiet': True,
                 'nocheckcertificate': True,
-                'extractor_args': {"ytdl_js": ["js"]},
-                'javascript_executable': '../qjs/qjs.exe'
+                'logger': YtLogger() # Подключаем логгер
             }
+
+            # Подключаем QuickJS если нашли его
+            if self.qjs_path:
+                ydl_opts['extractor_args'] = {"ytdl_js": ["js"]}
+                ydl_opts['javascript_executable'] = self.qjs_path
 
             if task["format"] == 'mp3':
                 ydl_opts.update({
@@ -282,41 +312,39 @@ class Downloader:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([task["url"]])
 
-            # --- УСПЕХ ---
             self.log(f"{t_done}: {title}")
             self._js_exec(f'updateItemProgress("{task_id}", 100, "{t_done}", "")')
             
-            # Удаление
             self.ctx.download_queue = [v for v in self.ctx.download_queue if v["id"] != task_id]
             save_queue_to_file(self.ctx.download_queue)
             time.sleep(1.5) 
             self._js_exec(f'window.removeVideoFromQueue("{task_id}")')
             
-            # Открытие папки
             open_dl = self.ctx.config.get("Folders", "dl", fallback="True")
             if open_dl == "True":
                 self.open_dl_folder()
 
-            # Уведомления
             if self.ctx.config.get("Notifications", "downloads", fallback="True") == "True":
-                # Собираем данные для истории
                 history_payload = {
                     "url": task["url"],
                     "thumbnail": task["thumbnail"],
                     "format": task["format"],
                     "resolution": task["resolution"],
-                    "title": title
+                    "title": title,
+                    "folder": self.ctx.download_folder
                 }
-                
-                # 1. Добавляем и ПОЛУЧАЕМ обновленный список
+                import json
                 updated_list = add_notification(t_done, title, "downloader", payload=history_payload)
                 self._js_exec(f'loadNotifications({json.dumps(updated_list)})')
 
         except yt_dlp.utils.DownloadCancelled:
             t_paused = self.get_trans('status', 'paused', 'Paused')
             self.log(f"{t_paused}: {title}")
-            task["status"] = "queued"
+            task["status"] = "paused"
             self._js_exec(f'updateItemProgress("{task_id}", 0, "{t_paused}", "")')
+            
+            if task_id in self.interrupt_flags:
+                del self.interrupt_flags[task_id]
 
         except Exception as e:
             t_err = self.get_trans('status', 'error', 'Error')

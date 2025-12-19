@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>ClipTide Updater</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e28;
+            --accent-color: #8c7fff;
+            --accent-hover: #7b6fe0;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --success-color: #00e676;
+            --error-color: #ff5252;
+            
+            --gradient-bg: linear-gradient(135deg, #121212 0%, #1a1a24 100%);
+        }
+
+        body {
+            background: var(--gradient-bg);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            cursor: default;
+        }
+
+        /* --- Title Bar --- */
+        .drag-area {
+            /* ВАЖНО: Включаем нативное перетаскивание */
+            -webkit-app-region: drag;
+            
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .app-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .close-btn {
+            /* ВАЖНО: Исключаем кнопку из перетаскивания, чтобы она нажималась */
+            -webkit-app-region: no-drag;
+            
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+            color: var(--text-secondary);
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: var(--error-color);
+            color: white;
+        }
+
+        /* --- Main Content --- */
+        .container {
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Status Header */
+        .status-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        #status-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px rgba(140, 127, 255, 0.3);
+        }
+
+        #status-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            position: relative;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-color), #00e0ff);
+            border-radius: 3px;
+            transition: width 0.3s ease-out;
+            box-shadow: 0 0 10px var(--accent-color);
+        }
+
+        /* Terminal / Log */
+        .terminal-window {
+            flex: 1;
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 12px;
+            color: #ccc;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .log-line {
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .log-line::before {
+            content: "> ";
+            color: var(--accent-color);
+        }
+
+        /* Scrollbar */
+        .terminal-window::-webkit-scrollbar { width: 8px; }
+        .terminal-window::-webkit-scrollbar-track { background: #0a0a0a; }
+        .terminal-window::-webkit-scrollbar-thumb { 
+            background: #333; 
+            border-radius: 4px; 
+        }
+
+        /* Buttons Area */
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn {
+            /* Кнопки тоже должны быть no-drag на всякий случай */
+            -webkit-app-region: no-drag;
+            
+            background: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            border-color: transparent;
+            color: white; 
+            box-shadow: 0 4px 15px rgba(140, 127, 255, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+            box-shadow: 0 6px 20px rgba(140, 127, 255, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: #000;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            background: #00c853;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Шапка: Убрали onmousedown, вернули CSS drag -->
+    <div class="drag-area">
+        <div class="app-title">
+            <i class="fa-solid fa-rotate"></i> ClipTide Updater
+        </div>
+        <div class="close-btn" onclick="pywebview.api.close()">
+            <i class="fa-solid fa-xmark"></i>
+        </div>
+    </div>
+
+    <!-- Контент -->
+    <div class="container">
+        
+        <div class="status-header">
+            <div id="status-title">ClipTide</div>
+            <div id="status-desc">Подготовка к проверке...</div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-fill" id="progress-bar"></div>
+        </div>
+
+        <div class="terminal-window" id="log-box">
+            <div class="log-line">Updater initialized.</div>
+        </div>
+
+        <div class="actions">
+            <button class="btn" id="btn-check" onclick="checkUpdate()">
+                <i class="fa-solid fa-magnifying-glass"></i> Проверить
+            </button>
+            
+            <button class="btn btn-primary" id="btn-update" disabled onclick="startUpdate()">
+                <i class="fa-solid fa-download"></i> Обновить
+            </button>
+            
+            <button class="btn btn-success" id="btn-launch" disabled onclick="launchApp()">
+                <i class="fa-solid fa-rocket"></i> Запустить
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        function addLog(msg) {
+            const box = document.getElementById('log-box');
+            const div = document.createElement('div');
+            div.className = 'log-line';
+            div.innerText = msg;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function setStatus(text) {
+            document.getElementById('status-title').innerText = text;
+            
+            const desc = document.getElementById('status-desc');
+            if(text.includes("доступна")) desc.innerText = "Рекомендуется обновление";
+            else if(text.includes("последняя")) desc.innerText = "У вас самая свежая версия";
+            else if(text.includes("Скачивание")) desc.innerText = "Пожалуйста, не выключайте интернет";
+            else if(text.includes("Ошибка")) { desc.innerText = "Что-то пошло не так"; desc.style.color = "#ff5252"; }
+            else { desc.innerText = "Выполняется операция..."; desc.style.color = "#aaaaaa"; }
+        }
+
+        function setProgress(percent) {
+            document.getElementById('progress-bar').style.width = percent + "%";
+        }
+
+        function setButtons(state) {
+            const bCheck = document.getElementById('btn-check');
+            const bUpdate = document.getElementById('btn-update');
+            const bLaunch = document.getElementById('btn-launch');
+
+            bCheck.disabled = true;
+            bUpdate.disabled = true;
+            bLaunch.disabled = true;
+            bLaunch.style.display = 'none'; 
+            bUpdate.style.display = 'flex';
+
+            if (state === 'checking') {
+                // Все выключено
+            } 
+            else if (state === 'ready') {
+                bUpdate.disabled = false;
+            } 
+            else if (state === 'no-update') {
+                bLaunch.style.display = 'flex';
+                bLaunch.disabled = false;
+                bUpdate.style.display = 'none';
+            }
+            else if (state === 'done') {
+                bLaunch.style.display = 'flex';
+                bLaunch.disabled = false;
+                bUpdate.style.display = 'none';
+                document.getElementById('progress-bar').style.background = '#00e676';
+            }
+        }
+
+        function checkUpdate() {
+            setButtons('checking');
+            pywebview.api.check_for_updates();
+        }
+
+        function startUpdate() {
+            setButtons('updating');
+            pywebview.api.start_update();
+        }
+
+        function launchApp() {
+            pywebview.api.launch_app();
+        }
+
+        window.addEventListener('pywebviewready', () => {
+            setTimeout(checkUpdate, 500);
+        });
+    </script>
+</body>
+</html>

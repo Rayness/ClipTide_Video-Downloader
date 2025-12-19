@@ -1,0 +1,236 @@
+
+/* --- ЗОНА ОЧЕРЕДИ --- */
+.queue-container {
+    background: var(--dark-bg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Занимает оставшееся место */
+    min-height: 0; /* Для работы скролла */
+}
+
+
+/* Queue Items */
+.queue-items {
+    
+    height: 24rem;
+    min-height: 0;
+    overflow-y: auto;
+    list-style: none;
+    padding: 0.5rem;
+    margin: 0;
+}
+
+.queue-items li {
+    display: flex;
+    font-size: 0.85rem;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background: var(--dark-bg-transparent);
+    border-radius: var(--border-radius-sm);
+    animation: slideInLeft 0.5s ease-out forwards;
+}
+
+.queue-items img {
+    width: 100px;
+    height: 65px;
+    object-fit: cover;
+    margin-right: 0.75rem;
+    border-radius: var(--border-radius-sm);
+}
+
+.video-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.video-details {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+}
+
+.video-details p {
+    font-size: 0.85rem;
+    background-color: var(--card-bg);
+    padding: 0.4rem;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.85rem;
+}
+
+.delete-button {
+    padding: 0.5rem;
+    width: 3rem;
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.delete-button:hover {
+    background-color: var(--danger-dark);
+}
+
+/* data/ui/styles/downloader.css */
+
+/* Стили для логов */
+.logs-container {
+    height: 6rem; /* Фиксированная высота */
+    background: var(--input-bg-transparent);
+    border-radius: var(--border-radius-sm);
+    padding: 0.5rem;
+    margin: 0 0 0 0;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column-reverse; /* Новые сообщения внизу, но прижаты */
+}
+
+.log-entry {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 2px 0;
+}
+
+/* Обновленный элемент очереди */
+.queue-items li {
+    display: flex;
+    flex-direction: column; /* Теперь вертикально, чтобы прогресс был под инфо */
+    align-items: stretch;
+    gap: 0.5rem;
+}
+
+.queue-item-top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.queue-item-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 1;
+}
+
+.queue-item-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-top: 0.2rem;
+}
+
+/* Индивидуальный прогресс-бар */
+.mini-progress-track {
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 0.3rem;
+    width: 100%;
+}
+
+.mini-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--progress-gradient);
+    transition: width 0.3s ease;
+}
+
+
+/* Селекты внутри очереди */
+.queue-selects {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.queue-select {
+    background: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--border-radius-sm);
+    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    outline: none;
+    max-width: 80px;
+}
+
+.queue-select:hover {
+    border-color: var(--accent-color);
+}
+
+.queue-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: transparent;
+}
+
+/* Скелетон загрузки (Временный элемент) */
+.queue-item-skeleton {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--dark-bg-transparent);
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-thumb {
+    width: 100px;
+    height: 65px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius-sm);
+    margin-right: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.skeleton-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.skeleton-line {
+    height: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    width: 60%;
+    animation: pulse-bg 1.5s infinite ease-in-out;
+}
+
+.skeleton-line.short {
+    width: 30%;
+}
+
+@keyframes pulse-bg {
+    0% { background: rgba(255, 255, 255, 0.05); }
+    50% { background: rgba(255, 255, 255, 0.1); }
+    100% { background: rgba(255, 255, 255, 0.05); }
+}
+
+/* Маленький спиннер внутри скелетона */
+.mini-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}

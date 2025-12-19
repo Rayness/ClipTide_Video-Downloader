@@ -157,6 +157,19 @@ function openHistoryModal(id) {
         btnRedownload.style.display = "none";
     }
 
+    // Кнопка открытия папки
+    const btnFolder = document.getElementById("btn-hist-folder");
+    if (payload.folder) {
+        btnFolder.style.display = "flex";
+        btnFolder.onclick = function() {
+            // Вызываем Python метод
+            window.pywebview.api.open_path(payload.folder);
+        };
+    } else {
+        btnFolder.style.display = "none";
+    }
+
+
     // Кнопка удаления
     const btnDel = document.getElementById("btn-hist-delete");
     btnDel.onclick = function() {

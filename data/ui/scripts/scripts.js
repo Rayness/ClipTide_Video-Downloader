@@ -466,11 +466,12 @@ window.updateProgressBar = function(progress, speed, eta) {
 // --- Очередь (Queue) ---
 
 // Создает временный блок загрузки
+// Создает временный блок загрузки
 function createLoadingItem(tempId) {
     const queueList = document.getElementById("queue");
     const li = document.createElement("li");
     li.id = `temp-${tempId}`;
-    li.className = "queue-item-skeleton";
+    li.className = "queue-item-skeleton"; // Класс из CSS выше
     
     li.innerHTML = `
         <div class="skeleton-thumb">
@@ -482,9 +483,8 @@ function createLoadingItem(tempId) {
         </div>
     `;
     
-    // Добавляем в начало списка (или в конец, как тебе удобнее)
-    queueList.appendChild(li); // В конец
-    // queueList.insertBefore(li, queueList.firstChild); // В начало (чтобы сразу видно)
+    // Вставляем В НАЧАЛО списка (перед первым элементом)
+    queueList.prepend(li);
 }
 
 // Удаляет временный блок (вызывается из Python при ошибке или JS при успехе)
@@ -496,45 +496,57 @@ window.removeLoadingItem = function(tempId) {
 
 // Функция принимает объект videoData из Python
 window.addVideoToList = function(videoData) {
-    // 1. Если это ответ на конкретный запрос добавления, удаляем заглушку
-    if (videoData.temp_id) {
-        window.removeLoadingItem(videoData.temp_id);
-    }
-
+    if (videoData.temp_id) window.removeLoadingItem(videoData.temp_id);
     const queueList = document.getElementById("queue");
-    // Проверка на дубликаты
     if(document.getElementById(`item-${videoData.id}`)) return;
 
-    // ... (дальше код создания элемента списка без изменений) ...
-    // Скопируй сюда старый код создания listItem из предыдущего ответа
-    
     const listItem = document.createElement("li");
     listItem.id = `item-${videoData.id}`;
-    
-    // ... генерация селектов ...
+    listItem.className = "queue-item"; 
+
     const thumb = videoData.thumbnail || "src/default_thumbnail.png";
     const currentFmt = videoData.format;
     const currentRes = videoData.resolution;
     const isAudio = ['mp3', 'm4a', 'aac'].includes(currentFmt);
+
     const fmtSelect = generateFormatSelect(videoData.id, currentFmt);
     const resSelect = generateResolutionSelect(videoData.id, currentRes, isAudio);
+    
+    // Статус
     const txtWait = window.i18n.status?.status_text?.replace('Status: ', '') || 'Waiting...';
 
     listItem.innerHTML = `
         <div class="queue-item-top">
             <div class="queue-item-info">
-                <img src="${thumb}" alt="thumb">
+                <div class="queue-thumb-wrapper">
+                    <img src="${thumb}" alt="thumb">
+                </div>
                 <div class="video-info">
                     <div class="video_queue_text" title="${videoData.title}">${videoData.title}</div>
-                    <div class="queue-selects" style="margin-top: 5px;">
+                    
+                    <div class="queue-selects">
                         ${fmtSelect}
                         ${resSelect}
                     </div>
                 </div>
             </div>
-            <button class="delete-button" onclick="window.removeVideoFromQueue('${videoData.id}')">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
+            
+            <div class="queue-actions">
+                <!-- Кнопка Play (Скачать это видео) -->
+                <button class="icon-btn-queue btn-q-start" onclick="startSingleDownload('${videoData.id}')" title="Скачать">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+
+                <!-- Кнопка Trash (Удалить) - видна, когда не качается -->
+                <button class="icon-btn-queue btn-q-delete" id="btn-del-${videoData.id}" onclick="window.removeVideoFromQueue('${videoData.id}')" title="Удалить">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+
+                <!-- Кнопка Stop (Остановить) - видна, когда качается -->
+                <button class="icon-btn-queue btn-q-stop hidden" id="btn-stop-${videoData.id}" onclick="stopSingleDownload('${videoData.id}')" title="Остановить">
+                    <i class="fa-solid fa-stop"></i>
+                </button>
+            </div>
         </div>
         
         <div class="queue-item-bottom">
@@ -544,17 +556,65 @@ window.addVideoToList = function(videoData) {
             <div class="queue-item-stats">
                 <span id="status-${videoData.id}">${txtWait}</span>
                 <span>
-                    <span id="speed-${videoData.id}">-- MB/s</span> | 
-                    <span id="eta-${videoData.id}">--:--</span>
+                    <span id="speed-${videoData.id}">--</span> | 
+                    <span id="eta-${videoData.id}">--</span>
                 </span>
             </div>
         </div>
     `;
 
-    // Важно: вставляем туда же, где был скелетон (в начало или конец)
-    queueList.appendChild(listItem); 
-    // queueList.insertBefore(listItem, queueList.firstChild); // В начало
+    // Вставляем В НАЧАЛО списка
+    queueList.insertBefore(listItem, queueList.firstChild);
+    
+    // Если при загрузке программы видео было в статусе downloading
+    if (videoData.status === 'downloading') {
+        toggleQueueButtons(videoData.id, true);
+    }
 }
+
+// Запуск одного видео (через API)
+window.startSingleDownload = function(id) {
+    if(window.pywebview.api.downloader_start_task) {
+        window.pywebview.api.downloader_start_task(id);
+    } else {
+        // Фолбек, если метод не реализован в API
+        window.pywebview.api.startDownload(); 
+    }
+}
+
+// Остановка одного видео (через API)
+window.stopSingleDownload = function(id) {
+    if(window.pywebview.api.downloader_stop_task) {
+        window.pywebview.api.downloader_stop_task(id);
+    }
+}
+
+// Функция переключения кнопок (Удалить <-> Стоп) и блокировки селектов
+function toggleQueueButtons(id, isDownloading) {
+    const btnDel = document.getElementById(`btn-del-${id}`);
+    const btnStop = document.getElementById(`btn-stop-${id}`);
+    const btnStart = document.querySelector(`#item-${id} .btn-q-start`);
+    const selects = document.querySelectorAll(`#item-${id} select`);
+    const item = document.getElementById(`item-${id}`);
+
+    if (isDownloading) {
+        // Режим загрузки
+        if(btnDel) btnDel.classList.add('hidden');
+        if(btnStop) btnStop.classList.remove('hidden');
+        if(btnStart) btnStart.disabled = true; // Блокируем Play
+        if(item) item.classList.add('status-downloading');
+        // Блокируем выбор качества
+        selects.forEach(s => s.disabled = true);
+    } else {
+        // Режим ожидания/паузы
+        if(btnDel) btnDel.classList.remove('hidden');
+        if(btnStop) btnStop.classList.add('hidden');
+        if(btnStart) btnStart.disabled = false;
+        if(item) item.classList.remove('status-downloading');
+        selects.forEach(s => s.disabled = false);
+    }
+}
+
 
 // Генератор HTML для селекта форматов
 function generateFormatSelect(id, selected) {
@@ -674,19 +734,25 @@ window.updateItemProgress = function(taskId, progress, speed, eta) {
     if (speedText) speedText.innerText = speed;
     if (etaText) etaText.innerText = eta;
     
-    // Если завершено
-    if(progress >= 100) {
-        if (statusText) statusText.innerText = "Готово";
-        // Можно добавить анимацию исчезновения, если нужно
-        // setTimeout(() => window.removeVideoFromQueue(taskId), 2000); 
-    }
-
-    // Блокировка настроек при старте
+    // ЛОГИКА ПЕРЕКЛЮЧЕНИЯ
+    // Если прогресс идет (>0 и <100), значит качается
     if (progress > 0 && progress < 100) {
-        const fmtEl = document.getElementById(`fmt-${taskId}`);
-        const resEl = document.getElementById(`res-${taskId}`);
-        if(fmtEl) fmtEl.disabled = true;
-        if(resEl) resEl.disabled = true;
+        toggleQueueButtons(taskId, true);
+    } else {
+        // Если 0 (ошибка/пауза) или 100 (готово) - разблокируем
+        toggleQueueButtons(taskId, false);
+        
+        // Если остановлено вручную
+        if (progress === 0 && speed === "Stopped") {
+            if (statusText) statusText.innerText = "Paused";
+        }
+        
+        // Если готово
+        if (progress >= 100) {
+            const item = document.getElementById(`item-${taskId}`);
+            if(item) item.classList.add('status-done');
+            if(statusText) statusText.innerText = "Done";
+        }
     }
 }
 
