@@ -166,20 +166,20 @@
                         <div class="download-settings fade-in">
                             <input class="url-input fade-in" type="text" id="videoUrl" placeholder="Введите URL видео">
                             <div class="settings-group">
-                                <select id="format" class="select-control">
+                                <select id="format" class="select-control js-custom-select">
                                     <option value="mp4">MP4</option>
                                     <option value="mkv">MKV</option>
                                     <option value="webm">WEBM</option>
                                     <option value="avi">AVI</option>
-                                    <option disabled>-------------------------------------------</option>
+                                    <option disabled>------------</option>
                                     <option value="mp3">MP3 (Только аудио)</option>
-                                    <option disabled>-------------------------------------------</option>
+                                    <!-- <option disabled>-------------------------------------------</option>
                                     <option disabled value="m4a">M4A (Только аудио)</option>
                                     <option disabled value="opus">OPUS (Только аудио)</option>
                                     <option disabled value="aac">AAC (Только аудио)</option>
-                                    <option disabled value="flac">FLAC (Только аудио)</option>
+                                    <option disabled value="flac">FLAC (Только аудио)</option> -->
                                 </select>
-                                <select id="resolution" class="select-control">
+                                <select id="resolution" class="select-control js-custom-select">
                                     <option value="240">SD (240p)</option>
                                     <option value="360">SD (360p)</option>
                                     <option value="480">SD (480p)</option>
@@ -187,7 +187,7 @@
                                     <option selected value="1080">FullHD (1080p)</option>
                                     <option value="1440">2K (1440p)</option>
                                     <option value="2160">4K (2160p)</option>
-                                    <option value="4320">8K (4320p)</option>
+                                    <!-- <option value="4320">8K (4320p)</option> -->
                                 </select>
                                 <div class="action-buttons flex-conteiner-row" style="gap: 0.5rem;">
                                     <button class="primary-btn fade-in" id="addBtn"><i class="fa-solid fa-plus"></i></button>
@@ -277,7 +277,7 @@
                                 <div id="settings-video">  
                                     <div class="setting-item">
                                         <label id="lbl-cv-fmt">Формат:</label>
-                                        <select id="cv-format" class="select-control">
+                                        <select id="cv-format" class="select-control js-custom-select">
                                             <option value="mp4">MP4 (Video)</option>
                                             <option value="avi">AVI (Video)</option>
                                             <option value="mkv">MKV (Video)</option>
@@ -291,7 +291,7 @@
 
                                     <div class="setting-item">
                                         <label id="lbl-cv-codec">Кодек:</label>
-                                        <select id="cv-codec" class="select-control">
+                                        <select id="cv-codec" class="select-control js-custom-select">
                                             <option value="libx264">H.264 (Стандарт)</option>
                                             <option value="libx265">H.265 (HEVC)</option>
                                             <option value="copy">Без перекодирования (Copy)</option>
@@ -310,8 +310,9 @@
 
                                     <div class="setting-item">
                                         <label id="lbl-cv-res">Разрешение:</label> 
-                                        <select id="cv-res" class="select-control">
+                                        <select id="cv-res" class="select-control js-custom-select">
                                             <option value="original" id="cv-res-orig">Оригинал</option>
+                                            <!-- <option value="8K">4320p</option> -->
                                             <option value="4K">2160p</option>
                                             <option value="2K">1440p</option>
                                             <option value="1080">1080p</option>
@@ -325,7 +326,7 @@
                                 <div id="settings-image" style="display: none;">
                                     <div class="setting-item">
                                         <label>Формат:</label>
-                                        <select id="cv-img-format" class="select-control">
+                                        <select id="cv-img-format" class="select-control js-custom-select">
                                             <option value="jpg">JPG (JPEG)</option>
                                             <option value="png">PNG</option>
                                             <option value="webp">WEBP</option>
@@ -347,7 +348,7 @@
                                     
                                     <div class="setting-item">
                                         <label>Размер:</label>
-                                        <select id="cv-img-resize" class="select-control">
+                                        <select id="cv-img-resize" class="select-control js-custom-select">
                                             <option value="original">Оригинал</option>
                                             <option value="50%">50%</option>
                                             <option value="25%">25%</option>
@@ -398,7 +399,7 @@
                                     <h3 id="language_settings_title">Языковые настройки</h3>
                                     <div class="language-block">
                                         <label for="language" id="language_title">Язык: </label>
-                                        <select id="language" class="select-control">
+                                        <select id="language" class="select-control js-custom-select">
                                             <option id="lang_en" value="en">Английский</option>
                                             <option id="lang_de" value="de">Немецкий</option>
                                             <option id="lang_pl" value="pl">Польский</option>
@@ -423,14 +424,14 @@
                                     <div class="themes">
                                         <div class="block">
                                             <label for="" id="theme-title">Тема: </label>
-                                            <select class="theme-selector select-control" name="" id="theme">
+                                            <select class="theme-selector select-control js-custom-select" name="" id="theme">
                                                 <!-- <option value="default">Default</option>
                                                 <option value="classic">Classic</option> -->
                                             </select>
                                         </div>
                                         <div class="block">
                                             <label for="" id="style-title">Стиль: </label>
-                                            <select class="theme-selector select-control" name="style-selector" id="style">
+                                            <select class="theme-selector select-control js-custom-select" name="style-selector" id="style">
                                                 <!-- <option value="dark">Dark</option>
                                                 <option value="light">Light</option>
                                                 <option value="wave">Wave</option> -->

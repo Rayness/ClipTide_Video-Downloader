@@ -47,6 +47,8 @@
     align-items: center;
     margin-left: 0.5rem;
     margin-right: 0.5rem;
+    position: relative;
+    z-index: 100;
 }
 
 .language-block {

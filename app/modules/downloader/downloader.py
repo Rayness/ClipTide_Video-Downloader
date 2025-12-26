@@ -73,6 +73,22 @@ class Downloader:
         except Exception as e:
             self.log(f"Error opening folder: {e}")
 
+    def _format_size(self, bytes_val):
+            if not bytes_val: return "N/A"
+            for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+                if bytes_val < 1024:
+                    return f"{bytes_val:.1f} {unit}"
+                bytes_val /= 1024
+            return "N/A"
+
+    def _format_duration(self, seconds):
+        if not seconds: return "--:--"
+        m, s = divmod(seconds, 60)
+        h, m = divmod(m, 60)
+        if h > 0:
+            return f"{int(h)}:{int(m):02d}:{int(s):02d}"
+        return f"{int(m)}:{int(s):02d}"
+
     def addVideoToQueue(self, video_url, selected_format, selectedResolution, temp_id=None):
         task_id = str(uuid.uuid4())
         status_pending = self.get_trans('status', 'status_text', 'Pending...')
@@ -80,25 +96,43 @@ class Downloader:
         
         def _analyze():
             try:
-                # Настройки для анализа
                 opt = {
                     'proxy': self.ctx.proxy_url if self.ctx.proxy_enabled == "True" else '',
                     'nocheckcertificate': True,
                     'cookies': COOKIES_FILE,
                     'quiet': True,
-                    'extract_flat': True,
-                    'logger': YtLogger() # Подключаем наш тихий логгер
+                    'extract_flat': True # Внимание: extract_flat=True не дает размер файла!
                 }
                 
-                # Если qjs.exe найден, подключаем его
-                if self.qjs_path:
-                    opt['extractor_args'] = {"ytdl_js": ["js"]}
-                    opt['javascript_executable'] = self.qjs_path
+                # ВАЖНО: Чтобы получить размер и форматы, extract_flat должен быть False, 
+                # но это работает медленнее. Для баланса можно использовать extract_flat=True,
+                # но тогда мы не узнаем размер до начала загрузки. 
+                # Либо, если ты хочешь размер СРАЗУ, нужно убрать 'extract_flat': True.
+                # Давай уберем его для полноты данных (анализ будет чуть дольше, но данных больше).
+                if 'extract_flat' in opt:
+                    del opt['extract_flat']
 
                 with yt_dlp.YoutubeDL(opt) as ydl:
                     info = ydl.extract_info(video_url, download=False)
-                    title = info.get('title', 'Unknown').replace('"', "'")
+                    
+                    title = info.get('title', 'Unknown')
                     thumbnail = info.get('thumbnail', '')
+                    
+                    # Извлекаем доп. данные
+                    duration = self._format_duration(info.get('duration'))
+                    
+                    # Пытаемся найти примерный размер лучшего формата (или того, что выбрал бы yt-dlp)
+                    # Точный размер зависит от выбранного юзером формата, но мы покажем примерный
+                    filesize = info.get('filesize_approx') or info.get('filesize')
+                    size_str = self._format_size(filesize) if filesize else "~"
+                    
+                    # Технические данные
+                    vcodec = info.get('vcodec', 'N/A')
+                    acodec = info.get('acodec', 'N/A')
+                    fps = info.get('fps', 0)
+                    tbr = info.get('tbr', 0) # Общий битрейт
+                    
+                    uploader = info.get('uploader', 'Unknown')
 
                 t_fmt = self.get_trans('status', 'in_format', 'format')
                 t_res = self.get_trans('status', 'in_resolution', 'res')
@@ -113,21 +147,33 @@ class Downloader:
                     "status": "queued",
                     "fmt_label": t_fmt, 
                     "res_label": t_res,
-                    "temp_id": temp_id
+                    "temp_id": temp_id,
+                    
+                    # Новые поля для UI
+                    "meta": {
+                        "duration": duration,
+                        "size": size_str,
+                        "uploader": uploader,
+                        "fps": fps,
+                        "vcodec": vcodec,
+                        "acodec": acodec,
+                        "bitrate": f"{int(tbr)} kbps" if tbr else "N/A"
+                    }
                 }
                 
                 self.ctx.download_queue.append(video_data)
                 save_queue_to_file(self.ctx.download_queue)
-                self._js_exec(f'addVideoToList({video_data})')
+
+                self._js_exec(f'addVideoToList({json.dumps(video_data)})') # Обязательно через json.dumps!
                 
                 msg_added = self.get_trans('status', 'to_queue', 'Added to queue')
                 self.log(f"{msg_added}: {title}")
 
             except Exception as e:
+                # ... обработка ошибок (оставь как было) ...
                 err_msg = self.get_trans('status', 'error_adding', 'Error adding')
                 self.log(f"{err_msg}: {str(e)}")
-                if temp_id:
-                    self._js_exec(f'removeLoadingItem("{temp_id}")')
+                if temp_id: self._js_exec(f'removeLoadingItem("{temp_id}")')
 
         threading.Thread(target=_analyze, daemon=True).start()
 

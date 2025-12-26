@@ -8,10 +8,13 @@
     padding: 0.5rem;
     margin-top: 0.5rem;
     display: flex;
+    flex: 1;
     flex-direction: column;
     height: 100%;
     min-height: 0;
     overflow: hidden; /* Чтобы скролл был внутри списка */
+    position: relative;
+    z-index: 1;
 }
 
 .queue-items {
@@ -102,6 +105,7 @@
 }
 
 .video_queue_text {
+    display: flex;
     font-weight: 500;
     font-size: 0.9rem;
     color: var(--text-color);
@@ -112,17 +116,12 @@
 }
 
 /* --- СТИЛЬНЫЕ СЕЛЕКТЫ --- */
-.queue-selects {
-    display: flex;
-    gap: 0.5rem;
-}
-
 .queue-select {
     appearance: none;
-    background-color: var(--dark-bg);
-    color: #ddd;
+    background: var(--input-bg);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 4px;
+    border-radius: var(--border-radius-sm);
+    color: var(--text-color);
     padding: 0.3rem 1.5rem 0.3rem 0.5rem;
     font-size: 0.75rem;
     cursor: pointer;
@@ -304,4 +303,94 @@
     border-top-color: var(--accent-color);
     border-radius: 50%;
     animation: spin 1s linear infinite;
+}
+
+
+.queue-meta-badges {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+    flex-wrap: wrap;
+}
+
+.meta-badge {
+    font-size: 0.75rem;
+    color: #aaa;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.meta-badge i {
+    font-size: 0.7rem;
+    color: var(--accent-color);
+}
+
+/* Кнопка раскрытия деталей */
+.btn-q-expand {
+    background: transparent;
+    border: none;
+    color: #666;
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    border-radius: 50%;
+}
+
+.btn-q-expand:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+/* Поворот стрелки при открытии */
+.queue-item.expanded .btn-q-expand {
+    transform: rotate(180deg);
+    color: var(--accent-color);
+}
+
+/* Блок деталей (Скрытый) */
+.queue-details {
+    display: none;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius-sm);
+    padding: 0.8rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: #ccc;
+    
+    /* Сетка */
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.8rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.queue-item.expanded .queue-details {
+    display: grid;
+    animation: slideDown 0.3s ease;
+}
+
+.detail-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.detail-label {
+    font-size: 0.7rem;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    color: white;
+    font-family: monospace;
+    word-break: break-all;
 }

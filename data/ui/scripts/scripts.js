@@ -504,48 +504,83 @@ window.addVideoToList = function(videoData) {
     listItem.id = `item-${videoData.id}`;
     listItem.className = "queue-item"; 
 
+    // Данные (с фолбеками, если это старая запись из JSON без меты)
     const thumb = videoData.thumbnail || "src/default_thumbnail.png";
+    const meta = videoData.meta || { duration: '--:--', size: '~', uploader: 'Unknown', fps: '-', vcodec: '-', acodec: '-', bitrate: '-' };
+    
+    // Селекты
     const currentFmt = videoData.format;
     const currentRes = videoData.resolution;
     const isAudio = ['mp3', 'm4a', 'aac'].includes(currentFmt);
-
     const fmtSelect = generateFormatSelect(videoData.id, currentFmt);
     const resSelect = generateResolutionSelect(videoData.id, currentRes, isAudio);
     
-    // Статус
     const txtWait = window.i18n.status?.status_text?.replace('Status: ', '') || 'Waiting...';
 
     listItem.innerHTML = `
         <div class="queue-item-top">
+            <!-- Кнопка раскрытия (слева) -->
+            <button class="btn-q-expand" onclick="toggleQueueDetails('${videoData.id}')" title="Подробнее">
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+
             <div class="queue-item-info">
                 <div class="queue-thumb-wrapper">
                     <img src="${thumb}" alt="thumb">
                 </div>
                 <div class="video-info">
                     <div class="video_queue_text" title="${videoData.title}">${videoData.title}</div>
-                    
-                    <div class="queue-selects">
+                
+                    <!-- Бейджики с информацией и селекты -->
+                    <div class="queue-meta-badges">
                         ${fmtSelect}
                         ${resSelect}
+                        <div class="meta-badge" title="Длительность">
+                            <i class="fa-regular fa-clock"></i> ${meta.duration}
+                        </div>
+                        <div class="meta-badge" title="Примерный размер">
+                            <i class="fa-solid fa-weight-hanging"></i> ${meta.size}
+                        </div>
                     </div>
-                </div>
+
+                    </div>
             </div>
             
+            <!-- Кнопки действий -->
             <div class="queue-actions">
-                <!-- Кнопка Play (Скачать это видео) -->
-                <button class="icon-btn-queue btn-q-start" onclick="startSingleDownload('${videoData.id}')" title="Скачать">
+                <button class="icon-btn-queue btn-q-start" onclick="startSingleDownload('${videoData.id}')">
                     <i class="fa-solid fa-play"></i>
                 </button>
-
-                <!-- Кнопка Trash (Удалить) - видна, когда не качается -->
-                <button class="icon-btn-queue btn-q-delete" id="btn-del-${videoData.id}" onclick="window.removeVideoFromQueue('${videoData.id}')" title="Удалить">
+                <button class="icon-btn-queue btn-q-delete" id="btn-del-${videoData.id}" onclick="window.removeVideoFromQueue('${videoData.id}')">
                     <i class="fa-solid fa-trash"></i>
                 </button>
-
-                <!-- Кнопка Stop (Остановить) - видна, когда качается -->
-                <button class="icon-btn-queue btn-q-stop hidden" id="btn-stop-${videoData.id}" onclick="stopSingleDownload('${videoData.id}')" title="Остановить">
+                <button class="icon-btn-queue btn-q-stop hidden" id="btn-stop-${videoData.id}" onclick="stopSingleDownload('${videoData.id}')">
                     <i class="fa-solid fa-stop"></i>
                 </button>
+            </div>
+        </div>
+        
+        <!-- Скрытые детали -->
+        <div class="queue-details">
+            <div class="detail-group">
+                <span class="detail-label">Автор</span>
+                <span class="detail-value">${meta.uploader}</span>
+            </div>
+            <div class="detail-group">
+                <span class="detail-label">FPS</span>
+                <span class="detail-value">${meta.fps}</span>
+            </div>
+            <div class="detail-group">
+                <span class="detail-label">Видео кодек</span>
+                <span class="detail-value">${meta.vcodec}</span>
+            </div>
+            <div class="detail-group">
+                <span class="detail-label">Аудио кодек</span>
+                <span class="detail-value">${meta.acodec}</span>
+            </div>
+            <div class="detail-group">
+                <span class="detail-label">Битрейт</span>
+                <span class="detail-value">${meta.bitrate}</span>
             </div>
         </div>
         
@@ -563,12 +598,17 @@ window.addVideoToList = function(videoData) {
         </div>
     `;
 
-    // Вставляем В НАЧАЛО списка
     queueList.insertBefore(listItem, queueList.firstChild);
     
-    // Если при загрузке программы видео было в статусе downloading
     if (videoData.status === 'downloading') {
         toggleQueueButtons(videoData.id, true);
+    }
+}
+
+window.toggleQueueDetails = function(taskId) {
+    const item = document.getElementById(`item-${taskId}`);
+    if (item) {
+        item.classList.toggle('expanded');
     }
 }
 
@@ -631,6 +671,7 @@ function generateFormatSelect(id, selected) {
 // Генератор HTML для селекта разрешений
 function generateResolutionSelect(id, selected, disabled) {
     const resolutions = [
+        // {val: '4320', label: '8K'},
         {val: '2160', label: '4K'},
         {val: '1440', label: '2K'},
         {val: '1080', label: '1080p'},
