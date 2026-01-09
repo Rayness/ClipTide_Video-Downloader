@@ -71,6 +71,17 @@
             "chinese" : "中文",
             "open_folder" : "Ouvrir le dossier des langues"
         },
+        "subtitles": {
+            "title": "Gestion des sous-titres",
+            "enable": "Télécharger les sous-titres",
+            "auto": "Télécharger les sous-titres automatiques",
+            "embed": "Intégrer dans le fichier",
+            "lang": "Langue :"
+        },
+        "audio": {
+            "title": "Gestion des paramètres audio",
+            "lang":"Langue :"
+        },
         "themes" : {
             "decoration" : "Gestion de l'apparence",
             "theme" : "Thème : ",

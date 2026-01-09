@@ -394,3 +394,113 @@
     font-family: monospace;
     word-break: break-all;
 }
+
+/* --- PLAYLIST MODAL --- */
+
+.playlist-card {
+    width: 600px;
+    height: 80vh; /* Высокое окно */
+}
+
+.playlist-controls {
+    padding: 0.5rem 1.5rem;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.playlist-list {
+    padding: 0 !important; /* Сбрасываем паддинг modal-body-text */
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Элемент списка */
+.pl-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.pl-item:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.pl-item.disabled {
+    opacity: 0.5;
+}
+
+.pl-info {
+    margin-left: 1rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.pl-title {
+    font-size: 0.9rem;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pl-meta {
+    font-size: 0.75rem;
+    color: #888;
+    display: flex;
+    gap: 10px;
+}
+
+/* Кастомный чекбокс */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    height: 18px;
+    width: 18px;
+    background-color: var(--input-bg);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    border-color: var(--accent-color);
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 4px;
+    height: 9px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}

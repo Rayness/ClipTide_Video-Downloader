@@ -39,6 +39,12 @@ class SettingsManager:
         self.ctx.js_exec(f'setLanguage("{language}")')
         return self.ctx.translations
 
+    def switch_subs_setting(self, key, value):
+        self.ctx.update_config_value("Subtitles", key, value)
+
+    def switch_audio_setting(self, key, value):
+        self.ctx.update_config_value("Audio", key, value)
+
     def switch_theme(self, theme):
         self.ctx.theme = theme
         self.ctx.update_config_value("Themes", "theme", theme)
@@ -62,13 +68,15 @@ class SettingsManager:
         self.ctx.update_config_value("Folders", f_type, enabled)
 
     def switch_download_folder(self, folder_path=None):
-        path = folder_path if folder_path else download_dir
+        raw_path = folder_path if folder_path else download_dir
+        path = str(raw_path)
         self.ctx.download_folder = path
         self.ctx.update_config_value("Settings", "folder_path", path)
         self.ctx.js_exec(f'updateDownloadFolder({json.dumps(path)})')
 
     def switch_converter_folder(self, folder_path=None):
-        path = folder_path if folder_path else download_dir
+        raw_path = folder_path if folder_path else download_dir
+        path = str(raw_path)
         self.ctx.converter_folder = path
         self.ctx.update_config_value("Settings", "converter_folder", path)
         self.ctx.js_exec(f'updateConvertFolder({json.dumps(path)})')

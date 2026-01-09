@@ -7,24 +7,18 @@ import time
 import uuid
 import subprocess
 import platform
-import yt_dlp
 
 from app.utils.const import COOKIES_FILE
 from app.utils.queue.queue import save_queue_to_file
 from app.utils.notifications.notifications import add_notification
-# Импортируем resource_path для поиска qjs.exe
-from app.utils.utils import resource_path 
+from app.utils.utils import resource_path
 
 # Класс для фильтрации шума в консоли
 class YtLogger:
     def debug(self, msg):
-        # Игнорируем отладочные сообщения
         pass
 
     def warning(self, msg):
-        # Игнорируем предупреждения о JS и Safari, если они не критичны
-        # Но если хочешь видеть их - раскомментируй print
-        print(f"[YTDLP WARN] {msg}") 
         pass
 
     def error(self, msg):
@@ -38,12 +32,14 @@ class Downloader:
         self.active_tasks = 0   
         self.max_concurrent = 3
         self.semaphore = threading.Semaphore(self.max_concurrent)
+
+        # Флаги для остановки конкретных задач
         self.interrupt_flags = {}
 
-        # Определяем путь к JS движку один раз при инициализации
+        # Путь к QuickJS
         self.qjs_path = resource_path(os.path.join("data", "bin", "qjs.exe"))
         if not os.path.exists(self.qjs_path):
-            print(f"WARNING: QuickJS not found at {self.qjs_path}. YouTube downloads might be slow.")
+            print(f"WARNING: QuickJS not found at {self.qjs_path}")
             self.qjs_path = None
 
     def _js_exec(self, code):
@@ -73,13 +69,14 @@ class Downloader:
         except Exception as e:
             self.log(f"Error opening folder: {e}")
 
+    # Вспомогательные методы форматирования
     def _format_size(self, bytes_val):
-            if not bytes_val: return "N/A"
-            for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-                if bytes_val < 1024:
-                    return f"{bytes_val:.1f} {unit}"
-                bytes_val /= 1024
-            return "N/A"
+        if not bytes_val: return "~"
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if bytes_val < 1024:
+                return f"{bytes_val:.1f} {unit}"
+            bytes_val /= 1024
+        return "~"
 
     def _format_duration(self, seconds):
         if not seconds: return "--:--"
@@ -91,47 +88,73 @@ class Downloader:
 
     def addVideoToQueue(self, video_url, selected_format, selectedResolution, temp_id=None):
         task_id = str(uuid.uuid4())
+        
         status_pending = self.get_trans('status', 'status_text', 'Pending...')
         self.log(f"{status_pending} ({video_url})")
         
         def _analyze():
+            # Ленивый импорт для скорости
+            import yt_dlp 
+
             try:
+                # 1. Сначала проверяем, плейлист это или нет (быстро)
                 opt = {
                     'proxy': self.ctx.proxy_url if self.ctx.proxy_enabled == "True" else '',
                     'nocheckcertificate': True,
                     'cookies': COOKIES_FILE,
                     'quiet': True,
-                    'extract_flat': True # Внимание: extract_flat=True не дает размер файла!
+                    'extract_flat': 'in_playlist', # Не качаем данные каждого видео
+                    'logger': YtLogger()
                 }
                 
-                # ВАЖНО: Чтобы получить размер и форматы, extract_flat должен быть False, 
-                # но это работает медленнее. Для баланса можно использовать extract_flat=True,
-                # но тогда мы не узнаем размер до начала загрузки. 
-                # Либо, если ты хочешь размер СРАЗУ, нужно убрать 'extract_flat': True.
-                # Давай уберем его для полноты данных (анализ будет чуть дольше, но данных больше).
-                if 'extract_flat' in opt:
-                    del opt['extract_flat']
+                if self.qjs_path:
+                    opt['extractor_args'] = {"ytdl_js": ["js"]}
+                    opt['javascript_executable'] = self.qjs_path
 
                 with yt_dlp.YoutubeDL(opt) as ydl:
                     info = ydl.extract_info(video_url, download=False)
+
+                # === ЭТО ПЛЕЙЛИСТ ===
+                if 'entries' in info:
+                    self.log(f"Найден плейлист: {info.get('title')}")
                     
-                    title = info.get('title', 'Unknown')
+                    playlist_data = {
+                        "title": info.get('title', 'Playlist'),
+                        "items": []
+                    }
+                    
+                    for entry in info['entries']:
+                        if entry:
+                            playlist_data["items"].append({
+                                "url": entry.get('url') or entry.get('webpage_url'),
+                                "title": entry.get('title', 'Unknown'),
+                                "duration": self._format_duration(entry.get('duration'))
+                            })
+                    
+                    if temp_id: self._js_exec(f'removeLoadingItem("{temp_id}")')
+                    
+                    self._js_exec(f'openPlaylistModal({json.dumps(playlist_data)})')
+                    return 
+
+                # === ЭТО ОДИНОЧНОЕ ВИДЕО ===
+                # Перезапускаем анализ без extract_flat, чтобы получить размеры и кодеки
+                del opt['extract_flat']
+                
+                with yt_dlp.YoutubeDL(opt) as ydl:
+                    info = ydl.extract_info(video_url, download=False)
+                    
+                    title = info.get('title', 'Unknown').replace('"', "'")
                     thumbnail = info.get('thumbnail', '')
                     
-                    # Извлекаем доп. данные
+                    # Метаданные
                     duration = self._format_duration(info.get('duration'))
-                    
-                    # Пытаемся найти примерный размер лучшего формата (или того, что выбрал бы yt-dlp)
-                    # Точный размер зависит от выбранного юзером формата, но мы покажем примерный
                     filesize = info.get('filesize_approx') or info.get('filesize')
-                    size_str = self._format_size(filesize) if filesize else "~"
+                    size_str = self._format_size(filesize)
                     
-                    # Технические данные
                     vcodec = info.get('vcodec', 'N/A')
                     acodec = info.get('acodec', 'N/A')
                     fps = info.get('fps', 0)
-                    tbr = info.get('tbr', 0) # Общий битрейт
-                    
+                    tbr = info.get('tbr', 0)
                     uploader = info.get('uploader', 'Unknown')
 
                 t_fmt = self.get_trans('status', 'in_format', 'format')
@@ -148,8 +171,6 @@ class Downloader:
                     "fmt_label": t_fmt, 
                     "res_label": t_res,
                     "temp_id": temp_id,
-                    
-                    # Новые поля для UI
                     "meta": {
                         "duration": duration,
                         "size": size_str,
@@ -164,16 +185,16 @@ class Downloader:
                 self.ctx.download_queue.append(video_data)
                 save_queue_to_file(self.ctx.download_queue)
 
-                self._js_exec(f'addVideoToList({json.dumps(video_data)})') # Обязательно через json.dumps!
+                self._js_exec(f'addVideoToList({json.dumps(video_data)})')
                 
                 msg_added = self.get_trans('status', 'to_queue', 'Added to queue')
                 self.log(f"{msg_added}: {title}")
 
             except Exception as e:
-                # ... обработка ошибок (оставь как было) ...
                 err_msg = self.get_trans('status', 'error_adding', 'Error adding')
                 self.log(f"{err_msg}: {str(e)}")
-                if temp_id: self._js_exec(f'removeLoadingItem("{temp_id}")')
+                if temp_id:
+                    self._js_exec(f'removeLoadingItem("{temp_id}")')
 
         threading.Thread(target=_analyze, daemon=True).start()
 
@@ -183,6 +204,7 @@ class Downloader:
             if item["id"] == task_id:
                 item["format"] = new_fmt
                 item["resolution"] = new_res
+                # Если была ошибка, даем шанс перезапустить
                 if item["status"] == "error":
                     item["status"] = "queued"
                     self._js_exec(f'updateItemProgress("{task_id}", 0, "", "Queued")')
@@ -195,7 +217,7 @@ class Downloader:
             print(f"Video {task_id} not found for update")
 
     def removeVideoFromQueue(self, task_id):
-        self.interrupt_flags[task_id] = True
+        self.interrupt_flags[task_id] = True 
         
         title = "Video"
         for v in self.ctx.download_queue:
@@ -234,6 +256,7 @@ class Downloader:
             self.log("Download manager is already running.")
             return
 
+        # Возобновление зависших задач
         resumed_count = 0
         for task in self.ctx.download_queue:
             if task.get("status") == "downloading":
@@ -290,114 +313,201 @@ class Downloader:
             self.log("Download Manager Stopped.")
 
     def _download_worker(self, task):
-        task_id = task["id"]
-        title = task["title"]
-        
-        if task_id in self.interrupt_flags:
-            del self.interrupt_flags[task_id]
-        
-        try:
-            msg_start = self.get_trans('status', 'downloading', 'Downloading')
-            self.log(f"{msg_start}: {title}")
+            import yt_dlp 
             
-            t_mbs = self.get_trans('mbs', 'MB/s')
-            t_sec = self.get_trans('sec', 's')
-            t_min = self.get_trans('min', 'm')
-            t_done = self.get_trans('status', 'download_success', 'Done')
-
-            def progress_hook(d):
-                if self.stop_requested:
-                    raise yt_dlp.utils.DownloadCancelled("Stop requested")
-                
-                if self.interrupt_flags.get(task_id, False):
-                    raise yt_dlp.utils.DownloadCancelled("Task stop requested")
-                
-                if d['status'] == 'downloading':
-                    total = d.get('total_bytes') or d.get('total_bytes_estimate', 1)
-                    downloaded = d.get('downloaded_bytes', 0)
-                    progress = round((downloaded / total) * 100, 1) if total else 0
-                    speed = d.get('speed', 0) or 0
-                    speed_str = f"{speed / 1024 / 1024:.1f} {t_mbs}"
-                    eta = d.get('eta', 0)
-                    if eta and eta > 60:
-                        eta_str = f"{eta // 60}{t_min} {eta % 60}{t_sec}"
-                    else:
-                        eta_str = f"{eta}{t_sec}" if eta else "..."
-
-                    self._js_exec(f'updateItemProgress("{task_id}", {progress}, "{speed_str}", "{eta_str}")')
-
-            out_tmpl = os.path.join(self.ctx.download_folder, f"{title}.%(ext)s")
-            
-            # Базовые опции
-            ydl_opts = {
-                'proxy': self.ctx.proxy_url if self.ctx.proxy_enabled == "True" else '',
-                'outtmpl': out_tmpl,
-                'progress_hooks': [progress_hook],
-                'quiet': True,
-                'nocheckcertificate': True,
-                'logger': YtLogger() # Подключаем логгер
-            }
-
-            # Подключаем QuickJS если нашли его
-            if self.qjs_path:
-                ydl_opts['extractor_args'] = {"ytdl_js": ["js"]}
-                ydl_opts['javascript_executable'] = self.qjs_path
-
-            if task["format"] == 'mp3':
-                ydl_opts.update({
-                    'format': 'bestaudio/best',
-                    'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3'}],
-                })
-            else:
-                res = task["resolution"]
-                ydl_opts.update({
-                    'format': f'bestvideo[height<={res}]+bestaudio/best[height<={res}]',
-                    'merge_output_format': task["format"]
-                })
-
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([task["url"]])
-
-            self.log(f"{t_done}: {title}")
-            self._js_exec(f'updateItemProgress("{task_id}", 100, "{t_done}", "")')
-            
-            self.ctx.download_queue = [v for v in self.ctx.download_queue if v["id"] != task_id]
-            save_queue_to_file(self.ctx.download_queue)
-            time.sleep(1.5) 
-            self._js_exec(f'window.removeVideoFromQueue("{task_id}")')
-            
-            open_dl = self.ctx.config.get("Folders", "dl", fallback="True")
-            if open_dl == "True":
-                self.open_dl_folder()
-
-            if self.ctx.config.get("Notifications", "downloads", fallback="True") == "True":
-                history_payload = {
-                    "url": task["url"],
-                    "thumbnail": task["thumbnail"],
-                    "format": task["format"],
-                    "resolution": task["resolution"],
-                    "title": title,
-                    "folder": self.ctx.download_folder
-                }
-                import json
-                updated_list = add_notification(t_done, title, "downloader", payload=history_payload)
-                self._js_exec(f'loadNotifications({json.dumps(updated_list)})')
-
-        except yt_dlp.utils.DownloadCancelled:
-            t_paused = self.get_trans('status', 'paused', 'Paused')
-            self.log(f"{t_paused}: {title}")
-            task["status"] = "paused"
-            self._js_exec(f'updateItemProgress("{task_id}", 0, "{t_paused}", "")')
+            task_id = task["id"]
+            title = task["title"]
             
             if task_id in self.interrupt_flags:
                 del self.interrupt_flags[task_id]
-
-        except Exception as e:
-            t_err = self.get_trans('status', 'error', 'Error')
-            self.log(f"{t_err} [{title}]: {str(e)}")
-            task["status"] = "error" 
-            self._js_exec(f'updateItemProgress("{task_id}", 0, "{t_err}", "Failed")')
             
-        finally:
-            self.active_tasks -= 1
-            self.semaphore.release()
+            # Сбрасываем прогресс
+            self.last_video_progress = 0
+            
+            try:
+                msg_start = self.get_trans('status', 'downloading', 'Downloading')
+                self.log(f"{msg_start}: {title}")
+                
+                t_mbs = self.get_trans('mbs', 'MB/s')
+                t_sec = self.get_trans('sec', 's')
+                t_min = self.get_trans('min', 'm')
+                t_done = self.get_trans('status', 'download_success', 'Done')
+                
+                # Статусы для UI
+                t_subs = "Subs..."
+                t_proc = "Processing..." 
+
+                def progress_hook(d):
+                    if self.stop_requested:
+                        raise yt_dlp.utils.DownloadCancelled("Stop requested")
+                    if self.interrupt_flags.get(task_id, False):
+                        raise yt_dlp.utils.DownloadCancelled("Task stop requested")
+                    
+                    info = d.get('info_dict', {})
+                    filename = d.get('filename', '').lower()
+                    
+                    # Фильтр субтитров
+                    is_subtitle = filename.endswith(('.vtt', '.srt', '.ttml', '.srv3', '.ass'))
+                    
+                    if d['status'] == 'downloading':
+                        total = d.get('total_bytes') or d.get('total_bytes_estimate', 1)
+                        downloaded = d.get('downloaded_bytes', 0)
+                        progress = round((downloaded / total) * 100, 1) if total else 0
+                        
+                        if not is_subtitle:
+                            self.last_video_progress = progress
+                            speed = d.get('speed', 0) or 0
+                            speed_str = f"{speed / 1024 / 1024:.1f} {t_mbs}"
+                            
+                            eta = d.get('eta', 0)
+                            if eta and eta > 60:
+                                eta_str = f"{eta // 60}{t_min} {eta % 60}{t_sec}"
+                            else:
+                                eta_str = f"{eta}{t_sec}" if eta else "..."
+
+                            self._js_exec(f'updateItemProgress("{task_id}", {progress}, "{speed_str}", "{eta_str}")')
+                        else:
+                            # Для субтитров показываем текст, но прогресс держим от видео
+                            self._js_exec(f'updateItemProgress("{task_id}", {self.last_video_progress}, "{t_subs}", "")')
+
+                    elif d['status'] == 'finished':
+                        # Никогда не ставим 100% здесь
+                        self._js_exec(f'updateItemProgress("{task_id}", 99, "{t_proc}", "")')
+
+                # Путь вывода
+                # Используем %(ext)s, чтобы yt-dlp сам подставил расширение (mkv/mp4)
+                out_tmpl = os.path.join(self.ctx.download_folder, f"{title}.%(ext)s")
+                
+                ydl_opts = {
+                    'proxy': self.ctx.proxy_url if self.ctx.proxy_enabled == "True" else '',
+                    'outtmpl': out_tmpl,
+                    'progress_hooks': [progress_hook],
+                    'quiet': True,
+                    'nocheckcertificate': True,
+                    'logger': YtLogger(),
+                    'sleep_interval': 1,
+                    'sleep_subtitles': 1
+                }
+
+                # === НАСТРОЙКИ АУДИО ===
+                audio_pref = self.ctx.config.get("Audio", "lang", fallback="none")
+                
+                # Какой контейнер выбрал пользователь (mp4/mkv/webm)
+                user_container = task["format"] 
+                # Финальный контейнер (может измениться на mkv)
+                final_container = user_container
+
+                # Строка выбора видео (с учетом разрешения)
+                res = task["resolution"]
+                video_sel = f'bestvideo[height<={res}]'
+
+                # 1. Сценарий: Скачать ВСЕ аудиодорожки
+                if audio_pref == "all_tracks":
+                    self.log(f"Multi-audio mode enabled for {title}")
+                    
+                    # Включаем поддержку мульти-аудио
+                    ydl_opts['audio_multistreams'] = True
+                    
+                    # Принудительно ставим MKV, так как MP4 плохо клеит много дорожек
+                    final_container = 'mkv'
+                    
+                    # Формула: Видео + (Все аудиодорожки)
+                    # mergeall[vcodec=none] выбирает всё, что не является видео (т.е. все аудио)
+                    fmt_str = f'{video_sel}+mergeall[vcodec=none]'
+
+                # 2. Сценарий: Скачать конкретный язык (если есть)
+                elif audio_pref != "none" and audio_pref != "orig":
+                    # Пытаемся найти аудио с нужным языком, если нет - берем лучшее
+                    # language^=ru означает "язык начинается с ru"
+                    fmt_str = f'{video_sel}+bestaudio[language^={audio_pref}] / {video_sel}+bestaudio'
+                
+                # 3. Сценарий: По умолчанию (лучшее видео + лучшее аудио)
+                else:
+                    fmt_str = f'{video_sel}+bestaudio / best[height<={res}]'
+
+                # === НАСТРОЙКИ СУБТИТРОВ ===
+                subs_enabled = self.ctx.config.get("Subtitles", "enabled", fallback="False") == "True"
+                if subs_enabled:
+                    subs_auto = self.ctx.config.get("Subtitles", "auto", fallback="False") == "True"
+                    subs_embed = self.ctx.config.get("Subtitles", "embed", fallback="True") == "True"
+                    subs_lang = self.ctx.config.get("Subtitles", "langs", fallback="all")
+                    
+                    ydl_opts['writesubtitles'] = True
+                    ydl_opts['writeautomaticsub'] = subs_auto
+                    
+                    if subs_lang != 'all':
+                        ydl_opts['subtitleslangs'] = [subs_lang]
+                    else:
+                        ydl_opts['subtitleslangs'] = ['all']
+                    
+                    if subs_embed:
+                        ydl_opts['postprocessors'] = ydl_opts.get('postprocessors', [])
+                        ydl_opts['postprocessors'].append({'key': 'FFmpegEmbedSubtitle'})
+
+                # JS
+                if self.qjs_path:
+                    ydl_opts['extractor_args'] = {"ytdl_js": ["js"]}
+                    ydl_opts['javascript_executable'] = self.qjs_path
+
+                # === ПРИМЕНЕНИЕ ФОРМАТОВ ===
+                if task["format"] == 'mp3':
+                    ydl_opts.update({
+                        'format': 'bestaudio/best',
+                        'postprocessors': ydl_opts.get('postprocessors', []) + 
+                                        [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3'}],
+                    })
+                    final_container = 'mp3'
+                else:
+                    ydl_opts.update({
+                        'format': fmt_str,
+                        'merge_output_format': final_container # Явно указываем контейнер
+                    })
+
+                # === ЗАПУСК ===
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    ydl.download([task["url"]])
+
+                # === ФИНАЛ ===
+                self.log(f"{t_done}: {title}")
+                self._js_exec(f'updateItemProgress("{task_id}", 100, "{t_done}", "")')
+                
+                # Удаление из очереди
+                self.ctx.download_queue = [v for v in self.ctx.download_queue if v["id"] != task_id]
+                save_queue_to_file(self.ctx.download_queue)
+                time.sleep(1.5) 
+                self._js_exec(f'window.removeVideoFromQueue("{task_id}")')
+                
+                open_dl = self.ctx.config.get("Folders", "dl", fallback="True")
+                if open_dl == "True":
+                    self.open_dl_folder()
+
+                if self.ctx.config.get("Notifications", "downloads", fallback="True") == "True":
+                    history_payload = {
+                        "url": task["url"],
+                        "thumbnail": task["thumbnail"],
+                        "format": final_container, # Пишем реальный формат (напр. mkv вместо mp4)
+                        "resolution": task["resolution"],
+                        "title": title,
+                        "folder": self.ctx.download_folder
+                    }
+                    import json
+                    updated_list = add_notification(t_done, title, "downloader", payload=history_payload)
+                    self._js_exec(f'loadNotifications({json.dumps(updated_list)})')
+
+            except yt_dlp.utils.DownloadCancelled:
+                t_paused = self.get_trans('status', 'paused', 'Paused')
+                self.log(f"{t_paused}: {title}")
+                task["status"] = "paused"
+                self._js_exec(f'updateItemProgress("{task_id}", 0, "{t_paused}", "")')
+                if task_id in self.interrupt_flags:
+                    del self.interrupt_flags[task_id]
+
+            except Exception as e:
+                t_err = self.get_trans('status', 'error', 'Error')
+                self.log(f"{t_err} [{title}]: {str(e)}")
+                task["status"] = "error" 
+                self._js_exec(f'updateItemProgress("{task_id}", 0, "{t_err}", "Failed")')
+                
+            finally:
+                self.active_tasks -= 1
+                self.semaphore.release()

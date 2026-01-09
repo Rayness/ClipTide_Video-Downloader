@@ -71,6 +71,17 @@
             "chinese" : "中文",
             "open_folder" : "Otwórz folder językowy"
         },
+        "subtitles": {
+            "title": "Zarządzanie napisami",
+            "enable": "Pobierz napisy",
+            "auto": "Pobierz auto-napisy",
+            "embed": "Osadź w pliku",
+            "lang": "Język:"
+        },
+        "audio": {
+            "title": "Zarządzanie ustawieniami audio",
+            "lang": "Preferowany język audio:"
+        },
         "themes" : {
             "decoration" : "Zarządzanie wyglądem",
             "theme" : "Motyw: ",

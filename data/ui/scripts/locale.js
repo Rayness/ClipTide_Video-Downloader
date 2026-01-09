@@ -48,6 +48,14 @@ window.updateTranslations = function(translations) {
         }
         // Оформление
 
+        if (translations.settings.subtitles) {
+            safeSetText('subs-title', translations.settings.subtitles.title);
+            safeSetText('lbl_subs_enable', translations.settings.subtitles.enable);
+            safeSetText('lbl_subs_auto', translations.settings.subtitles.auto);
+            safeSetText('lbl_subs_embed', translations.settings.subtitles.embed);
+            safeSetText('lbl_subs_lang', translations.settings.subtitles.lang);
+        }
+
         if (translations.settings.themes) {
             safeSetText('decorations-title', translations.settings.themes.decoration);
             safeSetText('theme-title', translations.settings.themes.theme);

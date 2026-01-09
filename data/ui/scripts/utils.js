@@ -46,3 +46,38 @@ window.removePreloader = function() {
         }, 1000);
     }
 }
+
+// Загрузка настроек субтитров при старте
+window.loadSubtitlesSettings = function(enabled, auto, embed, lang) {
+    document.getElementById('switch_subs_enable').checked = (enabled === "True");
+    document.getElementById('switch_subs_auto').checked = (auto === "True");
+    document.getElementById('switch_subs_embed').checked = (embed === "True");
+    document.getElementById('subs_language').value = lang;
+    
+    // Обновляем кастомный селект, если он инициализирован
+    if(typeof refreshCustomSelectOptions === 'function') refreshCustomSelectOptions();
+}
+
+// Слушатели
+document.getElementById('switch_subs_enable').addEventListener('change', (e) => {
+    window.pywebview.api.switch_subs_setting("enabled", e.target.checked ? "True" : "False");
+});
+document.getElementById('switch_subs_auto').addEventListener('change', (e) => {
+    window.pywebview.api.switch_subs_setting("auto", e.target.checked ? "True" : "False");
+});
+document.getElementById('switch_subs_embed').addEventListener('change', (e) => {
+    window.pywebview.api.switch_subs_setting("embed", e.target.checked ? "True" : "False");
+});
+document.getElementById('subs_language').addEventListener('change', (e) => {
+    window.pywebview.api.switch_subs_setting("langs", e.target.value);
+});
+
+// Аудио
+window.loadAudioSettings = function(lang) {
+    document.getElementById('audio_language').value = lang;
+    if(typeof refreshCustomSelectOptions === 'function') refreshCustomSelectOptions();
+}
+
+document.getElementById('audio_language').addEventListener('change', (e) => {
+    window.pywebview.api.switch_audio_setting("lang", e.target.value);
+});

@@ -74,6 +74,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .primary-btn:hover {

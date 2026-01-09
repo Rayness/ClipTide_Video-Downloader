@@ -71,6 +71,17 @@
             "chinese" : "中文",
             "open_folder" : "Sprachordner öffnen"
         },
+        "subtitles": {
+            "title": "Untertitelverwaltung",
+            "enable": "Untertitel herunterladen",
+            "auto": "Auto-Untertitel herunterladen",
+            "embed": "In Datei einbetten",
+            "lang": "Sprache:"
+        },
+        "audio": {
+            "title": "Audiokonfiguration verwalten",
+            "lang":"Sprache:"
+        },
         "themes" : {
             "decoration" : "Design verwalten",
             "theme" : "Thema: ",

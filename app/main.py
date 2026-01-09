@@ -71,9 +71,18 @@ def startApp():
         # Вместо 20 вызовов evaluate_js, передаем данные пачками
         # Но пока сохраним совместимость с твоим JS:
         
+        subs_en = ctx.config.get("Subtitles", "enabled", fallback="False")
+        subs_auto = ctx.config.get("Subtitles", "auto", fallback="False")
+        subs_embed = ctx.config.get("Subtitles", "embed", fallback="True")
+        subs_lang = ctx.config.get("Subtitles", "langs", fallback="all")
+        
+        audio_lang = ctx.config.get("Audio", "lang", fallback="none")
+        
         cmds = [
             f'updateDownloadFolder({json.dumps(ctx.download_folder)})',
             f'updateConvertFolder({json.dumps(ctx.converter_folder)})',
+            f'loadSubtitlesSettings("{subs_en}", "{subs_auto}", "{subs_embed}", "{subs_lang}")',
+            f'loadAudioSettings("{audio_lang}")',
             f'updateTranslations({json.dumps(ctx.translations)})',
             f'window.loadQueue({json.dumps(ctx.download_queue)})',
             f'updateApp({update_status}, {json.dumps(ctx.translations)})',
@@ -97,7 +106,7 @@ def startApp():
         window.evaluate_js('window.removePreloader()')
 
     window.events.loaded += on_loaded
-    webview.start()
+    webview.start(debug=True)
 
 def main():
     unicodefix()

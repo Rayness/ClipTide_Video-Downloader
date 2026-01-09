@@ -71,6 +71,17 @@
             "chinese" : "中文",
             "open_folder" : "Open localization folder"
         },
+        "subtitles": {
+            "title": "Subtitle management",
+            "enable": "Download subtitles",
+            "auto": "Download auto-subtitles",
+            "embed": "Embed into file",
+            "lang": "Language:"
+        },
+        "audio": {
+            "title": "Audio settings management",
+            "lang":"Language:"
+        },
         "themes" : {
             "decoration" : "Design management",
             "theme" : "Theme:",

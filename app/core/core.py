@@ -139,4 +139,23 @@ class PublicWebViewApi:
         from app.modules.settings.settings import open_folder
         open_folder(path)
         
+    def add_playlist_videos(self, videos_list, fmt, res):
+        """
+        videos_list: список URL-адресов
+        """
+        # Запускаем в отдельном потоке, чтобы не вешать UI циклом
+        import threading
+        def worker():
+            for url in videos_list:
+                self._api.downloader.addVideoToQueue(url, fmt, res)
+                # Небольшая пауза, чтобы интерфейс успевал отрисовывать карточки плавно
+                import time
+                time.sleep(0.1) 
         
+        threading.Thread(target=worker, daemon=True).start()
+        
+    def switch_subs_setting(self, key, value):
+        self._api.settings.switch_subs_setting(key, value)
+        
+    def switch_audio_setting(self, key, value):
+        self._api.settings.switch_audio_setting(key, value)

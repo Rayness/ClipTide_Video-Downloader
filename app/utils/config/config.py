@@ -33,6 +33,17 @@ DEFAULT_CONFIG_FOLDERS = {
     "cv" : "True"
 }
 
+DEFAULT_CONFIG_SUBS = {
+    "enabled": "False",
+    "auto": "False",
+    "embed": "True",
+    "langs": "all"
+}
+
+DEFAULT_CONFIG_AUDIO = {
+    "lang": "none"
+}
+
 def load_config():
     config = configparser.ConfigParser()
     
@@ -72,6 +83,8 @@ def update_config(config):
 def create_default_config():
     config = configparser.ConfigParser()
     config["Settings"] = DEFAULT_CONFIG_SETTINGS
+    config["Subtitles"] = DEFAULT_CONFIG_SUBS
+    config["Audio"] = DEFAULT_CONFIG_AUDIO
     config["Proxy"] = DEFAULT_CONFIG_PROXY
     config["Themes"] = DEFAULT_CONFIG_THEMES
     config["Notifications"] = DEFAULT_CONFIG_NOTIFICATIONS

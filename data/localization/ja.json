@@ -71,6 +71,17 @@
             "chinese" : "中文",
             "open_folder" : "言語フォルダを開く"
         },
+        "audio": {
+            "title": "オーディオ設定の管理",
+            "lang":"言語:"
+        },
+        "subtitles": {
+            "title": "字幕管理",
+            "enable": "字幕をダウンロードする",
+            "auto": "自動字幕をダウンロードする",
+            "embed": "ファイルに埋め込む",
+            "lang": "言語:"
+        },
         "themes" : {
             "decoration" : "外観の管理",
             "theme" : "テーマ: ",

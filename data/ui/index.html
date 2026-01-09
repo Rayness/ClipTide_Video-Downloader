@@ -52,6 +52,37 @@
             </div>
         </div>
 
+        <div class="modal" id="modal-playlist">
+            <div class="modal-content info-card playlist-card">
+                <div class="modal-header">
+                    <div style="display: flex; flex-direction: column;">
+                        <h3 id="pl-title">Плейлист</h3>
+                        <span id="pl-count" style="font-size: 0.8rem; color: #888;">0 видео</span>
+                    </div>
+                    <span class="modal-close" id="close-playlist">&times;</span>
+                </div>
+                
+                <!-- Панель управления выбором -->
+                <div class="playlist-controls">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="pl-select-all" checked>
+                        <span class="checkmark"></span>
+                        <span style="margin-left: 8px;">Выбрать все</span>
+                    </label>
+                </div>
+
+                <!-- Список видео -->
+                <div class="playlist-list modal-body-text" id="playlist-items">
+                    <!-- Сюда JS нагенерит строки -->
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn" id="btn-pl-cancel">Отмена</button>
+                    <button class="primary-btn" id="btn-pl-add">Добавить в очередь</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Основное информационное модальное окно (Help) -->
         <div class="modal" id="modal-info">
             <div class="modal-content info-card">
@@ -418,6 +449,76 @@
                                     <p>The original language of the application is Russian. Translations into other languages ​​may contain errors!</p>
                                 </div>
                             </div>
+                            <!-- БЛОК СУБТИТРОВ -->
+                            <div class="sections" id="subtitles-settings">
+                                <div class="section">
+                                    <h3 id="subs-title">Субтитры</h3>
+                                    <div class="flex-conteiner">
+                                        <div class="switchs">
+                                            <!-- Включить загрузку -->
+                                            <div>
+                                                <label class="switch">
+                                                    <input type="checkbox" id="switch_subs_enable">
+                                                    <span class="slider"></span>
+                                                </label>
+                                                <label for="switch_subs_enable" id="lbl_subs_enable">Скачивать субтитры</label>
+                                            </div>
+                                            
+                                            <!-- Автоматические субтитры -->
+                                            <div>
+                                                <label class="switch">
+                                                    <input type="checkbox" id="switch_subs_auto">
+                                                    <span class="slider"></span>
+                                                </label>
+                                                <label for="switch_subs_auto" id="lbl_subs_auto">Авто-генерация (если нет ручных)</label>
+                                            </div>
+
+                                            <!-- Вшивать в файл -->
+                                            <div>
+                                                <label class="switch">
+                                                    <input type="checkbox" id="switch_subs_embed">
+                                                    <span class="slider"></span>
+                                                </label>
+                                                <label for="switch_subs_embed" id="lbl_subs_embed">Встраивать в видео (Embed)</label>
+                                            </div>
+                                        </div>
+
+                                        <!-- Выбор языка -->
+                                        <div style="margin-top: 10px;">
+                                            <label id="lbl_subs_lang">Язык субтитров:</label>
+                                            <select id="subs_language" class="select-control js-custom-select">
+                                                <option value="all">Все доступные</option>
+                                                <option value="en">Английский (en)</option>
+                                                <option value="ru">Русский (ru)</option>
+                                                <option value="uk">Украинский (uk)</option>
+                                                <option value="de">Немецкий (de)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sections" id="audio-settings">
+                                <div class="section">
+                                    <h3 id="audio-title">Аудиодорожки</h3>
+                                    <div class="flex-conteiner">
+                                        <div>
+                                            <label id="lbl_audio_lang">Предпочитаемый язык аудио:</label>
+                                            <select id="audio_language" class="select-control js-custom-select">
+                                                <option value="all_tracks">Все дорожки (Мульти-аудио)</option>
+                                                <option value="none">По умолчанию (Авто)</option>
+                                                <option value="en">Английский (en)</option>
+                                                <option value="ru">Русский (ru)</option>
+                                                <option value="uk">Украинский (uk)</option>
+                                                <option value="ja">Японский (ja)</option>
+                                                <option value="orig">Оригинал</option>
+                                            </select>
+                                            <p style="font-size: 0.75rem; color: #777; margin-top: 5px;">
+                                                Работает для видео с несколькими дорожками.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="sections" id="decorations-settings">
                                 <div class="section">
                                     <h3 id="decorations-title">Оформление</h3>
@@ -609,9 +710,9 @@
                                     <h3 id="about-title">О приложении</h3>
                                     <div class="folder-controls">
                                         <p id="about-version">Версия: </p>
-                                        <p id="current-version">11</p>
+                                        <p id="current-version">1.6.2</p>
                                     </div>
-                                    <label id="about-date">Дата выхода:</label><label> 09.12.2025</label>
+                                    <label id="about-date">Дата выхода:</label><label> 26.12.2025</label>
                                 </div>
                             </div>
                         </div>

@@ -877,3 +877,104 @@ window.addLog = function(message) {
     // Добавляем в начало (или конец, если flex-direction: column-reverse)
     logContainer.prepend(entry); // prepend добавляет сверху (визуально снизу из-за стилей)
 }
+
+
+let currentPlaylistItems = []; // Храним данные текущего открытого плейлиста
+
+window.openPlaylistModal = function(data) {
+    currentPlaylistItems = data.items;
+    
+    const modal = document.getElementById('modal-playlist');
+    const listContainer = document.getElementById('playlist-items');
+    const titleEl = document.getElementById('pl-title');
+    const countEl = document.getElementById('pl-count');
+    const checkAll = document.getElementById('pl-select-all');
+    
+    // Сброс
+    listContainer.innerHTML = "";
+    checkAll.checked = true;
+    titleEl.innerText = data.title;
+    countEl.innerText = `${data.items.length} видео`;
+
+    // Рендер списка
+    data.items.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'pl-item';
+        // Используем data-index для связи
+        div.innerHTML = `
+            <label class="checkbox-container" onclick="event.stopPropagation()">
+                <input type="checkbox" class="pl-checkbox" data-index="${index}" checked>
+                <span class="checkmark"></span>
+            </label>
+            <div class="pl-info" onclick="togglePlRow(${index})">
+                <div class="pl-title" title="${item.title}">${index + 1}. ${item.title}</div>
+                <div class="pl-meta">
+                    <span><i class="fa-regular fa-clock"></i> ${item.duration}</span>
+                </div>
+            </div>
+        `;
+        listContainer.appendChild(div);
+    });
+
+    modal.classList.add('show');
+}
+
+// Клик по строке переключает чекбокс
+window.togglePlRow = function(index) {
+    const cb = document.querySelector(`.pl-checkbox[data-index="${index}"]`);
+    if(cb) {
+        cb.checked = !cb.checked;
+        updateSelectAllState();
+    }
+}
+
+// "Выбрать все"
+document.getElementById('pl-select-all').addEventListener('change', (e) => {
+    const checkboxes = document.querySelectorAll('.pl-checkbox');
+    checkboxes.forEach(cb => cb.checked = e.target.checked);
+});
+
+// Слушаем изменения чекбоксов для обновления состояния "Выбрать все"
+function updateSelectAllState() {
+    const checkboxes = document.querySelectorAll('.pl-checkbox');
+    const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+    document.getElementById('pl-select-all').checked = allChecked;
+}
+
+// Кнопка "Отмена"
+document.getElementById('btn-pl-cancel').addEventListener('click', () => {
+    document.getElementById('modal-playlist').classList.remove('show');
+});
+
+// Кнопка "Добавить"
+document.getElementById('btn-pl-add').addEventListener('click', () => {
+    const selectedUrls = [];
+    
+    const checkboxes = document.querySelectorAll('.pl-checkbox');
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            const index = cb.getAttribute('data-index');
+            selectedUrls.push(currentPlaylistItems[index].url);
+        }
+    });
+
+    if (selectedUrls.length === 0) {
+        alert("Выберите хотя бы одно видео");
+        return;
+    }
+
+    // Закрываем окно
+    document.getElementById('modal-playlist').classList.remove('show');
+
+    // Берем текущие настройки формата/качества из главной панели
+    const fmt = document.getElementById('format').value;
+    const res = document.getElementById('resolution').value;
+
+    // Отправляем массив URL в Python
+    window.pywebview.api.add_playlist_videos(selectedUrls, fmt, res);
+});
+
+// Закрытие по крестику
+document.getElementById('close-playlist').addEventListener('click', () => {
+    document.getElementById('modal-playlist').classList.remove('show');
+});

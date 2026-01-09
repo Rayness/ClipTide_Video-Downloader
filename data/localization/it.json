@@ -71,6 +71,17 @@
             "chinese" : "中文",
             "open_folder" : "Apri cartella lingue"
         },
+        "subtitles": {
+            "title": "Gestione sottotitoli",
+            "enable": "Scarica sottotitoli",
+            "auto": "Scarica auto-sottotitoli",
+            "embed": "Incorpora nel file",
+            "lang": "Lingua:"
+        },
+        "audio": {
+            "title": "Gestione impostazioni audio",
+            "lang":"Lingua:"
+        },
         "themes" : {
             "decoration" : "Gestione aspetto",
             "theme" : "Tema: ",

@@ -71,6 +71,17 @@
             "chinese" : "中文",
             "open_folder" : "打开语言文件夹"
         },
+        "subtitles": {
+            "title": "字幕管理",
+            "enable": "下载字幕",
+            "auto": "下载自动生成字幕",
+            "embed": "嵌入到文件中",
+            "lang": "语言："
+        },
+        "audio" : {
+            "title" : "音频设置管理",
+            "lang":"语言："
+        },
         "themes" : {
             "decoration" : "外观管理",
             "theme" : "主题：",

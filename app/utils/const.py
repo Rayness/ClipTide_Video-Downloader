@@ -18,7 +18,7 @@ QUEUE_FILE = os.path.join(appdata_local, "queue.json")
 
 COOKIES_FILE = os.path.join(appdata_local, "cookies.txt")
 
-UPDATER = "updater.exe"
+UPDATER = "update.exe"
 
 VERSION_FILE = "./data/version.txt"
 
