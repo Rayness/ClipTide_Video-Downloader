@@ -13,6 +13,7 @@ from app.utils.utils import check_for_update, get_local_version, unicodefix, ffm
 from app.utils.logs.logs import logs
 from app.utils.const import html_file_path
 from app.utils.queue.queue import load_queue_from_file
+from app.modules.system.module_manager import ModuleManager
 
 def startApp():
     # 1. Создаем контекст
@@ -36,6 +37,8 @@ def startApp():
     
     ctx.download_queue = load_queue_from_file()
     ctx.notifications = load_notifications()
+    
+    ctx.module_manager = ModuleManager(ctx)
     
     version = str(get_local_version()).lower()
     update_status = str(check_for_update()).lower()

@@ -180,215 +180,215 @@ class Converter:
         self.log("Остановка конвертации...")
 
     def _conversion_loop(self):
-        self.log("Старт пакетной конвертации")
-        
-        out_folder = self.ctx.converter_folder
-        if not os.path.exists(out_folder):
-            os.makedirs(out_folder)
-
-        for item in self.queue:
-            if self.stop_requested: break
-            if item["status"] == "done": continue
-
-            # === Настройки ===
-            s = item.get("settings", {})
-            file_type = s.get("type", "video")
-            out_fmt = s.get('format', 'mp4')
+            self.log("Старт пакетной конвертации")
             
-            # Настройки для видео/аудио
-            codec = s.get('codec', 'libx264')
-            crf = s.get('quality', '23')
-            res = s.get('resolution', 'original')
+            out_folder = self.ctx.converter_folder
+            if not os.path.exists(out_folder):
+                os.makedirs(out_folder)
 
-            # Настройки для фото
-            img_quality = int(s.get('quality', 90))
-            img_resize = s.get('resize', 'original')
+            for item in self.queue:
+                if self.stop_requested: break
+                if item["status"] == "done": continue
 
-            item["status"] = "processing"
-            task_id = item["id"]
-            self._js_exec(f'updateConvStatus("{task_id}", "Converting...", 0)')
-
-            try:
-                base_name = os.path.splitext(item["filename"])[0]
-                input_ext = item["path"].split('.')[-1].lower()
+                # === Настройки ===
+                s = item.get("settings", {})
+                file_type = s.get("type", "video")
+                out_fmt = s.get('format', 'mp4')
                 
-                # Проверяем, является ли это нативным изображением или PDF, которое мы умеем сами
-                is_native_image = file_type == 'image' or input_ext in ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'ico']
+                # Настройки для видео/аудио
+                codec = s.get('codec', 'libx264')
+                crf = s.get('quality', '23')
+                res = s.get('resolution', 'original')
 
-                # Ищем внешний модуль (если это не видео и не картинка, которую мы умеем сами)
-                external_module = None
-                if not is_native_image and file_type != 'video':
-                    # Проверяем, есть ли менеджер (защита)
-                    if hasattr(self.ctx, 'module_manager') and self.ctx.module_manager:
-                        external_module = self.ctx.module_manager.get_converter_module(input_ext)
+                # Настройки для фото
+                img_quality = int(s.get('quality', 90))
+                img_resize = s.get('resize', 'original')
 
-                # ==========================================
-                # СЦЕНАРИЙ 1: ВНЕШНИЙ МОДУЛЬ (DOCX, XLSX и т.д.)
-                # ==========================================
-                if external_module:
-                    self.log(f"Модуль {external_module['name']}: {item['filename']}")
-                    self._js_exec(f'updateConvStatus("{task_id}", "Module...", 50)')
+                item["status"] = "processing"
+                task_id = item["id"]
+                self._js_exec(f'updateConvStatus("{task_id}", "Converting...", 0)')
+
+                try:
+                    base_name = os.path.splitext(item["filename"])[0]
+                    input_ext = item["path"].split('.')[-1].lower()
                     
-                    success = self.ctx.module_manager.run_converter(
-                        external_module["id"], 
-                        item["path"], 
-                        out_folder
-                    )
-                    
-                    if success:
-                        item["status"] = "done"
-                        self._js_exec(f'updateConvStatus("{task_id}", "Done", 100)')
-                    else:
-                        raise Exception("Ошибка выполнения модуля")
+                    # Проверяем, является ли это нативным изображением или PDF, которое мы умеем сами
+                    is_native_image = file_type == 'image' or input_ext in ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'bmp', 'ico']
 
-                # ==========================================
-                # СЦЕНАРИЙ 2: ИЗОБРАЖЕНИЯ И PDF (Встроенный Pillow)
-                # ==========================================
-                elif is_native_image:
-                    import PIL
-                    from PIL import Image
-                    
-                    # Коррекция расширения для Pillow
-                    if out_fmt == 'jpg': pil_fmt = 'JPEG'
-                    elif out_fmt == 'webp': pil_fmt = 'WEBP'
-                    elif out_fmt == 'png': pil_fmt = 'PNG'
-                    elif out_fmt == 'ico': pil_fmt = 'ICO'
-                    elif out_fmt == 'pdf': pil_fmt = 'PDF'
-                    else: pil_fmt = out_fmt.upper()
+                    # Ищем внешний модуль (если это не видео и не картинка, которую мы умеем сами)
+                    external_module = None
+                    if not is_native_image and file_type != 'video':
+                        # Проверяем, есть ли менеджер (защита)
+                        if hasattr(self.ctx, 'module_manager') and self.ctx.module_manager:
+                            external_module = self.ctx.module_manager.get_converter_module(input_ext)
 
-                    # Внутренняя функция сохранения
-                    def process_and_save_image(pil_img, save_path):
-                        # Конвертация в RGB (убираем альфа-канал для JPG/PDF)
-                        if out_fmt in ['jpg', 'pdf'] and pil_img.mode in ('RGBA', 'LA', 'P'):
-                            if pil_img.mode == 'P': pil_img = pil_img.convert('RGBA')
-                            background = Image.new('RGB', pil_img.size, (255, 255, 255))
-                            background.paste(pil_img, mask=pil_img.split()[-1] if 'A' in pil_img.mode else None)
-                            pil_img = background.convert('RGB')
+                    # ==========================================
+                    # СЦЕНАРИЙ 1: ВНЕШНИЙ МОДУЛЬ (DOCX, XLSX и т.д.)
+                    # ==========================================
+                    if external_module:
+                        self.log(f"Модуль {external_module['name']}: {item['filename']}")
+                        self._js_exec(f'updateConvStatus("{task_id}", "Module...", 50)')
                         
-                        # Ресайз
-                        if img_resize != 'original':
-                            w, h = pil_img.size
-                            if img_resize.endswith('%'):
-                                factor = int(img_resize.strip('%')) / 100
-                                new_size = (int(w * factor), int(h * factor))
-                            elif img_resize.isdigit():
-                                max_dim = int(img_resize)
-                                ratio = min(max_dim / w, max_dim / h)
-                                new_size = (int(w * ratio), int(h * ratio))
-                            else:
-                                new_size = (w, h)
-                            pil_img = pil_img.resize(new_size, Image.Resampling.LANCZOS)
-
-                        # Аргументы
-                        save_args = {}
-                        if out_fmt in ['jpg', 'webp']:
-                            save_args['quality'] = img_quality
-                        if out_fmt == 'ico':
-                            if pil_img.size[0] > 256 or pil_img.size[1] > 256:
-                                pil_img = pil_img.resize((256, 256), Image.Resampling.LANCZOS)
-
-                        pil_img.save(save_path, format=pil_fmt, **save_args)
-
-                    # --- ЕСЛИ PDF: Разбиваем на страницы ---
-                    if input_ext == 'pdf':
-                        self.log(f"PDF Splitting: {item['filename']}")
-                        # Создаем папку с именем файла
-                        pdf_folder = os.path.join(out_folder, base_name)
-                        if not os.path.exists(pdf_folder):
-                            os.makedirs(pdf_folder)
+                        success = self.ctx.module_manager.run_converter(
+                            external_module["id"], 
+                            item["path"], 
+                            out_folder
+                        )
                         
-                        import fitz # PyMuPDF
-                        doc = fitz.open(item["path"])
-                        total_pages = len(doc)
-                        
-                        for i, page in enumerate(doc):
-                            if self.stop_requested: break
-                            
-                            pix = page.get_pixmap(dpi=300, alpha=False)
-                            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-                            
-                            page_name = f"Page_{i+1}.{out_fmt}"
-                            process_and_save_image(img, os.path.join(pdf_folder, page_name))
-                            
-                            percent = int(((i + 1) / total_pages) * 100)
-                            self._js_exec(f'updateConvStatus("{task_id}", "{percent}%", {percent})')
-                        
-                        doc.close()
-
-                    # --- ЕСЛИ ПРОСТО КАРТИНКА ---
-                    else:
-                        out_path = os.path.join(out_folder, f"conv_{base_name}.{out_fmt}")
-                        self.log(f"IMG Convert: {item['filename']}")
-                        with Image.open(item["path"]) as img:
-                            process_and_save_image(img, out_path)
-                    
-                    item["status"] = "done"
-                    self._js_exec(f'updateConvStatus("{task_id}", "Done", 100)')
-
-                # ==========================================
-                # СЦЕНАРИЙ 3: ВИДЕО / АУДИО (FFmpeg)
-                # ==========================================
-                else:
-                    output_path = os.path.join(out_folder, f"conv_{base_name}.{out_fmt}")
-                    
-                    command = ['ffmpeg', '-y', '-i', item["path"]]
-                    
-                    if out_fmt in ['mp3', 'aac', 'wav']:
-                        command.extend(['-vn'])
-                        if out_fmt == 'mp3': command.extend(['-c:a', 'libmp3lame', '-q:a', '2'])
-                        elif out_fmt == 'aac': command.extend(['-c:a', 'aac', '-b:a', '192k'])
-                    else:
-                        if codec == 'copy':
-                            command.extend(['-c', 'copy'])
+                        if success:
+                            item["status"] = "done"
+                            self._js_exec(f'updateConvStatus("{task_id}", "Done", 100)')
                         else:
-                            command.extend(['-c:v', codec, '-preset', 'medium', '-crf', crf])
-                            command.extend(['-c:a', 'aac', '-b:a', '128k'])
-                            if res != 'original':
-                                command.extend(['-vf', f'scale=-2:{res}'])
+                            raise Exception("Ошибка выполнения модуля")
 
-                    command.append(output_path)
-                    self.log(f"FFmpeg: {item['filename']}")
-                    
-                    self.current_process = subprocess.Popen(
-                        command,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT,
-                        universal_newlines=True,
-                        encoding='utf-8',
-                        errors='ignore',
-                        creationflags=subprocess.CREATE_NO_WINDOW
-                    )
+                    # ==========================================
+                    # СЦЕНАРИЙ 2: ИЗОБРАЖЕНИЯ И PDF (Встроенный Pillow)
+                    # ==========================================
+                    elif is_native_image:
+                        import PIL
+                        from PIL import Image
+                        
+                        # Коррекция расширения для Pillow
+                        if out_fmt == 'jpg': pil_fmt = 'JPEG'
+                        elif out_fmt == 'webp': pil_fmt = 'WEBP'
+                        elif out_fmt == 'png': pil_fmt = 'PNG'
+                        elif out_fmt == 'ico': pil_fmt = 'ICO'
+                        elif out_fmt == 'pdf': pil_fmt = 'PDF'
+                        else: pil_fmt = out_fmt.upper()
 
-                    duration = item.get("duration", 0)
-                    for line in self.current_process.stdout:
-                        if "time=" in line:
-                            try:
-                                time_str = line.split("time=")[1].split()[0]
-                                h, m, s = map(float, time_str.split(":"))
-                                curr_seconds = h*3600 + m*60 + s
-                                if duration > 0:
-                                    percent = min(round((curr_seconds / duration) * 100), 99)
-                                    self._js_exec(f'updateConvStatus("{task_id}", "{percent}%", {percent})')
-                            except: pass
-                    
-                    self.current_process.wait()
+                        # Внутренняя функция сохранения
+                        def process_and_save_image(pil_img, save_path):
+                            # Конвертация в RGB (убираем альфа-канал для JPG/PDF)
+                            if out_fmt in ['jpg', 'pdf'] and pil_img.mode in ('RGBA', 'LA', 'P'):
+                                if pil_img.mode == 'P': pil_img = pil_img.convert('RGBA')
+                                background = Image.new('RGB', pil_img.size, (255, 255, 255))
+                                background.paste(pil_img, mask=pil_img.split()[-1] if 'A' in pil_img.mode else None)
+                                pil_img = background.convert('RGB')
+                            
+                            # Ресайз
+                            if img_resize != 'original':
+                                w, h = pil_img.size
+                                if img_resize.endswith('%'):
+                                    factor = int(img_resize.strip('%')) / 100
+                                    new_size = (int(w * factor), int(h * factor))
+                                elif img_resize.isdigit():
+                                    max_dim = int(img_resize)
+                                    ratio = min(max_dim / w, max_dim / h)
+                                    new_size = (int(w * ratio), int(h * ratio))
+                                else:
+                                    new_size = (w, h)
+                                pil_img = pil_img.resize(new_size, Image.Resampling.LANCZOS)
 
-                    if self.current_process.returncode == 0:
+                            # Аргументы
+                            save_args = {}
+                            if out_fmt in ['jpg', 'webp']:
+                                save_args['quality'] = img_quality
+                            if out_fmt == 'ico':
+                                if pil_img.size[0] > 256 or pil_img.size[1] > 256:
+                                    pil_img = pil_img.resize((256, 256), Image.Resampling.LANCZOS)
+
+                            pil_img.save(save_path, format=pil_fmt, **save_args)
+
+                        # --- ЕСЛИ PDF: Разбиваем на страницы ---
+                        if input_ext == 'pdf':
+                            self.log(f"PDF Splitting: {item['filename']}")
+                            # Создаем папку с именем файла
+                            pdf_folder = os.path.join(out_folder, base_name)
+                            if not os.path.exists(pdf_folder):
+                                os.makedirs(pdf_folder)
+                            
+                            import fitz # PyMuPDF
+                            doc = fitz.open(item["path"])
+                            total_pages = len(doc)
+                            
+                            for i, page in enumerate(doc):
+                                if self.stop_requested: break
+                                
+                                pix = page.get_pixmap(dpi=300, alpha=False)
+                                img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+                                
+                                page_name = f"Page_{i+1}.{out_fmt}"
+                                process_and_save_image(img, os.path.join(pdf_folder, page_name))
+                                
+                                percent = int(((i + 1) / total_pages) * 100)
+                                self._js_exec(f'updateConvStatus("{task_id}", "{percent}%", {percent})')
+                            
+                            doc.close()
+
+                        # --- ЕСЛИ ПРОСТО КАРТИНКА ---
+                        else:
+                            out_path = os.path.join(out_folder, f"conv_{base_name}.{out_fmt}")
+                            self.log(f"IMG Convert: {item['filename']}")
+                            with Image.open(item["path"]) as img:
+                                process_and_save_image(img, out_path)
+                        
                         item["status"] = "done"
                         self._js_exec(f'updateConvStatus("{task_id}", "Done", 100)')
+
+                    # ==========================================
+                    # СЦЕНАРИЙ 3: ВИДЕО / АУДИО (FFmpeg)
+                    # ==========================================
                     else:
-                        item["status"] = "error"
-                        self._js_exec(f'updateConvStatus("{task_id}", "Error", 0)')
+                        output_path = os.path.join(out_folder, f"conv_{base_name}.{out_fmt}")
+                        
+                        command = ['ffmpeg', '-y', '-i', item["path"]]
+                        
+                        if out_fmt in ['mp3', 'aac', 'wav']:
+                            command.extend(['-vn'])
+                            if out_fmt == 'mp3': command.extend(['-c:a', 'libmp3lame', '-q:a', '2'])
+                            elif out_fmt == 'aac': command.extend(['-c:a', 'aac', '-b:a', '192k'])
+                        else:
+                            if codec == 'copy':
+                                command.extend(['-c', 'copy'])
+                            else:
+                                command.extend(['-c:v', codec, '-preset', 'medium', '-crf', crf])
+                                command.extend(['-c:a', 'aac', '-b:a', '128k'])
+                                if res != 'original':
+                                    command.extend(['-vf', f'scale=-2:{res}'])
 
-            except Exception as e:
-                self.log(f"Error: {e}")
-                item["status"] = "error"
-                self._js_exec(f'updateConvStatus("{task_id}", "Error", 0)')
+                        command.append(output_path)
+                        self.log(f"FFmpeg: {item['filename']}")
+                        
+                        self.current_process = subprocess.Popen(
+                            command,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
+                            universal_newlines=True,
+                            encoding='utf-8',
+                            errors='ignore',
+                            creationflags=subprocess.CREATE_NO_WINDOW
+                        )
 
-        self.is_running = False
-        self.current_process = None
-        self._js_exec('conversionFinished()')
-        
-        open_cv = self.ctx.config.get("Folders", "cv", fallback="True")
-        if open_cv == "True":
-            open_folder(out_folder)
+                        duration = item.get("duration", 0)
+                        for line in self.current_process.stdout:
+                            if "time=" in line:
+                                try:
+                                    time_str = line.split("time=")[1].split()[0]
+                                    h, m, s = map(float, time_str.split(":"))
+                                    curr_seconds = h*3600 + m*60 + s
+                                    if duration > 0:
+                                        percent = min(round((curr_seconds / duration) * 100), 99)
+                                        self._js_exec(f'updateConvStatus("{task_id}", "{percent}%", {percent})')
+                                except: pass
+                        
+                        self.current_process.wait()
+
+                        if self.current_process.returncode == 0:
+                            item["status"] = "done"
+                            self._js_exec(f'updateConvStatus("{task_id}", "Done", 100)')
+                        else:
+                            item["status"] = "error"
+                            self._js_exec(f'updateConvStatus("{task_id}", "Error", 0)')
+
+                except Exception as e:
+                    self.log(f"Error: {e}")
+                    item["status"] = "error"
+                    self._js_exec(f'updateConvStatus("{task_id}", "Error", 0)')
+
+            self.is_running = False
+            self.current_process = None
+            self._js_exec('conversionFinished()')
+            
+            open_cv = self.ctx.config.get("Folders", "cv", fallback="True")
+            if open_cv == "True":
+                open_folder(out_folder)

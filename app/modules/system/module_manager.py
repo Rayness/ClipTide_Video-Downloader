@@ -11,7 +11,7 @@ from app.utils.const import appdata_local
 
 MODULES_DIR = os.path.join(appdata_local, "modules")
 # Ссылка на твой файл каталога (замени на реальную Raw ссылку)
-CATALOG_URL = "https://raw.githubusercontent.com/Rayness/YT-Downloader/main/data/modules_catalog.json"
+CATALOG_URL = "https://raw.githubusercontent.com/Rayness/ClipTide_Video-Downloader/refs/heads/main/modules/modules_catalog.json"
 
 class ModuleManager:
     def __init__(self, context):
@@ -66,7 +66,6 @@ class ModuleManager:
 
     def install_module(self, module_id):
         """Скачивание и установка модуля"""
-        # Ищем URL в загруженном каталоге
         module_info = next((m for m in self.available_modules if m["id"] == module_id), None)
         if not module_info:
             print("Module info not found")
@@ -76,11 +75,17 @@ class ModuleManager:
             url = module_info["download_url"]
             self._js_exec(f'updateStoreProgress("{module_id}", 0, "starting")')
             
+            zip_path = os.path.join(MODULES_DIR, "temp.zip")
+            
             try:
-                zip_path = os.path.join(MODULES_DIR, "temp.zip")
+                # 1. Скачивание с проверкой статуса
+                print(f"Downloading from: {url}")
+                response = requests.get(url, stream=True, allow_redirects=True)
                 
-                # Скачивание с прогрессом
-                response = requests.get(url, stream=True)
+                # Если сервер вернул ошибку (404, 403, 500)
+                if response.status_code != 200:
+                    raise Exception(f"HTTP Error {response.status_code}")
+
                 total_size = int(response.headers.get('content-length', 0))
                 downloaded = 0
                 
@@ -93,10 +98,17 @@ class ModuleManager:
                                 percent = int((downloaded / total_size) * 100)
                                 self._js_exec(f'updateStoreProgress("{module_id}", {percent}, "downloading")')
 
-                # Распаковка
+                # 2. Проверка валидности ZIP
+                if not zipfile.is_zipfile(zip_path):
+                    # Для отладки: прочитаем первые 100 байт, чтобы понять, что скачалось
+                    with open(zip_path, "r", errors="ignore") as f:
+                        head = f.read(100)
+                    print(f"File content start: {head}")
+                    raise Exception("Скачанный файл не является архивом (возможно, это HTML страница)")
+
+                # 3. Распаковка
                 self._js_exec(f'updateStoreProgress("{module_id}", 100, "extracting")')
                 
-                # Создаем папку для модуля
                 mod_path = os.path.join(MODULES_DIR, module_id)
                 if os.path.exists(mod_path): shutil.rmtree(mod_path)
                 os.makedirs(mod_path)
@@ -104,16 +116,18 @@ class ModuleManager:
                 with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                     zip_ref.extractall(mod_path)
                 
+                # Очистка
                 os.remove(zip_path)
                 
                 self.scan_installed_modules()
-                
-                # Обновляем UI (говорим что установлено)
                 self._js_exec(f'updateStoreProgress("{module_id}", 100, "done")')
                 
             except Exception as e:
                 print(f"Install error: {e}")
                 self._js_exec(f'updateStoreProgress("{module_id}", 0, "error")')
+                # Удаляем битый файл
+                if os.path.exists(zip_path):
+                    os.remove(zip_path)
 
         threading.Thread(target=worker, daemon=True).start()
 

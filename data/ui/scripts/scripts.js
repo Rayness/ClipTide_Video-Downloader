@@ -993,3 +993,111 @@ document.querySelectorAll('.store-tab').forEach(tab => {
         document.getElementById(targetId).classList.add('active');
     });
 });
+
+
+// --- MODULES STORE LOGIC ---
+
+// Кнопка обновления
+document.getElementById('btn-refresh-store').addEventListener('click', () => {
+    document.getElementById('modules-list').innerHTML = 
+        '<div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка...</div>';
+    window.pywebview.api.store_fetch_data();
+});
+
+// Клик по табу "Store" (id=3) должен триггерить загрузку
+document.getElementById('coming-soon').addEventListener('click', () => { // id кнопки таба
+    // Если список пуст, загружаем
+    const list = document.getElementById('modules-list');
+    if (!list.querySelector('.module-card')) {
+        window.pywebview.api.store_fetch_data();
+    }
+});
+
+// Функция обновления списка (вызывается из Python)
+window.updateStoreList = function(available, installedIds) {
+    const container = document.getElementById('modules-list');
+    container.innerHTML = "";
+
+    if (!available || available.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #666;">Каталог пуст или недоступен</div>';
+        return;
+    }
+
+    available.forEach(mod => {
+        const isInstalled = installedIds.includes(mod.id);
+        const btnClass = isInstalled ? 'btn-store uninstall' : 'btn-store install';
+        const btnText = isInstalled ? '<i class="fa-solid fa-trash"></i> Удалить' : '<i class="fa-solid fa-download"></i> Скачать';
+        const btnAction = isInstalled ? `uninstallModule('${mod.id}')` : `installModule('${mod.id}')`;
+        
+        // Иконка (если есть URL, иначе дефолт)
+        // Для простоты пока используем FontAwesome иконку из JSON, если она там есть текстом,
+        // или картинку
+        let iconHtml = '<i class="fa-solid fa-cube"></i>';
+        if (mod.icon && mod.icon.endsWith('.svg')) {
+             // Можно добавить поддержку url картинок
+            iconHtml = `<img src="src/${mod.icon}" style="width:24px;">`; 
+        }
+
+        const card = document.createElement('div');
+        card.className = 'module-card';
+        card.id = `mod-card-${mod.id}`;
+        
+        card.innerHTML = `
+            <div class="mod-header">
+                <div class="mod-icon">${iconHtml}</div>
+                <div class="mod-info">
+                    <h4>${mod.name}</h4>
+                    <div class="mod-version">v${mod.version}</div>
+                </div>
+            </div>
+            <div class="mod-desc">${mod.description}</div>
+            <div class="mod-footer">
+                <div class="mod-status" id="mod-status-${mod.id}"></div>
+                <button class="${btnClass}" id="btn-mod-${mod.id}" onclick="${btnAction}">
+                    ${btnText}
+                </button>
+            </div>
+            <div class="mod-progress" id="prog-mod-${mod.id}"></div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Действия
+window.installModule = function(id) {
+    const btn = document.getElementById(`btn-mod-${id}`);
+    btn.disabled = true;
+    btn.innerText = "Ожидание...";
+    window.pywebview.api.store_install_module(id);
+}
+
+window.uninstallModule = function(id) {
+    if(!confirm("Удалить этот модуль?")) return;
+    window.pywebview.api.store_uninstall_module(id);
+}
+
+// Обновление прогресса установки (вызывается из Python)
+window.updateStoreProgress = function(id, percent, status) {
+    const bar = document.getElementById(`prog-mod-${id}`);
+    const btn = document.getElementById(`btn-mod-${id}`);
+    const statusText = document.getElementById(`mod-status-${id}`);
+
+    if (bar) bar.style.width = `${percent}%`;
+    
+    if (status === 'downloading') {
+        btn.innerText = `${percent}%`;
+    } else if (status === 'extracting') {
+        btn.innerText = "Распаковка...";
+    } else if (status === 'done') {
+        // Меняем кнопку на "Удалить"
+        btn.className = 'btn-store uninstall';
+        btn.innerHTML = '<i class="fa-solid fa-trash"></i> Удалить';
+        btn.disabled = false;
+        btn.onclick = function() { uninstallModule(id); };
+        if(bar) setTimeout(() => bar.style.width = '0%', 1000);
+    } else if (status === 'error') {
+        btn.innerText = "Ошибка";
+        btn.disabled = false;
+        if(bar) bar.style.background = 'var(--danger-color)';
+    }
+}

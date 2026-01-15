@@ -21,6 +21,8 @@ class AppContext:
         # Настройки прокси
         self.proxy_url = ""
         self.proxy_enabled = "False"
+        
+        self.module_manager = None 
 
     def set_window(self, window):
         print(f"DEBUG: Window установлено в контекст: {window}") # Добавили отладку

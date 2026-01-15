@@ -159,3 +159,16 @@ class PublicWebViewApi:
         
     def switch_audio_setting(self, key, value):
         self._api.settings.switch_audio_setting(key, value)
+        
+    def store_fetch_data(self):
+        """Запросить обновление списка модулей"""
+        if self._api.ctx.module_manager:
+            self._api.ctx.module_manager.fetch_store_data()
+
+    def store_install_module(self, module_id):
+        if self._api.ctx.module_manager:
+            self._api.ctx.module_manager.install_module(module_id)
+
+    def store_uninstall_module(self, module_id):
+        if self._api.ctx.module_manager:
+            self._api.ctx.module_manager.uninstall_module(module_id)

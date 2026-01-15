@@ -277,40 +277,18 @@
         
                     <div class="content" id="3" data-status="Store">
                         <div class="store-container">
-                            <!-- Табы внутри магазина -->
-                            <div class="store-tabs">
-                                <button class="store-tab active" data-target="store-modules">Модули</button>
-                                <button class="store-tab" data-target="store-themes">Темы</button>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="margin: 0;">Магазин модулей</h3>
+                                <button class="icon-btn small" id="btn-refresh-store" title="Обновить список">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                </button>
                             </div>
-
-                            <!-- Секция Модулей -->
-                            <div class="store-section active" id="store-modules">
-                                <div class="store-grid" id="modules-list">
-                                    <!-- Карточка модуля (Пример) -->
-                                    <div class="store-card">
-                                        <div class="card-icon"><i class="fa-solid fa-file-word"></i></div>
-                                        <div class="card-content">
-                                            <h4>Office Converter</h4>
-                                            <p>Конвертация DOCX, XLSX в PDF без MS Office.</p>
-                                            <div class="card-meta">Ver: 1.2 • 5 MB</div>
-                                        </div>
-                                        <button class="btn-store primary">Скачать</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Секция Тем -->
-                            <div class="store-section" id="store-themes">
-                                <div class="store-grid" id="themes-list">
-                                    <!-- Карточка темы (Пример) -->
-                                    <div class="store-card theme-card">
-                                        <div class="theme-preview" style="background: linear-gradient(45deg, #ff0099, #493240);"></div>
-                                        <div class="card-content">
-                                            <h4>Cyberpunk 2077</h4>
-                                            <p>Dark neon style.</p>
-                                        </div>
-                                        <button class="btn-store">Установить</button>
-                                    </div>
+                            
+                            <!-- Сетка модулей -->
+                            <div class="store-grid" id="modules-list">
+                                <!-- Сюда JS вставит карточки -->
+                                <div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
+                                    <i class="fa-solid fa-spinner fa-spin"></i> Загрузка каталога...
                                 </div>
                             </div>
                         </div>
