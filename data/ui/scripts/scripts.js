@@ -978,3 +978,18 @@ document.getElementById('btn-pl-add').addEventListener('click', () => {
 document.getElementById('close-playlist').addEventListener('click', () => {
     document.getElementById('modal-playlist').classList.remove('show');
 });
+
+// --- STORE TABS ---
+document.querySelectorAll('.store-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        // Убираем актив у всех табов
+        document.querySelectorAll('.store-tab').forEach(t => t.classList.remove('active'));
+        // Убираем актив у всех секций
+        document.querySelectorAll('.store-section').forEach(s => s.classList.remove('active'));
+        
+        // Активируем нажатый
+        tab.classList.add('active');
+        const targetId = tab.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+    });
+});

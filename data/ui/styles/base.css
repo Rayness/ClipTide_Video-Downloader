@@ -11,7 +11,7 @@
 @import url(modules/settings.css);
 @import url(modules/downloader.css);
 @import url(modules/notifications.css);
-
+@import url(modules/store.css);
 
 /* ===== Base Styles ===== */
 html, body {
