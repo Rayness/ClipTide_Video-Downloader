@@ -1,0 +1,12 @@
+[
+    {
+        "id": "office_converter",
+        "name": "Office Converter",
+        "description": "Конвертация DOCX, XLSX, PPTX в PDF. Требует ~300 MB.",
+        "version": "1.0",
+        "icon": "office_icon.svg",
+        "download_url": "https://github.com/Rayness/YT-Downloader/releases/download/modules/office_pack.zip",
+        "type": "converter",
+        "supported_extensions": ["docx", "doc", "xlsx", "pptx"]
+    }
+]
