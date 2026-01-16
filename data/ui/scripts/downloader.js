@@ -1,4 +1,5 @@
-// data/ui/scripts/downloader.js
+ /* Copyright (C) 2025 Rayness */
+ /* This program is free software under GPLv3. See LICENSE for details. */
 
 // --- Downloader Logic ---
 
@@ -97,6 +98,7 @@ window.addVideoToList = function(videoData) {
     const queueList = document.getElementById("queue");
     if(document.getElementById(`item-${videoData.id}`)) return;
 
+    
     const listItem = document.createElement("li");
     listItem.id = `item-${videoData.id}`;
     listItem.className = "queue-item"; 
@@ -110,7 +112,8 @@ window.addVideoToList = function(videoData) {
 
     const fmtSelect = generateFormatSelect(videoData.id, currentFmt);
     const resSelect = generateResolutionSelect(videoData.id, currentRes, isAudio);
-    const txtWait = window.i18n.status?.status_text?.replace('Status: ', '') || 'Waiting...';
+    const t = window.i18n.downloader || {};
+    const txtWait = t.status_waiting || 'Waiting...';
 
     listItem.innerHTML = `
         <div class="queue-item-top">
@@ -135,11 +138,11 @@ window.addVideoToList = function(videoData) {
             </div>
         </div>
         <div class="queue-details">
-            <div class="detail-group"><span class="detail-label">Автор</span><span class="detail-value">${meta.uploader}</span></div>
-            <div class="detail-group"><span class="detail-label">FPS</span><span class="detail-value">${meta.fps}</span></div>
-            <div class="detail-group"><span class="detail-label">V-Codec</span><span class="detail-value">${meta.vcodec}</span></div>
-            <div class="detail-group"><span class="detail-label">A-Codec</span><span class="detail-value">${meta.acodec}</span></div>
-            <div class="detail-group"><span class="detail-label">Bitrate</span><span class="detail-value">${meta.bitrate}</span></div>
+            <div class="detail-group"><span class="detail-label">${t.author || 'Author'}</span><span class="detail-value">${meta.uploader}</span></div>
+            <div class="detail-group"><span class="detail-label">${t.fps || 'FPS'}</span><span class="detail-value">${meta.fps}</span></div>
+            <div class="detail-group"><span class="detail-label">${t.vcodec || 'Video'}</span><span class="detail-value">${meta.vcodec}</span></div>
+            <div class="detail-group"><span class="detail-label">${t.acodec || 'Audio'}</span><span class="detail-value">${meta.acodec}</span></div>
+            <div class="detail-group"><span class="detail-label">${t.bitrate || 'Bitrate'}</span><span class="detail-value">${meta.bitrate}</span></div>
         </div>
         <div class="queue-item-bottom">
             <div class="mini-progress-track"><div class="mini-progress-fill" id="prog-bar-${videoData.id}" style="width: 0%"></div></div>

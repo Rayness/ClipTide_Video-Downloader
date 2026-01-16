@@ -1,4 +1,6 @@
-# app/core/core.py
+# Copyright (C) 2025 Rayness
+# This program is free software under GPLv3. See LICENSE for details.
+
 from app.modules.downloader.downloader import Downloader
 from app.modules.converter.converter import Converter
 from app.modules.settings.settings import SettingsManager, open_folder
@@ -56,6 +58,9 @@ class PublicWebViewApi:
 
     def switch_download_folder(self):
         self._api.settings.switch_download_folder()
+    
+    def switch_update_setting(self, key, value):
+        self._api.settings.swith_update_setting(key, value)
     
     def choose_converter_folder(self):
         self._api.settings.choose_converter_folder()

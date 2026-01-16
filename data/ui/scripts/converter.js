@@ -1,4 +1,5 @@
-// data/ui/scripts/converter.js
+ /* Copyright (C) 2025 Rayness */
+ /* This program is free software under GPLv3. See LICENSE for details. */
 
 // --- CONVERTER LOGIC ---
 const FILE_TYPES = {
@@ -51,6 +52,8 @@ window.addConverterItem = function(item) {
     const type = getFileType(item.filename);
     window.convSettingsMap[item.id] = getDefaultSettings(type);
 
+    const t = window.i18n.converter || {};
+
     const list = document.getElementById('converter-queue');
     const li = document.createElement('li');
     li.className = 'conv-item';
@@ -64,7 +67,7 @@ window.addConverterItem = function(item) {
     let thumbSrc = item.thumbnail || "src/default_thumbnail.png";
     const durationStr = formatDuration(item.duration);
     const d = item.details || { resolution: '?', codec: '?', bitrate: 0, fps: 0, audio: '?' };
-    const txtQueued = window.i18n.converter?.status_queued || 'Queued';
+    const txtQueued = t.status_queued || 'Queued';
 
     li.innerHTML = `
         <div class="conv-item-top">

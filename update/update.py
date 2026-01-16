@@ -25,6 +25,9 @@ GITHUB_REPO = "Rayness/YT-Downloader"
 APP_EXECUTABLE = "ClipTide.exe"
 HEADERS = {"User-Agent": "Updater-App", "Accept": "application/vnd.github.v3+json"}
 
+MANIFEST_URL = "https://raw.githubusercontent.com/Rayness/YT-Downloader/main/updates.json"
+CONFIG_PATH = os.path.join(os.environ["LOCALAPPDATA"], "ClipTide", "config.ini")
+
 # Пути
 CURRENT_DIR = os.getcwd()
 TARGET_DIR = os.path.join(os.environ["LOCALAPPDATA"], "Programs", "ClipTide")

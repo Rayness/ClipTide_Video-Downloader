@@ -1,4 +1,5 @@
-// data/ui/scripts/settings.js
+ /* Copyright (C) 2025 Rayness */
+ /* This program is free software under GPLv3. See LICENSE for details. */
 
 window.updateDownloadFolder = function(folder_path) {
     const el = document.getElementById('folder_path');
@@ -45,3 +46,48 @@ window.setLanguage = function(lang) {
     const select = document.getElementById("language");
     if (select) select.value = lang;
 }
+
+// --- ЛОГИКА НОВЫХ НАСТРОЕК (MODAL) ---
+
+const settingsModal = document.getElementById('settings-modal');
+const btnOpenSettings = document.getElementById('btn-open-settings');
+const btnCloseSettings = document.getElementById('btn-close-settings');
+
+// Открытие
+if (btnOpenSettings) {
+    btnOpenSettings.addEventListener('click', () => {
+        settingsModal.classList.add('show');
+        // Обновляем состояние Custom Selects внутри модалки (если нужно)
+        if(typeof refreshCustomSelectOptions === 'function') refreshCustomSelectOptions();
+    });
+}
+
+// Закрытие
+if (btnCloseSettings) {
+    btnCloseSettings.addEventListener('click', () => {
+        settingsModal.classList.remove('show');
+    });
+}
+
+// Закрытие по ESC
+document.addEventListener('keydown', (e) => {
+    if (e.key === "Escape" && settingsModal.classList.contains('show')) {
+        settingsModal.classList.remove('show');
+    }
+});
+
+// Переключение табов настроек
+document.querySelectorAll('.sett-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Убираем актив у кнопок
+        document.querySelectorAll('.sett-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Скрываем секции
+        document.querySelectorAll('.sett-section').forEach(s => s.classList.remove('active'));
+        
+        // Показываем нужную
+        const targetId = btn.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+    });
+});

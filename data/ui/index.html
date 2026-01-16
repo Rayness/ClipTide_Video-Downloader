@@ -52,6 +52,259 @@
             </div>
         </div>
 
+        <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК -->
+        <div id="settings-modal" class="settings-overlay">
+            <div class="settings-container">
+                
+                <!-- Левая колонка -->
+                <div class="settings-sidebar">
+                    <div class="sett-header" id="settings-main-title">НАСТРОЙКИ</div> <!-- ID -->
+                    
+                    <div class="sett-nav">
+                        <button class="sett-btn active" data-target="sect-app">
+                            <i class="fa-solid fa-language"></i> <span id="nav-app">Приложение</span> <!-- ID -->
+                        </button>
+                        <button class="sett-btn" data-target="sect-download">
+                            <i class="fa-solid fa-download"></i> <span id="nav-download">Загрузка</span> <!-- ID -->
+                        </button>
+                        <button class="sett-btn" data-target="sect-convert">
+                            <i class="fa-solid fa-arrows-rotate"></i> <span id="nav-convert">Конвертация</span> <!-- ID -->
+                        </button>
+                        <button class="sett-btn" data-target="sect-proxy">
+                            <i class="fa-solid fa-network-wired"></i> <span id="nav-proxy">Прокси</span> <!-- ID -->
+                        </button>
+                        
+                        <div class="sett-separator"></div>
+                        
+                        <button class="sett-btn" data-target="sect-version">
+                            <i class="fa-solid fa-code-branch"></i> <span id="nav-version">Версия</span> <!-- ID -->
+                        </button>
+                        <button class="sett-btn" data-target="sect-about">
+                            <i class="fa-solid fa-circle-info"></i> <span id="nav-about">О программе</span> <!-- ID -->
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Правая колонка -->
+                <div class="settings-content-area">
+                    <div class="settings-scroll-view">
+                        
+                        <!-- 1. App -->
+                        <div id="sect-app" class="sett-section active">
+                            <h2 id="hdr-appearance">Внешний вид и Язык</h2> <!-- ID -->
+                            
+                            <div class="sett-card">
+                                <div class="sett-group">
+                                    <label id="language_title">Язык</label>
+                                    <select id="language" class="select-control js-custom-select">
+                                        <option id="lang_ru" value="ru">Русский</option>
+                                        <option id="lang_en" value="en">English</option>
+                                        <option id="lang_de" value="de">Deutsch</option>
+                                        <option id="lang_pl" value="pl">Polski</option>
+                                        <option id="lang_uk" value="uk">Український</option>
+                                        <option id="lang_fr" value="fr">Français</option>
+                                        <option id="lang_it" value="it">Italiano</option>
+                                        <option id="lang_cn" value="cn">中文</option>
+                                        <option id="lang_ja" value="ja">日本語</option>
+                                    </select>
+                                    <button class="btn-text" id="open_locale_folder">Открыть папку локализации</button> <!-- ID corrected -->
+                                </div>
+                            </div>
+                        
+                            <div class="sett-card">
+                                <div class="sett-group">
+                                    <label id="theme-title">Тема</label>
+                                    <div class="row-gap">
+                                        <select class="theme-selector select-control js-custom-select" id="theme"></select>
+                                        <button class="icon-btn small" id="btn-import-theme"><i class="fa-solid fa-file-import"></i></button>
+                                        <button class="icon-btn small" id="open-theme_folder"><i class="fa-solid fa-folder-open"></i></button>
+                                    </div>
+                                </div>
+
+                                <div class="sett-group">
+                                    <label id="style-title">Стиль (Подтема)</label>
+                                    <select class="theme-selector select-control js-custom-select" id="style"></select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Download -->
+                        <div id="sect-download" class="sett-section">
+                            <h2 id="hdr-download">Настройки загрузчика</h2> <!-- ID -->
+                            
+                            <div class="sett-card">
+                                <h4 id="hdr-folders">Папки</h4> <!-- ID -->
+                                <div class="sett-group">
+                                    <label id="download_folder_title">Папка для видео</label>
+                                    <div class="row-gap">
+                                        <input class="input-folder" disabled type="text" id="folder_path">
+                                        <button class="icon-btn small" id="chooseButton"><i class="fa-solid fa-folder"></i></button>
+                                        <button class="icon-btn small" id="openFolder"><i class="fa-solid fa-folder-open"></i></button>
+                                    </div>
+                                </div>
+                                <div class="row-switch">
+                                    <label class="switch"><input type="checkbox" id="switch_openDownloadFolder"><span class="slider"></span></label>
+                                    <span id="open_folder_download">Открывать папку после завершения</span>
+                                </div>
+                                <div class="row-switch">
+                                    <label class="switch"><input type="checkbox" id="switch_notifiDownload"><span class="slider"></span></label>
+                                    <span id="get_notifi_download">Уведомления о завершении</span>
+                                </div>
+                            </div>
+
+                            <div class="sett-card">
+                                <h4 id="subs-title">Субтитры</h4>
+                                <div class="row-switch">
+                                    <label class="switch"><input type="checkbox" id="switch_subs_enable"><span class="slider"></span></label>
+                                    <span id="lbl_subs_enable">Скачивать субтитры</span>
+                                </div>
+                                <div class="row-switch">
+                                    <label class="switch"><input type="checkbox" id="switch_subs_auto"><span class="slider"></span></label>
+                                    <span id="lbl_subs_auto">Авто-генерация</span>
+                                </div>
+                                <div class="row-switch">
+                                    <label class="switch"><input type="checkbox" id="switch_subs_embed"><span class="slider"></span></label>
+                                    <span id="lbl_subs_embed">Встраивать в файл</span>
+                                </div>
+                                <div class="sett-group">
+                                    <label id="lbl_subs_lang">Язык субтитров</label>
+                                    <select id="subs_language" class="select-control js-custom-select">
+                                        <option value="all">Все доступные</option>
+                                        <option value="en">English</option>
+                                        <option value="ru">Russian</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="sett-card">
+                                <h4 id="audio-title">Аудиодорожки</h4>
+                                <div class="sett-group">
+                                    <label id="lbl_audio_lang">Предпочитаемый язык</label>
+                                    <select id="audio_language" class="select-control js-custom-select">
+                                        <option value="none">Авто</option>
+                                        <option value="all_tracks">Все дорожки (MKV)</option>
+                                        <option value="en">English</option>
+                                        <option value="ru">Russian</option>
+                                        <option value="orig">Original</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Convert -->
+                        <div id="sect-convert" class="sett-section">
+                            <h2 id="hdr-convert">Настройки конвертера</h2> <!-- ID -->
+                            
+                            <div class="sett-card">
+                                <div class="sett-group">
+                                    <label id="conversion_folder_title">Папка для сохранения</label>
+                                    <div class="row-gap">
+                                        <input class="input-folder" disabled type="text" id="conv_folder_path">
+                                        <button class="icon-btn small" id="chooseButton-conv"><i class="fa-solid fa-folder"></i></button>
+                                        <button class="icon-btn small" id="openFolder-conv"><i class="fa-solid fa-folder-open"></i></button>
+                                    </div>
+                                </div>
+                                
+                                <div class="row-switch">
+                                    <label class="switch"><input type="checkbox" id="switch_openConverterFolder"><span class="slider"></span></label>
+                                    <span id="open_converter_folder">Открывать папку после завершения</span>
+                                </div>
+                                <div class="row-switch">
+                                    <label class="switch"><input type="checkbox" id="switch_notifiConvertion"><span class="slider"></span></label>
+                                    <span id="get_notifi_conversion">Уведомления</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Proxy -->
+                        <div id="sect-proxy" class="sett-section">
+                            <h2 id="proxy-title">Прокси-сервер</h2>
+                            
+                            <div class="sett-card">
+                                <div class="row-switch" style="margin-bottom: 1rem;">
+                                    <label class="switch"><input type="checkbox" id="switch_proxy"><span class="slider"></span></label>
+                                    <span id="turn_on_proxy">Включить прокси</span>
+                                </div>
+
+                                <label id="lbl-proxy-string">Строка подключения</label> <!-- ID -->
+                                <div class="row-gap">
+                                    <input class="input-folder" type="text" id="input_proxy" placeholder="protocol://user:pass@ip:port">
+                                </div>
+                                <div class="row-gap" style="margin-top: 10px;">
+                                    <button class="primary-btn" id="proxy_check">
+                                        <i class="fa-solid fa-bolt"></i> <span id="txt-proxy-check">Проверить</span> <!-- ID -->
+                                    </button>
+                                    <button class="primary-btn" id="proxy_apply">
+                                        <i class="fa-solid fa-check"></i> <span id="txt-proxy-save">Сохранить</span> <!-- ID -->
+                                    </button>
+                                </div>
+                                <div id="proxy-status-text" style="margin-top: 10px; font-size: 0.9rem;"></div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Version -->
+                        <div id="sect-version" class="sett-section">
+                            <h2 id="updates-title">Обновление</h2>
+                            
+                            <div class="sett-card center-card">
+                                <img src="src/logo.png" style="width: 80px; margin-bottom: 1rem;">
+                                <h3 id="current-version">v1.6.2</h3>
+                                
+                                <!-- Выбор канала -->
+                                <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
+                                    <label style="color: #888;">Канал обновлений:</label>
+                                    <select id="update_channel" class="select-control js-custom-select" style="width: 120px;">
+                                        <option value="stable">Stable</option>
+                                        <option value="dev">Dev / Beta</option>
+                                    </select>
+                                </div>
+
+                                <p id="update__text" style="color: #aaa; margin-bottom: 1rem;">Проверка...</p>
+                                
+                                <button class="primary-btn" id="update" style="width: 200px;">
+                                    <i class="fa-solid fa-rotate"></i> <span id="txt-btn-update">Проверить обновления</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 6. About -->
+                        <div id="sect-about" class="sett-section">
+                            <h2 id="about-title">О приложении</h2>
+                            
+                            <div class="sett-card">
+                                <p><strong id="txt-app-name">ClipTide</strong> — <span id="desc-about">Универсальный инструмент.</span></p> <!-- ID -->
+                                <p style="color: #888; font-size: 0.9rem;"><span id="about-date">Дата релиза:</span> <span id="about-date-val">2025</span></p>
+                                
+                                <div class="social-links">
+                                    <a href="https://github.com/Rayness/YT-Downloader" target="_blank" class="social-btn github"><i class="fa-brands fa-github"></i> GitHub</a>
+                                    <a href="#" target="_blank" class="social-btn youtube"><i class="fa-brands fa-youtube"></i> YouTube</a>
+                                    <a href="#" target="_blank" class="social-btn telegram"><i class="fa-brands fa-telegram"></i> Telegram</a>
+                                    <a href="#" target="_blank" class="social-btn web"><i class="fa-solid fa-globe"></i> Website</a>
+                                </div>
+                                
+                                <div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                                    <h5 id="hdr-licenses">Лицензии</h5> <!-- ID -->
+                                    <p style="font-size: 0.8rem; color: #666;" id="txt-licenses">
+                                        Используемые библиотеки: yt-dlp, ffmpeg, pillow, pywebview.<br>
+                                        Лицензия: GPLv3
+                                    </p> <!-- ID -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Кнопка Закрыть -->
+                <div class="settings-close-col">
+                    <button class="btn-close-settings" id="btn-close-settings">
+                        <i class="fa-solid fa-xmark"></i>
+                        <span id="btn-close">ESC</span> <!-- ID -->
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="modal" id="modal-playlist">
             <div class="modal-content info-card playlist-card">
                 <div class="modal-header">
@@ -167,10 +420,8 @@
 
                         </div>
                     </div>
-                    <div class="tab-btn" data-tab="10" id="settings">
-                        <div id="icon-settings" class="icon-container">
-
-                        </div>
+                    <div class="tab-btn" id="btn-open-settings">
+                        <div id="icon-settings" class="icon-container"></div>
                     </div>
                 </div>
             </div>
@@ -281,8 +532,8 @@
                             <div class="store-header-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem;">
                                 <div class="store-tabs">
                                     <!-- data-target указывает на ID блока, который нужно показать -->
-                                    <button class="store-tab active" data-target="store-modules">Модули</button>
-                                    <button class="store-tab" data-target="store-themes">Темы</button>
+                                    <button class="store-tab active" id="tab-store-modules" data-target="store-modules">Модули</button>
+                                    <button class="store-tab" id="tab-store-themes" data-target="store-themes">Темы</button>
                                 </div>
                                 <button class="icon-btn small" id="btn-refresh-store" title="Обновить список">
                                     <i class="fa-solid fa-rotate-right"></i>
@@ -383,7 +634,7 @@
                                 <!-- === НАСТРОЙКИ ИЗОБРАЖЕНИЙ (Новые) === -->
                                 <div id="settings-image" style="display: none;">
                                     <div class="setting-item">
-                                        <label>Формат:</label>
+                                        <label id="lbl-cv-img-fmt">Формат:</label>
                                         <select id="cv-img-format" class="select-control js-custom-select">
                                             <option value="jpg">JPG (JPEG)</option>
                                             <option value="png">PNG</option>
@@ -395,19 +646,19 @@
                                     </div>
 
                                     <div class="setting-item">
-                                        <label>Качество:</label>
+                                        <label id="lbl-cv-img-qual">Качество:</label>
                                         <input type="range" id="cv-img-quality" min="10" max="100" value="90" step="5">
                                         <div class="range-value">
-                                            <span>Низкое</span>
+                                            <span id="txt-cv-img-low">Низкое</span>
                                             <span id="cv-img-quality-val">90%</span>
-                                            <span>Выс.</span>
+                                            <span id="txt-cv-img-high">Выс.</span>
                                         </div>
                                     </div>
                                     
                                     <div class="setting-item">
-                                        <label>Размер:</label>
+                                        <label id="lbl-cv-img-size">Размер:</label>
                                         <select id="cv-img-resize" class="select-control js-custom-select">
-                                            <option value="original">Оригинал</option>
+                                            <option value="original" id="opt-cv-img-orig">Оригинал</option>
                                             <option value="50%">50%</option>
                                             <option value="25%">25%</option>
                                             <option value="1920">Max 1920px</option>

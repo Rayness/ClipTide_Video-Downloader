@@ -1,10 +1,13 @@
+ /* Copyright (C) 2025 Rayness */
+ /* This program is free software under GPLv3. See LICENSE for details. */
+
 document.getElementById('switch_openDownloadFolder').addEventListener('change', function () {
     const checkbox = document.getElementById('switch_openDownloadFolder');
 
     if (checkbox.checked) {
-      window.pywebview.api.switch_open_folder_dl("dl" ,"True");
+        window.pywebview.api.switch_open_folder_dl("dl" ,"True");
     } else {
-      window.pywebview.api.switch_open_folder_dl("dl", "False");
+        window.pywebview.api.switch_open_folder_dl("dl", "False");
     }
 });
 
@@ -12,15 +15,15 @@ document.getElementById('switch_openConverterFolder').addEventListener('change',
     const checkbox = document.getElementById('switch_openConverterFolder');
 
     if (checkbox.checked) {
-      window.pywebview.api.switch_open_folder_dl("cv" ,"True");
+        window.pywebview.api.switch_open_folder_dl("cv" ,"True");
     } else {
-      window.pywebview.api.switch_open_folder_dl("cv", "False");
+        window.pywebview.api.switch_open_folder_dl("cv", "False");
     }
 });
 
 window.loadopenfolders = function(enabled_dl, enabled_cv){
-  const checkbox_dl = document.getElementById('switch_openDownloadFolder');
-  const checkbox_cv = document.getElementById('switch_openConverterFolder');
+    const checkbox_dl = document.getElementById('switch_openDownloadFolder');
+    const checkbox_cv = document.getElementById('switch_openConverterFolder');
 
     if (enabled_dl == "True") {
         checkbox_dl.checked = true
@@ -80,4 +83,19 @@ window.loadAudioSettings = function(lang) {
 
 document.getElementById('audio_language').addEventListener('change', (e) => {
     window.pywebview.api.switch_audio_setting("lang", e.target.value);
+});
+
+// Загрузка
+window.loadUpdateSettings = function(channel) {
+    const sel = document.getElementById('update_channel');
+    if(sel) {
+        sel.value = channel;
+        if(typeof refreshCustomSelectOptions === 'function') refreshCustomSelectOptions();
+    }
+}
+
+// Сохранение
+document.getElementById('update_channel').addEventListener('change', (e) => {
+    // Создай метод switch_update_channel в Python
+    window.pywebview.api.switch_update_channel(e.target.value);
 });

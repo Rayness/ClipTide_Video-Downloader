@@ -44,6 +44,11 @@ DEFAULT_CONFIG_AUDIO = {
     "lang": "none"
 }
 
+DEFAULT_CONFIG_UPDATES = {
+    "auto_update": "False",
+    "channel": "stable"  # stable / dev
+}
+
 def load_config():
     config = configparser.ConfigParser()
     
@@ -89,6 +94,7 @@ def create_default_config():
     config["Themes"] = DEFAULT_CONFIG_THEMES
     config["Notifications"] = DEFAULT_CONFIG_NOTIFICATIONS
     config["Folders"] = DEFAULT_CONFIG_FOLDERS
+    config["Updates"] = DEFAULT_CONFIG_UPDATES
     save_config(config)
     return config
 

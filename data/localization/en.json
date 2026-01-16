@@ -57,6 +57,27 @@
 
     "settings" : {
         "title" : "Settings",
+
+        "settings_ui": {
+            "nav_app": "Application",
+            "nav_download": "Downloading",
+            "nav_convert": "Conversion",
+            "nav_proxy": "Proxy",
+            "nav_version": "Version",
+            "nav_about": "About",
+            "hdr_appearance": "Appearance & Language",
+            "hdr_download": "Downloader Settings",
+            "hdr_folders": "Folders",
+            "hdr_convert": "Converter Settings",
+            "lbl_proxy_string": "Connection string:",
+            "btn_check": "Check",
+            "btn_save": "Save",
+            "desc_about": "Universal media tool.",
+            "hdr_licenses": "Licenses",
+            "txt_licenses": "Libraries: yt-dlp, ffmpeg, pillow, pywebview. License: GPLv3",
+            "btn_close": "ESC"
+        },
+
         "language" : {
             "title" : "Language settings management",
             "language" : "Language: ",
@@ -140,6 +161,37 @@
         "description" : "If there is a desire to help financially and accelerate the further development of the application!"
     },
 
+    "downloader": {
+        "author": "Author",
+        "fps": "FPS",
+        "vcodec": "Video Codec",
+        "acodec": "Audio Codec",
+        "bitrate": "Bitrate",
+        "btn_play": "Download",
+        "btn_delete": "Remove",
+        "btn_stop": "Stop",
+        "status_waiting": "Waiting...",
+        "status_paused": "Paused",
+        "status_done": "Done",
+        "status_error": "Error"
+    },
+
+    "store": {
+        "title": "Add-ons Store",
+        "tab_modules": "Modules",
+        "tab_themes": "Themes",
+        "btn_refresh": "Refresh list",
+        "status_loading": "Loading catalog...",
+        "status_empty": "Catalog is empty or unavailable",
+        "btn_install": "Install",
+        "btn_uninstall": "Uninstall",
+        "btn_download": "Download",
+        "status_downloading": "Downloading...",
+        "status_extracting": "Extracting...",
+        "status_installing": "Installing...",
+        "status_error": "Error"
+    },
+        
     "converter": {
         "add_files_btn": "Add files",
         "settings_title": "Settings",

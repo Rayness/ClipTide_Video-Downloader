@@ -53,6 +53,9 @@ class SettingsManager:
         self.ctx.style = style
         self.ctx.update_config_value("Themes", "style", style)
 
+    def swith_update_setting(self, key, value):
+        self.ctx.update_config_value("Updates", key, value)
+
     def switch_proxy_url(self, proxy):
         self.ctx.proxy_url = proxy
         self.ctx.update_config_value("Proxy", "url", proxy)

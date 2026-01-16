@@ -1,4 +1,5 @@
-// data/ui/scripts/store.js
+ /* Copyright (C) 2025 Rayness */
+ /* This program is free software under GPLv3. See LICENSE for details. */
 
 // --- STORE TABS (ВОССТАНОВЛЕНО!) ---
 document.querySelectorAll('.store-tab').forEach(tab => {
@@ -55,6 +56,8 @@ window.updateStoreList = function(available, installedIds) {
     const container = document.getElementById('modules-list');
     container.innerHTML = "";
 
+    const t = window.i18n.store || {};
+
     if (!available || available.length === 0) {
         container.innerHTML = '<div style="text-align: center; color: #666;">Каталог пуст</div>';
         return;
@@ -63,7 +66,9 @@ window.updateStoreList = function(available, installedIds) {
     available.forEach(mod => {
         const isInstalled = installedIds.includes(mod.id);
         const btnClass = isInstalled ? 'btn-store uninstall' : 'btn-store install';
-        const btnText = isInstalled ? '<i class="fa-solid fa-trash"></i> Удалить' : '<i class="fa-solid fa-download"></i> Скачать';
+        const btnText = isInstalled 
+            ? `<i class="fa-solid fa-trash"></i> ${t.btn_uninstall || 'Uninstall'}` 
+            : `<i class="fa-solid fa-download"></i> ${t.btn_download || 'Download'}`;
         const btnAction = isInstalled ? `uninstallModule('${mod.id}')` : `installModule('${mod.id}')`;
         
         let iconHtml = '<i class="fa-solid fa-cube"></i>';
@@ -109,13 +114,16 @@ window.uninstallModule = function(id) {
 window.updateStoreProgress = function(id, percent, status) {
     const bar = document.getElementById(`prog-mod-${id}`);
     const btn = document.getElementById(`btn-mod-${id}`);
+
+    const t = window.i18n.store || {};
+
     if (bar) bar.style.width = `${percent}%`;
     
-    if (status === 'downloading') btn.innerText = `${percent}%`;
-    else if (status === 'extracting') btn.innerText = "Распаковка...";
+    if (status === 'downloading') btn.innerText = t.status_downloading || `${percent}%`;
+    else if (status === 'extracting') btn.innerText = t.status_extracting || "Extracting...";
     else if (status === 'done') {
         btn.className = 'btn-store uninstall';
-        btn.innerHTML = '<i class="fa-solid fa-trash"></i> Удалить';
+        btn.innerHTML = `<i class="fa-solid fa-trash"></i> ${t.btn_uninstall || 'Uninstall'}`;
         btn.disabled = false;
         btn.onclick = function() { uninstallModule(id); };
         if(bar) setTimeout(() => bar.style.width = '0%', 1000);
@@ -131,6 +139,8 @@ window.updateThemesStoreList = function(available, installedIds) {
     const container = document.getElementById('themes-list');
     container.innerHTML = "";
 
+    const t = window.i18n.store || {};
+
     if (!available || available.length === 0) {
         container.innerHTML = '<div style="text-align: center; color: #666;">Каталог пуст</div>';
         return;
@@ -139,7 +149,9 @@ window.updateThemesStoreList = function(available, installedIds) {
     available.forEach(theme => {
         const isInstalled = installedIds.includes(theme.id);
         const btnClass = isInstalled ? 'btn-store uninstall' : 'btn-store install';
-        const btnText = isInstalled ? 'Удалить' : 'Установить';
+        const btnText = isInstalled 
+            ? `<i class="fa-solid fa-trash"></i> ${t.btn_uninstall || 'Uninstall'}` 
+            : `<i class="fa-solid fa-download"></i> ${t.btn_download || 'Download'}`;
         const btnAction = isInstalled ? `deleteTheme('${theme.id}')` : `installTheme('${theme.id}', '${theme.download_url}')`;
 
         const card = document.createElement('div');

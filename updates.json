@@ -1,0 +1,12 @@
+{
+    "stable": {
+        "version": "1.6.2",
+        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v1.6/update.zip",
+        "description": "Стабильный релиз. Исправлены баги."
+    },
+    "dev": {
+        "version": "1.7-beta1",
+        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v1.7-beta1/update.zip",
+        "description": "Тестовая версия. Добавлены плагины."
+    }
+}

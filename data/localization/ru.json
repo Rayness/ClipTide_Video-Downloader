@@ -6,6 +6,7 @@
     "resolution": "Разрешение: ",
     "add_to_queue" : "Добавить в очередь",
     "start_downloading" : "Начать загрузку",
+
     "status" : {
         "status_text" : "Статус: Ожидание...",
         "pending": "Анализ...",
@@ -35,6 +36,7 @@
         "convert_stopped" : "Конвертация была отменена",
         "download_ended" : "Завершение загрузки..."
     },
+
     "queue" : "Очередь: ",
     "progress" : "Прогресс: ",
     "speed" : "Скорость: ",
@@ -57,6 +59,27 @@
 
     "settings" : {
         "title" : "Настройки",
+
+        "settings_ui": {
+            "nav_app": "Приложение",
+            "nav_download": "Загрузка",
+            "nav_convert": "Конвертация",
+            "nav_proxy": "Прокси",
+            "nav_version": "Версия",
+            "nav_about": "О программе",
+            "hdr_appearance": "Внешний вид и Язык",
+            "hdr_download": "Настройки загрузчика",
+            "hdr_folders": "Папки",
+            "hdr_convert": "Настройки конвертера",
+            "lbl_proxy_string": "Строка подключения:",
+            "btn_check": "Проверить",
+            "btn_save": "Сохранить",
+            "desc_about": "Универсальный инструмент для работы с медиа.",
+            "hdr_licenses": "Лицензии",
+            "txt_licenses": "Используемые библиотеки: yt-dlp, ffmpeg, pillow, pywebview. Лицензия: GPLv3",
+            "btn_close": "ESC"
+        },
+
         "language" : {
             "title" : "Управление языковыми настройками",
             "language" : "Язык: ",
@@ -138,6 +161,37 @@
     "donate" : {
         "title" : "Донат",
         "description" : "Если есть желание помочь финансово и ускорить дальнейшую разработку приложения!"
+    },
+
+    "downloader": {
+        "author": "Автор",
+        "fps": "FPS",
+        "vcodec": "Видео кодек",
+        "acodec": "Аудио кодек",
+        "bitrate": "Битрейт",
+        "btn_play": "Скачать",
+        "btn_delete": "Удалить",
+        "btn_stop": "Остановить",
+        "status_waiting": "Ожидание...",
+        "status_paused": "Пауза",
+        "status_done": "Готово",
+        "status_error": "Ошибка"
+    },
+
+    "store": {
+        "title": "Магазин дополнений",
+        "tab_modules": "Модули",
+        "tab_themes": "Темы",
+        "btn_refresh": "Обновить список",
+        "status_loading": "Загрузка каталога...",
+        "status_empty": "Каталог пуст или недоступен",
+        "btn_install": "Установить",
+        "btn_uninstall": "Удалить",
+        "btn_download": "Скачать",
+        "status_downloading": "Загрузка...",
+        "status_extracting": "Распаковка...",
+        "status_installing": "Установка...",
+        "status_error": "Ошибка"
     },
 
     "converter": {
