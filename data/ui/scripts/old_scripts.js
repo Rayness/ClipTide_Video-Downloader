@@ -36,7 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
 const FILE_TYPES = {
     VIDEO: ['mp4', 'avi', 'mkv', 'mov', 'wmv', 'flv', 'webm'],
     AUDIO: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a'],
-    IMAGE: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'ico', 'heic', 'pdf']
+    IMAGE: ['jpg', 'jpeg', 'png', 'webp', 'bmp', 'tiff', 'ico', 'heic', 'pdf'],
+    DOC: ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt', 'odt', 'ods', 'odp', 'txt', 'rtf']
 };
 // Хранилище индивидуальных настроек: { "task-id": { format: 'mp4', ... } }
 window.convSettingsMap = {};
@@ -48,6 +49,7 @@ function getFileType(filename) {
     const ext = filename.split('.').pop().toLowerCase();
     if (FILE_TYPES.VIDEO.includes(ext) || FILE_TYPES.AUDIO.includes(ext)) return 'video';
     if (FILE_TYPES.IMAGE.includes(ext)) return 'image';
+    if (FILE_TYPES.DOC.includes(ext)) return 'document';
     return 'unknown';
 }
 
@@ -61,6 +63,11 @@ function getDefaultSettings(type = 'video') {
             quality: document.getElementById('cv-img-quality').value,
             resize: document.getElementById('cv-img-resize').value
         };
+    } else if (type === 'document') {
+        return {
+            type: 'document',
+            doc_format: document.getElementById('cv-doc-format').value
+        } 
     } else {
         return {
             type: 'video', // Метка для Python
@@ -162,7 +169,7 @@ function updateSidebarUI(settings, id) {
     const btnApplyAll = document.getElementById('btn-apply-all');
     const videoBlock = document.getElementById('settings-video');
     const imageBlock = document.getElementById('settings-image');
-
+    const docBlock = document.getElementById('settings-document');
 
     if (id && settings) {
         // Режим файла
@@ -190,13 +197,20 @@ function updateSidebarUI(settings, id) {
         type = getFileType(filename);
     }
 
+    videoBlock.style.display = 'none';
+    imageBlock.style.display = 'none';
+    docBlock.style.display = 'none';
+
     if (type === 'image') {
-        videoBlock.style.display = 'none';
         imageBlock.style.display = 'block';
         if (settings) setImageInputValues(settings);
+    } else if (type === 'document') {
+        docBlock.style.display = 'block';
+        if (settings) {
+            document.getElementById('cv-doc-format').value = settings.doc_format;
+        }
     } else {
         videoBlock.style.display = 'block';
-        imageBlock.style.display = 'none';
         if (settings) setInputValues(settings); // Старая функция для видео
     }
 
@@ -218,6 +232,13 @@ function setImageInputValues(s) {
     document.getElementById('cv-img-quality-val').innerText = s.quality + '%';
     document.getElementById('cv-img-resize').value = s.resize;
 }
+
+document.getElementById('cv-doc-format').addEventListener('input', (e) => {
+    if (selectedConvId) {
+        window.convSettingsMap[selectedConvId].doc_format = e.target.value;
+        window.convSettingsMap[selectedConvId].type = 'document';
+    }
+});
 
 // 4. Слушатели изменений в инпутах
 const inputs = ['cv-format', 'cv-codec', 'cv-quality', 'cv-res'];
@@ -982,26 +1003,48 @@ document.getElementById('close-playlist').addEventListener('click', () => {
 // --- STORE TABS ---
 document.querySelectorAll('.store-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-        // Убираем актив у всех табов
+        // 1. Убираем класс active у всех кнопок-табов
         document.querySelectorAll('.store-tab').forEach(t => t.classList.remove('active'));
-        // Убираем актив у всех секций
+        
+        // 2. Скрываем все секции контента
         document.querySelectorAll('.store-section').forEach(s => s.classList.remove('active'));
         
-        // Активируем нажатый
+        // 3. Активируем нажатую кнопку
         tab.classList.add('active');
+        
+        // 4. Показываем нужную секцию (по ID из data-target)
         const targetId = tab.getAttribute('data-target');
-        document.getElementById(targetId).classList.add('active');
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+            targetSection.classList.add('active');
+            
+            // Опционально: если открыли "Темы", а там пусто - загрузим их
+            if (targetId === 'store-themes') {
+                const list = document.getElementById('themes-list');
+                // Простая проверка: если нет карточек, грузим
+                if (!list.querySelector('.theme-card')) {
+                    list.innerHTML = '<div style="text-align: center; color: #666; margin-top: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка тем...</div>';
+                    window.pywebview.api.store_fetch_themes();
+                }
+            }
+        }
     });
 });
-
-
 // --- MODULES STORE LOGIC ---
 
-// Кнопка обновления
+// Обновление кнопки "Refresh" (чтобы обновляла текущую открытую вкладку)
 document.getElementById('btn-refresh-store').addEventListener('click', () => {
-    document.getElementById('modules-list').innerHTML = 
-        '<div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка...</div>';
-    window.pywebview.api.store_fetch_data();
+    const activeSection = document.querySelector('.store-section.active');
+    
+    if (activeSection && activeSection.id === 'store-themes') {
+        // Обновляем темы
+        document.getElementById('themes-list').innerHTML = '...';
+        window.pywebview.api.store_fetch_themes();
+    } else {
+        // Обновляем модули
+        document.getElementById('modules-list').innerHTML = '...';
+        window.pywebview.api.store_fetch_data();
+    }
 });
 
 // Клик по табу "Store" (id=3) должен триггерить загрузку
@@ -1094,6 +1137,97 @@ window.updateStoreProgress = function(id, percent, status) {
         btn.innerHTML = '<i class="fa-solid fa-trash"></i> Удалить';
         btn.disabled = false;
         btn.onclick = function() { uninstallModule(id); };
+        if(bar) setTimeout(() => bar.style.width = '0%', 1000);
+    } else if (status === 'error') {
+        btn.innerText = "Ошибка";
+        btn.disabled = false;
+        if(bar) bar.style.background = 'var(--danger-color)';
+    }
+}
+
+window.updateThemesStoreList = function(available, installedIds) {
+    const container = document.getElementById('themes-list');
+    container.innerHTML = "";
+
+    if (!available || available.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: #666;">Каталог пуст</div>';
+        return;
+    }
+
+    available.forEach(theme => {
+        const isInstalled = installedIds.includes(theme.id);
+        const btnClass = isInstalled ? 'btn-store uninstall' : 'btn-store install';
+        const btnText = isInstalled ? 'Удалить' : 'Установить';
+        
+        // Для удаления не нужен URL, для установки нужен
+        const btnAction = isInstalled 
+            ? `deleteTheme('${theme.id}')` 
+            : `installTheme('${theme.id}', '${theme.download_url}')`;
+
+        const card = document.createElement('div');
+        card.className = 'store-card theme-card';
+        card.id = `theme-card-${theme.id}`;
+        
+        // Превью темы (картинка или цвет)
+        // Если preview это url картинки - ставим img, иначе градиент
+        let previewStyle = '';
+        if (theme.preview && (theme.preview.startsWith('http') || theme.preview.startsWith('data:'))) {
+            previewStyle = `background-image: url('${theme.preview}');`;
+        } else {
+            // Фолбек - случайный градиент или цвет из JSON
+            previewStyle = `background: ${theme.color || 'linear-gradient(45deg, #333, #555)'};`;
+        }
+
+        card.innerHTML = `
+            <div class="theme-preview" style="${previewStyle}"></div>
+            <div class="card-content">
+                <h4>${theme.name}</h4>
+                <p>${theme.description || 'No description'}</p>
+                <div class="card-meta">Author: ${theme.author || 'Unknown'}</div>
+            </div>
+            <div class="mod-footer" style="padding: 0 0.8rem 0.8rem 0.8rem;">
+                <div class="mod-status" id="theme-status-${theme.id}"></div>
+                <button class="${btnClass}" id="btn-theme-${theme.id}" onclick="${btnAction}">
+                    ${btnText}
+                </button>
+            </div>
+            <div class="mod-progress" id="prog-theme-${theme.id}"></div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Действия с темами
+window.installTheme = function(id, url) {
+    const btn = document.getElementById(`btn-theme-${id}`);
+    btn.disabled = true;
+    btn.innerText = "Скачивание...";
+    window.pywebview.api.store_install_theme(id, url);
+}
+
+window.deleteTheme = function(id) {
+    if(id === 'cliptide') { alert("Нельзя удалить стандартную тему"); return; }
+    if(!confirm("Удалить эту тему?")) return;
+    window.pywebview.api.store_delete_theme(id);
+}
+
+// Прогресс бар для тем
+window.updateThemeProgress = function(id, percent, status) {
+    const bar = document.getElementById(`prog-theme-${id}`);
+    const btn = document.getElementById(`btn-theme-${id}`);
+    
+    if (bar) bar.style.width = `${percent}%`;
+
+    if (status === 'downloading') {
+        btn.innerText = `${percent}%`;
+    } else if (status === 'extracting') {
+        btn.innerText = "Установка...";
+    } else if (status === 'done') {
+        btn.className = 'btn-store uninstall';
+        btn.innerHTML = 'Удалить';
+        btn.disabled = false;
+        // Обновляем onclick на удаление (немного костыльно, лучше перерисовать)
+        btn.onclick = function() { deleteTheme(id); };
         if(bar) setTimeout(() => bar.style.width = '0%', 1000);
     } else if (status === 'error') {
         btn.innerText = "Ошибка";

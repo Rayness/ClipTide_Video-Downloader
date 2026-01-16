@@ -122,3 +122,54 @@
     width: 0%;
     transition: width 0.3s;
 }
+
+/* Табы */
+.store-tabs {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.store-tab {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.store-tab:hover {
+    color: #ccc;
+}
+
+.store-tab.active {
+    color: var(--accent-color);
+}
+
+/* Полоска под активным табом */
+.store-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -0.6rem; /* Подгони под border-bottom родителя */
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--accent-color);
+    border-radius: 3px 3px 0 0;
+}
+
+/* Секции (Механизм переключения) */
+.store-section {
+    display: none; /* Скрыто по умолчанию */
+    flex: 1;
+    overflow-y: auto; /* Скролл внутри секции */
+    height: 100%; /* Занимает всю высоту контейнера */
+}
+
+.store-section.active {
+    display: block; /* Показываем активную */
+    animation: fadeIn 0.3s ease;
+}

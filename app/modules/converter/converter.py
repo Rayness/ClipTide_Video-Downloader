@@ -32,7 +32,7 @@ class Converter:
     def openFile(self):
         import webview
         # Заменяем Tkinter на pywebview
-        ft =  ("Media Files (*.mp4;*.avi;*.mkv;*.mov;*.mp3;*.wav)", "Image Files (*.jpg;*.jpeg;*.png;*.webp;*.bmp;*.tiff;*.ico;*.heic)", "PDF Files (*.pdf)", "All Files (*.*)")
+        ft =  ("Media Files (*.mp4;*.avi;*.mkv;*.mov;*.mp3;*.wav)", "Image Files (*.jpg;*.jpeg;*.png;*.webp;*.bmp;*.tiff;*.ico;*.heic)", "PDF Files (*.pdf)", "All Files (*.*)", "DOCX Files (*.docx;*.doc)", "XLSX Files (*.xlsx;*.xls)", "PPTX Files (*.pptx)")
         file_paths = self.ctx.window.create_file_dialog(
             webview.OPEN_DIALOG,
             allow_multiple=True,
@@ -156,6 +156,9 @@ class Converter:
         """
         if self.is_running: return
 
+        print("PYTHON RECEIVED SETTINGS:")
+        print(json.dumps(settings_map, indent=2))
+
         # 1. Обновляем настройки в очереди (в Python) данными из JS
         for item in self.queue:
             t_id = item["id"]
@@ -204,8 +207,13 @@ class Converter:
                 img_quality = int(s.get('quality', 90))
                 img_resize = s.get('resize', 'original')
 
+                doc_format = s.get('doc_format', 'pdf')
+
                 item["status"] = "processing"
                 task_id = item["id"]
+                
+                print(f"Processing {item['filename']} with settings: {s}") 
+                
                 self._js_exec(f'updateConvStatus("{task_id}", "Converting...", 0)')
 
                 try:
@@ -227,19 +235,56 @@ class Converter:
                     # ==========================================
                     if external_module:
                         self.log(f"Модуль {external_module['name']}: {item['filename']}")
-                        self._js_exec(f'updateConvStatus("{task_id}", "Module...", 50)')
                         
+                        # Передаем колбэки
+                        def update_progress(percent):
+                            self._js_exec(f'updateConvStatus("{task_id}", "Converting...", {percent})')
+                        
+                        check_stop = lambda: self.stop_requested
+
+                        # Запуск
                         success = self.ctx.module_manager.run_converter(
                             external_module["id"], 
                             item["path"], 
-                            out_folder
+                            out_folder,
+                            extra_args={"format": s.get('doc_format', 'pdf')},
+                            progress_callback=update_progress,
+                            stop_callback=check_stop
                         )
                         
                         if success:
                             item["status"] = "done"
                             self._js_exec(f'updateConvStatus("{task_id}", "Done", 100)')
+                            self.log(f"Успешно: {item['filename']}")
+                            
+                            # === УВЕДОМЛЕНИЕ О ЗАВЕРШЕНИИ ===
+                            if self.ctx.config.get("Notifications", "conversion", fallback="True") == "True":
+                                from app.utils.notifications.notifications import add_notification
+                                import json
+                                
+                                hist_payload = {
+                                    "title": item['filename'],
+                                    "thumbnail": None,
+                                    "format": s.get('doc_format', 'pdf').upper(),
+                                    "folder": out_folder
+                                }
+                                
+                                # Добавляем уведомление
+                                updated_list = add_notification(
+                                    "Конвертация завершена", 
+                                    item['filename'], 
+                                    "converter", 
+                                    payload=hist_payload
+                                )
+                                # ОБЯЗАТЕЛЬНО обновляем список в UI
+                                self._js_exec(f'loadNotifications({json.dumps(updated_list)})')
+
                         else:
-                            raise Exception("Ошибка выполнения модуля")
+                            if self.stop_requested:
+                                self.log("Остановлено пользователем")
+                                self._js_exec(f'updateConvStatus("{task_id}", "Stopped", 0)')
+                            else:
+                                raise Exception("Ошибка модуля (см. консоль)")
 
                     # ==========================================
                     # СЦЕНАРИЙ 2: ИЗОБРАЖЕНИЯ И PDF (Встроенный Pillow)

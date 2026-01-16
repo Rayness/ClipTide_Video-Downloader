@@ -172,3 +172,15 @@ class PublicWebViewApi:
     def store_uninstall_module(self, module_id):
         if self._api.ctx.module_manager:
             self._api.ctx.module_manager.uninstall_module(module_id)
+            
+    def store_fetch_themes(self):
+        if self._api.ctx.module_manager:
+            self._api.ctx.module_manager.fetch_themes_catalog()
+
+    def store_install_theme(self, theme_id, url):
+        if self._api.ctx.module_manager:
+            self._api.ctx.module_manager.install_theme_from_store(theme_id, url)
+
+    def store_delete_theme(self, theme_id):
+        if self._api.ctx.module_manager:
+            self._api.ctx.module_manager.delete_theme(theme_id)

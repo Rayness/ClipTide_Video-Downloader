@@ -277,18 +277,33 @@
         
                     <div class="content" id="3" data-status="Store">
                         <div class="store-container">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h3 style="margin: 0;">Магазин модулей</h3>
+                            <!-- Верхняя панель: Табы и кнопка Обновить -->
+                            <div class="store-header-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem;">
+                                <div class="store-tabs">
+                                    <!-- data-target указывает на ID блока, который нужно показать -->
+                                    <button class="store-tab active" data-target="store-modules">Модули</button>
+                                    <button class="store-tab" data-target="store-themes">Темы</button>
+                                </div>
                                 <button class="icon-btn small" id="btn-refresh-store" title="Обновить список">
                                     <i class="fa-solid fa-rotate-right"></i>
                                 </button>
                             </div>
-                            
-                            <!-- Сетка модулей -->
-                            <div class="store-grid" id="modules-list">
-                                <!-- Сюда JS вставит карточки -->
-                                <div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
-                                    <i class="fa-solid fa-spinner fa-spin"></i> Загрузка каталога...
+
+                            <!-- СЕКЦИЯ 1: МОДУЛИ (Активна по умолчанию) -->
+                            <div class="store-section active" id="store-modules">
+                                <div class="store-grid" id="modules-list">
+                                    <div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
+                                        <i class="fa-solid fa-spinner fa-spin"></i> Загрузка модулей...
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- СЕКЦИЯ 2: ТЕМЫ (Скрыта по умолчанию) -->
+                            <div class="store-section" id="store-themes">
+                                <div class="store-grid" id="themes-list">
+                                    <div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
+                                        Нажмите "Обновить" для загрузки тем
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -398,6 +413,26 @@
                                             <option value="1920">Max 1920px</option>
                                             <option value="1080">Max 1080px</option>
                                         </select>
+                                    </div>
+                                </div>
+
+                                <div id="settings-document" style="display: none;">
+                                    <div class="setting-item">
+                                        <label>Формат:</label>
+                                        <select id="cv-doc-format" class="select-control js-custom-select">
+                                            <option value="pdf">PDF (Portable Document)</option>
+                                            <option value="html">HTML (Web Page)</option>
+                                            <option value="txt">TXT (Plain Text)</option>
+                                            <option value="docx">DOCX (Word 2007+)</option>
+                                            <option value="odt">ODT (OpenDocument)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Можно добавить доп. опции в будущем -->
+                                    <div class="setting-item" style="margin-top: 10px;">
+                                        <p style="font-size: 0.75rem; color: #777;">
+                                            Конвертация выполняется через внешний модуль.
+                                        </p>
                                     </div>
                                 </div>
 
@@ -747,7 +782,13 @@
         </div>
     </div>
     <script src="scripts/proxy.js" defer></script>
-    <script src="scripts/scripts.js" defer></script>
+    <!-- ---------------------------- -->
+    <script src="scripts/core.js" defer></script>
+    <script src="scripts/downloader.js" defer></script>
+    <script src="scripts/converter.js" defer></script>
+    <script src="scripts/settings.js" defer></script>
+    <script src="scripts/store.js" defer></script>
+    <!-- ---------------------------- -->
     <script src="scripts/modal.js"></script>
     <script src="scripts/theme.js" defer></script>
     <script src="scripts/notification.js"></script>
