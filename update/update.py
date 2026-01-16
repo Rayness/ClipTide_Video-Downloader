@@ -11,6 +11,8 @@ import subprocess
 import threading
 import psutil
 import webview
+import configparser
+
 
 class UpdaterAPI:
     def __init__(self):
@@ -25,7 +27,7 @@ GITHUB_REPO = "Rayness/YT-Downloader"
 APP_EXECUTABLE = "ClipTide.exe"
 HEADERS = {"User-Agent": "Updater-App", "Accept": "application/vnd.github.v3+json"}
 
-MANIFEST_URL = "https://raw.githubusercontent.com/Rayness/YT-Downloader/main/updates.json"
+MANIFEST_URL = "https://raw.githubusercontent.com/Rayness/ClipTide_Video-Downloader/refs/heads/main/updates.json"
 CONFIG_PATH = os.path.join(os.environ["LOCALAPPDATA"], "ClipTide", "config.ini")
 
 # Пути
@@ -56,6 +58,17 @@ class UpdaterAPI:
             safe_msg = message.replace('"', '\\"').replace("'", "\\'")
             self._window.evaluate_js(f'addLog("{safe_msg}")')
 
+    def get_update_channel(self):
+        """Читает config.ini основной программы"""
+        channel = "stable"
+        if os.path.exists(CONFIG_PATH):
+            try:
+                config = configparser.ConfigParser()
+                config.read(CONFIG_PATH, encoding='utf-8')
+                channel = config.get("Updates", "channel", fallback="stable")
+            except: pass
+        return channel
+
     def set_status(self, text):
         if self._window:
             safe_text = text.replace('"', '\\"')
@@ -73,6 +86,19 @@ class UpdaterAPI:
         if self._window:
             self._window.destroy()
 
+    def _get_headers_for_url(self, url):
+            """Выбирает заголовки в зависимости от домена"""
+            if "github.com" in url or "api.github.com" in url:
+                return {
+                    "User-Agent": "Updater-App",
+                    "Accept": "application/vnd.github.v3+json"
+                }
+            else:
+                # Притворяемся обычным браузером для твоего сайта
+                return {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                }
+
     # --- ЛОГИКА ---
 
     def get_local_version(self):
@@ -88,43 +114,51 @@ class UpdaterAPI:
         threading.Thread(target=self._check_thread, daemon=True).start()
 
     def _check_thread(self):
-        self.log(f"Проверка версии...")
         
+        self.log(f"Проверка версии...")
         local = self.get_local_version()
+        channel = self.get_update_channel()
+        
+        self.log(f"Канал обновлений: {channel.upper()}")
         
         try:
-            api_url = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
-            response = requests.get(api_url, headers=HEADERS, timeout=10)
+            # Ссылка на манифест (обычно GitHub RAW)
+            # Если MANIFEST_URL ведет на GitHub, функция вернет нужные хедеры
+            manifest_headers = self._get_headers_for_url(MANIFEST_URL)
+            
+            response = requests.get(MANIFEST_URL, headers=manifest_headers, timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
-                latest = data.get("tag_name", "0.0.0").replace('v', '')
-                local = local.replace('v', '')
                 
-                assets = data.get("assets", [])
-                for asset in assets:
-                    if asset["name"].endswith(".zip"):
-                        self.download_url = asset["browser_download_url"]
-                        break
-                if not self.download_url and assets:
-                    self.download_url = assets[0]["browser_download_url"]
+                # 2. Берем данные для выбранного канала
+                if channel not in data:
+                    self.log(f"Ошибка: канал '{channel}' не найден в манифесте. Переход на stable.")
+                    channel = "stable"
+                
+                channel_data = data.get(channel, {})
+                latest = channel_data.get("version", "0.0.0")
+                self.download_url = channel_data.get("url")
+                description = channel_data.get("description", "")
 
                 if latest != local:
-                    self.set_status(f"Доступна версия {latest}")
-                    self.log(f"Найдено обновление: {latest}")
-                    self.set_ui_state('ready')
+                    self.set_status(f"Доступна версия {latest} ({channel})")
+                    self.log(f"Описание: {description}")
+                    
+                    if not self.download_url:
+                        self.log("Ошибка: URL для скачивания не указан в манифесте")
+                        self.set_ui_state('no-update')
+                    else:
+                        self.set_ui_state('ready')
                 else:
-                    self.set_status("Установлена последняя версия")
-                    self.log("Обновлений нет.")
+                    self.set_status(f"У вас последняя версия ({channel})")
                     self.set_ui_state('no-update')
             else:
-                self.log(f"Ошибка API: {response.status_code}")
-                self.set_status("Ошибка сети")
+                self.log(f"Ошибка получения манифеста: {response.status_code}")
                 self.set_ui_state('no-update')
 
         except Exception as e:
             self.log(f"Ошибка: {e}")
-            self.set_status("Ошибка проверки")
             self.set_ui_state('no-update')
 
     def start_update(self):
@@ -144,8 +178,20 @@ class UpdaterAPI:
         archive_path = os.path.join(DOWNLOAD_DIR, "update.zip")
         self.set_status("Скачивание...")
         
+        current_headers = self._get_headers_for_url(self.download_url) 
+        
         try:
-            response = requests.get(self.download_url, stream=True, timeout=60)
+            self.log(f"Источник: {self.download_url}")
+            
+            # Используем current_headers
+            response = requests.get(self.download_url, headers=current_headers, stream=True, timeout=60)
+            
+            # Проверка на 403/404
+            if response.status_code != 200:
+                self.log(f"Ошибка сервера: {response.status_code}")
+                self.set_ui_state('error')
+                return
+
             total_size = int(response.headers.get("content-length", 0))
             downloaded = 0
             
