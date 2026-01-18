@@ -5,8 +5,8 @@
         "description": "Стабильный релиз. Исправлены баги."
     },
     "dev": {
-        "version": "1.7-beta1",
-        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v1.7-beta1/update.zip",
+        "version": "1.7.1-build_1.0",
+        "url": "https://cliptide.ru/assets/UpdaterFiles/dev_update.zip",
         "description": "Тестовая версия. Добавлены плагины."
     }
 }

@@ -178,15 +178,15 @@ class UpdaterAPI:
         archive_path = os.path.join(DOWNLOAD_DIR, "update.zip")
         self.set_status("Скачивание...")
         
-        current_headers = self._get_headers_for_url(self.download_url) 
+        # Получаем правильные заголовки (если ты внедрил метод _get_headers_for_url)
+        # Если нет, используй просто HEADERS
+        current_headers = self._get_headers_for_url(self.download_url) if hasattr(self, '_get_headers_for_url') else HEADERS
         
         try:
             self.log(f"Источник: {self.download_url}")
             
-            # Используем current_headers
             response = requests.get(self.download_url, headers=current_headers, stream=True, timeout=60)
             
-            # Проверка на 403/404
             if response.status_code != 200:
                 self.log(f"Ошибка сервера: {response.status_code}")
                 self.set_ui_state('error')
@@ -227,8 +227,35 @@ class UpdaterAPI:
             if len(items) == 1 and os.path.isdir(os.path.join(EXTRACT_DIR, items[0])):
                 source_root = os.path.join(EXTRACT_DIR, items[0])
 
-            shutil.copytree(source_root, TARGET_DIR, dirs_exist_ok=True)
+            # === ЗАМЕНА shutil.copytree НА УМНЫЙ ЦИКЛ ===
+            for root, dirs, files in os.walk(source_root):
+                rel_dir = os.path.relpath(root, source_root)
+                dest_dir = os.path.join(TARGET_DIR, rel_dir)
+                if not os.path.exists(dest_dir):
+                    os.makedirs(dest_dir, exist_ok=True)
+
+                for file in files:
+                    src_file = os.path.join(root, file)
+                    dst_file = os.path.join(dest_dir, file)
+
+                    # Проверка: если файл занят (это мы сами), сохраняем как .new
+                    if file.lower() == "updater.exe":
+                        dst_file = dst_file + ".new"
+                        self.log(f"Отложенное обновление: {file}")
+
+                    # Удаляем старый файл, если он есть (и не занят)
+                    if os.path.exists(dst_file):
+                        try:
+                            os.remove(dst_file)
+                        except Exception as e:
+                            self.log(f"Пропуск занятого файла {file}: {e}")
+                            continue 
+                    
+                    shutil.copy2(src_file, dst_file)
+            
             self.log("Файлы обновлены.")
+            # ============================================
+
         except Exception as e:
             self.log(f"Ошибка копирования: {e}")
             return

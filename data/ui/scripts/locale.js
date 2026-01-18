@@ -71,8 +71,6 @@ window.updateTranslations = function(translations) {
         safeSetText('lang_ru', s.language.russian);
         safeSetText('lang_en', s.language.english);
 
-        safeSetText('language_settings_title', translations.settings.language.title);
-        safeSetText('language_title', translations.settings.language.language);
         safeSetText('lang_ru', translations.settings.language.russian);
         safeSetText('lang_en', translations.settings.language.english);
         safeSetText('lang_pl', translations.settings.language.polish);
@@ -82,7 +80,6 @@ window.updateTranslations = function(translations) {
         safeSetText('lang_de', translations.settings.language.german);
         safeSetText('lang_fr', translations.settings.language.french);
         safeSetText('lang_cn', translations.settings.language.chinese);
-        safeSetText('open_locale_folder', translations.settings.language.open_folder);
     }
     // Оформление
 
@@ -134,19 +131,18 @@ window.updateTranslations = function(translations) {
         safeSetText('about-date', s.about.date);
     }
 
-}
     // Донат
     if (translations.donate) {
         safeSetText('donate-description', translations.donate.description);
     }
-
+    
     // Основной функционал //
     // 
     // Загрузка видео
-
+    
     const vidUrl = document.getElementById('videoUrl');
     if(vidUrl) vidUrl.placeholder = translations.video_URL || 'URL...';
-
+    
     // --- МАГАЗИН ---
     if (translations.store) {
         safeSetText('tab-store-modules', translations.store.tab_modules);
@@ -157,8 +153,8 @@ window.updateTranslations = function(translations) {
     
     // Конвертер
     if (translations.converter) {
-        safeSetText('converter_add_video', translations.converter.click_for_add_video);
-        safeSetText('convertion-settings', translations.converter.convertion_settings);
+        // safeSetText('converter_add_video', translations.converter.click_for_add_video);
+        // safeSetText('convertion-settings', translations.converter.convertion_settings);
         safeSetText('txt-conv-add', translations.converter.add_files_btn);
         
         // Заголовок сайдбара обновляется динамически, но дефолт зададим
@@ -177,19 +173,19 @@ window.updateTranslations = function(translations) {
         
         safeSetText('txt-btn-conv', translations.converter.btn_convert);
         safeSetText('txt-btn-stop', translations.converter.btn_stop);
-
+        
         safeSetText('cv-res-orig', translations.converter.val_original);
         safeSetText('opt-cv-img-orig', translations.converter.val_original);
-
+        
         safeSetText('lbl-cv-img-fmt', translations.converter.lbl_format);
         safeSetText('lbl-cv-img-qual', translations.converter.lbl_quality);
         safeSetText('lbl-cv-img-size', translations.converter.lbl_size);
         
         safeSetText('txt-cv-img-low', translations.converter.val_low);
         safeSetText('txt-cv-img-high', translations.converter.val_high);
-
+        
     } 
-
+    
     
     // История (Модальное окно)
     if (translations.history) {
@@ -198,7 +194,7 @@ window.updateTranslations = function(translations) {
         safeSetText('lbl-hist-link', translations.history.link_label);
         safeSetText('txt-hist-dl', translations.history.btn_download_again);
         safeSetText('txt-hist-del', translations.history.btn_delete_record);
-
+        
         // Ссылку "Открыть в браузере" нужно обновлять аккуратно, чтобы не стереть href
         const linkEl = document.getElementById('hist-link');
         if(linkEl && translations.history.open_browser) {
@@ -206,9 +202,9 @@ window.updateTranslations = function(translations) {
         } else {
             console.warn("Translation section 'history' is missing!");
         }
-
+        
     }
-
+    
     // Логи
     // Если лог пустой (только старт), можно обновить первую запись
     if (translations.logs) {
@@ -218,11 +214,6 @@ window.updateTranslations = function(translations) {
     if (logContainer && logContainer.children.length === 1) {
         safeSetText('log-entry', translations.logs.app_ready);
     }
-
-// Оставляем слушатель
-const openLangBtn = document.getElementById('openLangFiles');
-if(openLangBtn) {
-    openLangBtn.addEventListener('click', ()=>{
-        window.pywebview.api.open_locale_folder()
-    });
+    
 }
+    

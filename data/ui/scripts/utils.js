@@ -95,7 +95,11 @@ window.loadUpdateSettings = function(channel) {
 }
 
 // Сохранение
-document.getElementById('update_channel').addEventListener('change', (e) => {
-    // Создай метод switch_update_channel в Python
-    window.pywebview.api.switch_update_channel(e.target.value);
-});
+const updateChannel = document.getElementById('update_channel');
+if (updateChannel) {
+    updateChannel.addEventListener('change', (e) => {
+        if(window.pywebview.api.switch_update_channel) {
+            window.pywebview.api.switch_update_channel(e.target.value);
+        }
+    });
+}

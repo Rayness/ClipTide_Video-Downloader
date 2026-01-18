@@ -1,6 +1,8 @@
 # Copyright (C) 2025 Rayness
 # This program is free software under GPLv3. See LICENSE for details.
 
+import os
+import sys
 import json
 import webview
 import time
@@ -15,6 +17,34 @@ from app.utils.logs.logs import logs
 from app.utils.const import html_file_path
 from app.utils.queue.queue import load_queue_from_file
 from app.modules.system.module_manager import ModuleManager
+
+def finalize_updater_update():
+    """
+    Проверяет наличие updater.exe.new и заменяет им старый updater.exe.
+    Это происходит при старте ClipTide, когда updater.exe уже закрыт.
+    """
+    # Путь к текущей папке программы (в AppData)
+    base_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+    if not getattr(sys, 'frozen', False):
+        base_dir = os.path.abspath(".") # Для dev режима
+
+    updater_exe = os.path.join(base_dir, "updater.exe")
+    updater_new = os.path.join(base_dir, "updater.exe.new")
+
+    if os.path.exists(updater_new):
+        print("Found new version of updater. Installing...")
+        try:
+            # Небольшая пауза на случай, если апдейтер закрывается прямо сейчас
+            # (хотя subprocess.Popen в апдейтере не блокирует, но перестрахуемся)
+            time.sleep(0.5) 
+            
+            if os.path.exists(updater_exe):
+                os.remove(updater_exe)
+            
+            os.rename(updater_new, updater_exe)
+            print("Updater successfully updated.")
+        except Exception as e:
+            print(f"Failed to update updater: {e}")
 
 def startApp():
     # 1. Создаем контекст
@@ -114,6 +144,7 @@ def startApp():
 
 def main():
     unicodefix()
+    finalize_updater_update()
     ffmpegreg()
     logs()
     startApp()
