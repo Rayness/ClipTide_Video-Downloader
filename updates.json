@@ -1,7 +1,7 @@
 {
     "stable": {
         "version": "1.6.3",
-        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v1.6/update.zip",
+        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v1.7.0/ClipTide-1.7.0.zip",
         "description": "Стабильный релиз. Исправлены баги. Добавлена поддержка новых форматов. Добавлены новые темы оформления. Добавлен модуль Office Converter."
     },
     "dev": {
