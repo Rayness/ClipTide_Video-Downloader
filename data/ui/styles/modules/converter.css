@@ -4,163 +4,195 @@
     display: flex;
     flex-direction: row;
     height: 100%;
-    gap: 0.5rem; /* Уменьшили отступ между колонками */
-    padding: 0.5rem;
-    overflow: hidden; /* Важно, чтобы не появлялось 2 скролла */
+    gap: 1rem;
+    padding: 1rem;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
-/* --- Левая часть (Список) --- */
+/* Левая часть (Список) */
 .converter-main {
     flex: 2;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
     min-width: 0;
     height: 100%;
+    background: var(--input-bg-transparent);
+    border-radius: var(--border-radius-md);
+    padding: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
+/* Дроп-зона вверху списка */
 .drop-zone-small {
-    border: 2px dashed rgba(255,255,255,0.2);
-    border-radius: var(--border-radius-md);
-    padding: 0.75rem; /* Чуть меньше */
+    border: 2px dashed rgba(255,255,255,0.1);
+    border-radius: var(--border-radius-sm);
+    padding: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 0.8rem;
     cursor: pointer;
     transition: all 0.3s;
-    background: var(--input-bg-transparent);
-    flex-shrink: 0; /* Чтобы дропзона не сжималась */
+    background: rgba(0,0,0,0.2);
+    color: #aaa;
+    font-weight: 500;
 }
 
 .drop-zone-small:hover {
-    background: var(--input-bg);
+    background: rgba(255,255,255,0.05);
     border-color: var(--accent-color);
+    color: var(--accent-color);
 }
 
+.drop-zone-small i {
+    font-size: 1.2rem;
+}
+
+/* Список */
 .converter-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    overflow-y: auto; /* Скролл только у списка */
+    overflow-y: auto;
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding-right: 0.2rem; /* Место для скроллбара */
+    padding-right: 5px;
 }
 
+
+/* 2. ОБЛАСТЬ НАСТРОЕК (Скроллируемая) */
+/* Применяем стили ко всем блокам настроек */
+#settings-video, 
+#settings-image, 
+#settings-document {
+    flex: 1;          /* Занимает все доступное место между шапкой и кнопками */
+    overflow-y: auto; /* Включаем скролл внутри */
+    overflow-x: hidden;
+    min-height: 0;    /* Магия Flexbox для работы скролла */
+    padding: 1rem;    /* Внутренний отступ */
+    display: flex;    /* Чтобы работали gap */
+    flex-direction: column;
+    gap: 1rem;
+}
+
+
+/* Карточка файла (Стиль как в Downloader) */
 .conv-item {
-    background: var(--dark-bg-transparent);
-    padding: 0.5rem;
+    background: var(--card-bg);
+    padding: 0.8rem;
     border-radius: var(--border-radius-sm);
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
-    animation: fadeIn 0.3s ease;
+    gap: 0.5rem;
+    animation: slideIn 0.3s ease;
     flex-shrink: 0;
-    overflow-wrap: wrap;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+    position: relative;
 }
 
+.conv-item:hover {
+    background: rgba(255,255,255,0.03); /* Чуть светлее */
+}
+
+.conv-item.selected {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 1px var(--accent-color);
+    background: rgba(var(--accent-color-rgb), 0.05); /* Если бы были RGB переменные */
+}
+
+/* Верх карточки */
 .conv-item-top {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
 .conv-thumb {
-    width: 50px; /* Чуть меньше */
-    height: 35px;
+    width: 60px;
+    height: 40px;
     object-fit: cover;
     border-radius: 4px;
+    background: #000;
 }
 
 .conv-info {
     flex: 1;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .conv-filename {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    font-weight: 500;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-weight: 500;
+    color: var(--text-color);
 }
 
 .conv-meta {
-    font-size: 0.7rem;
-    color: #aaa;
+    font-size: 0.75rem;
+    color: #777;
+    display: flex;
+    gap: 10px;
 }
 
+/* Статус */
 .conv-status {
     font-size: 0.75rem;
-    font-weight: bold;
-    min-width: 70px;
-    text-align: right;
-    color: var(--accent-color);
-}
-
-/* Прогресс бар внутри элемента списка */
-.conv-progress-bg {
-    height: 4px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
     background: rgba(255,255,255,0.1);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-top: 2px;
+    color: #ccc;
+    min-width: 60px;
+    text-align: center;
 }
 
-.conv-progress-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--progress-gradient);
-    transition: width 0.3s;
+.conv-item.done .conv-status {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
 }
 
-/* --- Правая часть (Сайдбар) --- */
-.converter-sidebar {
-    flex: 0 0 340px; /* Фиксированная ширина, чтобы не прыгало */
-    background: var(--card-bg-transparent);
-    padding: 0.75rem; /* Компактнее */
-    border-radius: var(--border-radius-md);
+/* Кнопки в карточке */
+.conv-actions {
+    flex-shrink: 0; /* Не сжиматься */
+    padding: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background: var(--card-bg); /* Чтобы контент не просвечивал при скролле под ними */
     display: flex;
     flex-direction: column;
-    gap: 0.75rem; /* Меньше отступы между настройками */
-    max-height: 100%;
-    overflow-y: auto; /* Добавлен скролл, если экран совсем маленький */
-    margin: 0;
+    gap: 0.5rem;
+    z-index: 10;
 }
 
-.converter-sidebar h4 {
-    margin: 0 0 0.25rem 0;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding-bottom: 0.5rem;
-    font-size: 1rem;
-    flex-shrink: 0;
+.converter-actions .primary-btn {
+    padding: 0.6rem;
+    font-size: 0.9rem;
 }
 
+/* --- Стили элементов настроек --- */
 .setting-item {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
-    flex-shrink: 0;
+    gap: 0.4rem;
 }
 
 .setting-item label {
     font-size: 0.8rem;
     color: #ccc;
-    margin-left: 0.2rem;
+    font-weight: 500;
 }
 
-/* Переопределяем глобальные стили инпутов ТОЛЬКО для сайдбара, чтобы они были тоньше */
-.converter-sidebar .select-control {
-    padding: 0.4rem 0.5rem;
-    font-size: 0.9rem;
-    margin: 0; /* Убираем лишние внешние отступы */
-    height: auto;
-}
-
+/* Ползунки и прочее */
 .range-value {
     display: flex;
     justify-content: space-between;
@@ -169,102 +201,72 @@
     margin-top: 2px;
 }
 
-/* Кнопки */
-.converter-actions {
-    margin-top: auto; /* Прижимаем к низу */
+/* Сайдбар настроек */
+/* --- Правая часть (Сайдбар) --- */
+.converter-sidebar {
+    flex: 0 0 300px; /* Фиксированная ширина */
+    background: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: var(--shadow-md);
+    
+    /* ВАЖНО ДЛЯ СКРОЛЛА: */
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    flex-shrink: 0;
+    height: 100%;       /* Растягиваем на всю высоту родителя */
+    overflow: hidden;   /* Запрещаем скролл самого контейнера */
+    padding: 0;         /* Паддинги перенесем внутрь блоков, чтобы скролл был красивым */
 }
 
-.converter-actions .primary-btn {
-    padding: 0.5rem;
-    font-size: 0.9rem;
-}
-
-/* Кнопка раскрытия (стрелочка) */
-.btn-expand {
-    background: none;
-    border: none;
-    color: #888;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-expand:hover {
-    background: rgba(255,255,255,0.1);
-    color: white;
-}
-
-/* Анимация поворота стрелки при открытии */
-.conv-item.expanded .btn-expand {
-    transform: rotate(180deg);
-    color: var(--accent-color);
-}
-
-/* Блок деталей (скрыт по умолчанию) */
-.conv-details {
-    display: none; /* Скрыто */
-    background: rgba(0,0,0,0.2);
-    border-radius: var(--border-radius-sm);
-    padding: 0.75rem;
-    margin-top: 0.5rem;
-    font-size: 0.8rem;
-    color: #ccc;
-    
-    /* Сетка для данных */
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-}
-
-/* Показываем блок, если у родителя класс expanded */
-.conv-item.expanded .conv-details {
-    display: grid;
-    animation: fadeIn 0.3s ease;
-}
-
-.detail-row {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.detail-label {
-    color: #777;
-    font-weight: bold;
-}
-
-/* Выделенный элемент в списке */
-.conv-item.selected {
-    background: var(--input-bg);
-    border: 1px solid var(--accent-color);
-    box-shadow: 0 0 10px rgba(140, 127, 255, 0.2);
-}
-
-/* Заголовок сайдбара */
+/* 1. ШАПКА (Фиксированная) */
 .sidebar-header {
+    flex-shrink: 0; /* Не сжиматься */
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 1rem 1rem 0.8rem 1rem;
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.5rem;
-    min-height: 2rem;
+    min-height: 2.5rem;
 }
 
 .sidebar-header h4 {
     margin: 0;
-    font-size: 0.9rem;
+    color: var(--accent-color);
+    font-size: 0.95rem;
+    
+    /* ОБРЕЗКА ДЛИННОГО ТЕКСТА */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    border: none; /* Убираем старый бордер */
-    padding: 0;
+    max-width: 210px; /* Оставляем место под кнопку "copy" */
+}
+
+/* Прогресс */
+.conv-progress-bg {
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+.conv-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--progress-gradient);
+    transition: width 0.3s;
+}
+
+/* Блок деталей (аккордеон) */
+.conv-details {
+    display: none;
+    background: rgba(0,0,0,0.2);
+    padding: 0.8rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    color: #bbb;
+}
+.conv-item.expanded .conv-details {
+    display: grid;
 }

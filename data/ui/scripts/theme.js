@@ -19,7 +19,7 @@ function setTheme(themeName) {
     }
 
     // Загружаем иконки для этой темы
-    loadIconsForTheme(themeName);
+    // loadIconsForTheme(themeName);
 
     if (typeof refreshCustomSelectOptions === 'function') {
         refreshCustomSelectOptions();

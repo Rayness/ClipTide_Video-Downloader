@@ -1,0 +1,15 @@
+.flex-conteiner {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-conteiner-row {
+    display: flex;
+    flex-direction: row;
+    justify-content:space-between;
+
+}
+.flex-1 {
+    flex: 1;
+    justify-content: space-between;
+}

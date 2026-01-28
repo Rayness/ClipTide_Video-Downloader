@@ -1,0 +1,409 @@
+/* ===== Components ===== */
+/* Inputs */
+.url-input,
+.input-folder,
+.select-control {
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border: none;
+    border-radius: var(--border-radius-md);
+    background-color: var(--input-bg-transparent);
+    color: var(--text-color);
+    font-size: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.input-folder:disabled {
+    color: transparent;
+}
+
+.select-control option {
+    background-color: var(--input-bg);
+}
+
+.url-input {
+    flex: 1;
+    width: 100%;
+    margin: 0.75rem auto;
+    margin-right: 0.5rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+#format {
+    width: 6rem;
+}
+
+#resolution {
+    width: 10rem;
+}
+
+#update__text {
+    background-color: #0A0A0F;
+    padding: 0.75rem;
+    border-radius: var(--border-radius-md);
+    margin-right: 0.5rem;
+}
+
+/* Buttons */
+.primary-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    color: var(--text-color);
+    background: var(--btn-bg);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(10px);
+}
+
+#settings-toggle {
+    margin: 0;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.primary-btn:active {
+    transform: translateY(0);
+}
+
+.primary-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+.icon-btn {
+    padding: 0.75rem;
+    font-size: 1rem;
+    color: var(--text-color);
+    background:var(--dark-bg-transparent);
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn.small {
+    padding: 0.5rem;
+    width: 40px;
+    height: 40px;
+    width: 4rem;
+}
+
+
+/* Вся прокрутка */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+/* "Фон" скроллбара */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Ползунок */
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+    transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+
+/* Cards & Containers */
+.progress-info,
+.queue-container {
+    /* background-color: var(--card-bg); */
+    border-radius: var(--border-radius-md);
+}
+
+.queue-container {
+    flex: 1;
+    max-height: 100%;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+}
+
+
+
+
+/* Progress */
+.progress-bar {
+    margin: 0.5rem;
+    height: 20px;
+    background-color: var(--dark-bg-transparent);
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--progress-gradient);
+    background-size: 200% 100%;
+    transition: width 0.3s ease;
+    animation: flowing 2s linear infinite;
+}
+
+@keyframes flowing {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* Status & Info */
+.status-info {
+    margin: 0.75rem 0 0 0;
+    padding: 0.75rem;
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+    text-align: center;
+    font-weight: bold;
+    user-select: text;
+    overflow: hidden;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Spinner */
+.spinner-container {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+/* Новый спиннер */
+
+/* From Uiverse.io by Mike11jr */ 
+.spinner {
+    margin: auto;
+    width: 60px;
+    height: 60px;
+    position: relative;
+}
+
+.spinner .dot {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.spinner .dot::after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: rgb(12, 180, 231);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner .dot {
+    animation: spin 2s infinite;
+}
+
+.spinner .dot:nth-child(2) {
+    animation-delay: 100ms;
+}
+
+.spinner .dot:nth-child(3) {
+    animation-delay: 200ms;
+}
+
+.spinner .dot:nth-child(4) {
+    animation-delay: 300ms;
+}
+
+.spinner .dot:nth-child(5) {
+    animation-delay: 400ms;
+}
+
+
+/* Старый спиннер */
+
+/* .spinner {
+    margin: auto;
+    width: 30px;
+    height: 30px;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+} */
+
+/* Tooltips */
+.tooltip-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    padding: 0.5rem;
+    background-color: #555;
+    color: white;
+    text-align: center;
+    border-radius: var(--border-radius-sm);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 10;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.tooltip-wrap:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+/* --- CUSTOM SELECT (Полностью кастомный) --- */
+.custom-select-wrapper {
+    position: relative;
+    user-select: none;
+    min-width: 120px;
+}
+
+.custom-select-wrapper select {
+    display: none; /* Скрываем оригинал */
+}
+
+/* Голова селекта (то, что видно всегда) */
+.custom-select-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-color);
+    background: var(--input-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.custom-select-trigger:hover {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.custom-select-trigger::after {
+    content: '\f078'; /* FontAwesome chevron-down */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 0.7rem;
+    margin-left: 10px;
+    transition: transform 0.3s;
+    color: #888;
+}
+
+.custom-select.open .custom-select-trigger::after {
+    transform: rotate(180deg);
+    color: var(--accent-color);
+}
+
+.custom-select.open .custom-select-trigger {
+    border-color: var(--accent-color);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Выпадающий список */
+.custom-options {
+    position: absolute;
+    display: block;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--accent-color);
+    border-top: 0;
+    border-bottom-left-radius: var(--border-radius-sm);
+    border-bottom-right-radius: var(--border-radius-sm);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.custom-select.open .custom-options {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+    transform: translateY(0);
+}
+
+/* Опции */
+.custom-option {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.custom-option:hover {
+    background: var(--accent-color-transparent);
+    color: white;
+}
+
+.custom-option.selected {
+    background: var(--accent-color);
+    color: black; /* Или white, в зависимости от контраста */
+    font-weight: bold;
+}
+
+.custom-option.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    font-style: italic;
+    background: rgba(0,0,0,0.2);
+}

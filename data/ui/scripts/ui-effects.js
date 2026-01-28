@@ -194,3 +194,34 @@ function refreshCustomSelectOptions() {
         }
     });
 }
+
+// --- ЛОГИКА НИЖНЕЙ ПАНЕЛИ (LOGS DRAWER) ---
+
+document.addEventListener("DOMContentLoaded", () => {
+    const logPanel = document.getElementById('log-panel');
+    const logBtn = document.getElementById('toggle-logs-btn');
+
+    if (logPanel && logBtn) {
+        logBtn.addEventListener('click', () => {
+            if (logPanel.classList.contains('collapsed')) {
+                // Открываем
+                logPanel.classList.remove('collapsed');
+                logPanel.classList.add('expanded');
+            } else {
+                // Закрываем
+                logPanel.classList.remove('expanded');
+                logPanel.classList.add('collapsed');
+            }
+        });
+    }
+});
+
+// Авто-открытие логов при ошибке (Опционально)
+// Можно добавить эту функцию, чтобы логи сами выезжали, если случилась беда
+window.openLogsOnError = function() {
+    const logPanel = document.getElementById('log-panel');
+    if (logPanel && logPanel.classList.contains('collapsed')) {
+        logPanel.classList.remove('collapsed');
+        logPanel.classList.add('expanded');
+    }
+}

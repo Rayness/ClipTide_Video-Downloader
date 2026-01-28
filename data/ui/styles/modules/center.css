@@ -1,0 +1,208 @@
+/* --- ПРАВАЯ ЧАСТЬ (Контейнер) --- */
+.conteiner {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Растягивается на ширину */
+    min-width: 0;
+    height: 100%; /* Растягивается на высоту */
+    background: transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- ВЕРХНЯЯ ШАПКА (Header) --- */
+.conteiner .name {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3.5rem;
+    min-height: 3.5rem;
+    padding: 0 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-color); /* Фон нужен, чтобы контент не просвечивал при скролле */
+    z-index: 20; /* Поверх контента */
+}
+
+.conteiner .name h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.conteiner .name h3::before {
+    content: '#';
+    color: #555;
+    font-weight: 400;
+    font-size: 1.3rem;
+}
+
+.conteiner .name .utils {
+    display: flex;
+    gap: 1rem;
+}
+
+.top-bar-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #aaa;
+    background: transparent;
+    transition: all 0.2s;
+}
+
+.top-bar-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+}
+
+/* --- ОБЛАСТЬ КОНТЕНТА (Где вкладки) --- */
+.conteiner .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    position: relative;
+    background: transparent;
+}
+
+/* Общий класс для вкладок */
+.content {
+    flex: 1;
+    height: 100%;
+    overflow: hidden; /* Скролл управляется внутри модулей */
+    display: none;
+    padding: 0; /* Паддинги задаются внутри конкретных вкладок */
+}
+
+.content.active {
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Отступы для конкретных вкладок */
+#1, #2, #3, #6, #12 {
+    padding: 1rem 1.5rem;
+    overflow-y: auto; /* Включаем скролл для контента */
+}
+
+/* Для загрузчика и конвертера убираем общий скролл, так как у них свои скроллбары внутри */
+#1, #2 {
+    overflow: hidden;
+    padding-bottom: 0;
+}
+
+/* --- НИЖНЯЯ ПАНЕЛЬ ЛОГОВ --- */
+.down-panel {
+    display: flex;
+    flex-direction: column; /* Элементы друг под другом */
+    background: var(--dark-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* ВАЖНО: */
+    overflow: hidden;       /* Сама панель НЕ должна скроллиться! */
+    flex-shrink: 0;
+    z-index: 100;
+}
+
+.down-panel.collapsed { height: 28px; }
+.down-panel.expanded { height: 180px; }
+
+.panel-handle {
+    height: 30px;
+    min-height: 30px;
+    flex-shrink: 0;         /* Запрещаем сжимать шапку */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03); /* Разделитель */
+    user-select: none;
+}
+
+.panel-handle:hover { background: rgba(255, 255, 255, 0.05); }
+
+.handle-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.handle-right i {
+    color: #666;
+    transition: transform 0.3s;
+    font-size: 0.8rem;
+}
+
+.down-panel.expanded .handle-right i { transform: rotate(180deg); }
+
+.panel-content {
+    flex: 1;
+    min-height: 0;  
+    padding: 0.5rem;
+    background: var(--dark-bg);
+}
+
+/* --- ЛОГИ --- */
+.logs-container {
+    height: 100%;           /* Занимает всю высоту .panel-content */
+    overflow-y: auto;       /* СКРОЛЛ ТОЛЬКО ЗДЕСЬ */
+    overflow-x: hidden;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* Элемент лога */
+.log-entry {
+    padding: 3px 6px;
+    color: #aaa; /* Default: Info */
+    border-left: 3px solid transparent; 
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 2px;
+    word-break: break-word; /* Перенос длинных строк */
+    line-height: 1.4;
+    flex-shrink: 0; /* Чтобы элементы не сжимались */
+}
+
+.log-entry:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Цвета уровней (копируем логику цветов) */
+.log-entry.info { border-left-color: #888; }
+.log-entry.success { border-left-color: #4caf50; color: #e8f5e9; }
+.log-entry.warn { border-left-color: #ff9800; color: #fff3e0; }
+.log-entry.error { border-left-color: #f44336; color: #ffebee; background: rgba(244, 67, 54, 0.1); }
+
+/* Время */
+.log-time {
+    color: #555;
+    margin-right: 8px;
+    font-size: 0.7rem;
+    user-select: none;
+    font-weight: bold;
+}
+
+/* Подготовка под кликабельность (курсор) */
+.log-entry[data-code] {
+    cursor: help;
+}

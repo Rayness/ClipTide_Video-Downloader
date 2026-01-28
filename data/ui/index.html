@@ -36,17 +36,17 @@
                 <div class="circle">
                     <button onclick="pywebview.api.minimize()">
 
-                        <span class="green box"></span>
+                        <span class="green"></span>
                     </button>                        
                 </div>
                 <div class="circle">
                     <button onclick="pywebview.api.toggle_fullscreen()">
-                        <span class="yellow box"></span>
+                        <span class="yellow"></span>
                     </button>
                 </div>
                 <div class="circle">
                     <button onclick="pywebview.api.close()">
-                        <span class="red box"></span>
+                        <span class="red"></span>
                     </button>
                 </div>
             </div>
@@ -398,50 +398,43 @@
         <div class="body-app">
             <div class="left-panel">
                 <div class="utils">
-                    <div class="tab-btn" data-tab="1" id="video-downloader">
-                        <div id="icon-downloader" class="icon-container">
-
-                        </div>
+                    <!-- Загрузчик -->
+                    <div class="tab-btn" data-tab="1" id="video-downloader" title="Загрузчик">
+                        <i class="fa-solid fa-download"></i>
                     </div>
-                    <div class="tab-btn" data-tab="2" id="converter">
-                        <div id="icon-converter" class="icon-container">
-
-                        </div>
+                    <!-- Конвертер -->
+                    <div class="tab-btn" data-tab="2" id="converter" title="Конвертер">
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
                     </div>
-                    <div class="tab-btn" data-tab="3" id="store">
-                        <div id="icon-comingSoon" class="icon-container">
-
-                        </div>
+                    <!-- Магазин (бывший coming-soon) -->
+                    <div class="tab-btn" data-tab="3" id="coming-soon" title="Магазин">
+                        <i class="fa-solid fa-shapes"></i> <!-- Или fa-store -->
                     </div>
                 </div>
+                
                 <div class="settings">
-                    <div class="tab-btn" data-tab="6" id="donate">
-                        <div id="icon-donate" class="icon-container">
-
-                        </div>
+                    <!-- Донат -->
+                    <div class="tab-btn" data-tab="6" id="donate" title="Поддержать">
+                        <i class="fa-solid fa-heart"></i>
                     </div>
-                    <div class="tab-btn" id="btn-open-settings">
-                        <div id="icon-settings" class="icon-container"></div>
+                    <!-- Настройки (открывает модалку) -->
+                    <div class="tab-btn" id="btn-open-settings" title="Настройки">
+                        <i class="fa-solid fa-gear"></i>
                     </div>
                 </div>
             </div>
             <div class="conteiner">
                 <div class="main">
                     <div class="name">
-                        <h3 id="name">
-                            Video Downloader
-                        </h3>
+                        <h3 id="name">Video Downloader</h3>
+                        
                         <div class="utils">
-                            <div class="tab-btn" data-tab="12" id="notifications">
-                                <div id="icon-notifi" class="icon-container">
-
-                                </div>
+                            <div class="top-bar-btn" id="notifications-btn" title="История уведомлений">
+                                <i class="fa-solid fa-bell"></i>
+                                <!-- Опционально: красная точка для новых уведомлений -->
+                                <!-- <span class="notifi-dot"></span> -->
                             </div>
-                            <!-- <div class="tab-btn" data-tab="11">
-                                <i class="fa-solid fa-circle-user"></i>
-                            </div> -->
                         </div>
-                        <!-- TODO: Сюда вставить уведомления -->
                     </div>
                     <!-- Загрузчик видео -->
                     <div class="content active" id="1" data-status="Video Downloader">
@@ -721,16 +714,23 @@
                         </div>
                     </div>
                 </div>
-                <div class="down-panel">
-                    <div class="flex-conteiner-row">
-                        <div class="flex-conteiner flex-1">
-                            <!-- Заголовок лога -->
-                            <div style="padding: 0.5rem; font-size: 0.8rem; opacity: 0.7;" id="event-log-title">Лог событий:</div>
-                            
-                            <!-- Окно логов -->
-                            <div id="app-logs" class="logs-container fade-in">
-                                <div class="log-entry" id="log-entry">Приложение готово к работе</div>
-                            </div>
+                <div class="down-panel collapsed" id="log-panel">
+                    <!-- 1. Этот блок ВСЕГДА сверху (Ручка) -->
+                    <div class="panel-handle" id="toggle-logs-btn">
+                        <div class="handle-left">
+                            <i class="fa-solid fa-terminal"></i>
+                            <span>Лог событий</span>
+                        </div>
+                        <div class="handle-right">
+                            <i class="fa-solid fa-chevron-up" id="log-arrow"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- 2. Этот блок занимает всё оставшееся место -->
+                    <div class="panel-content">
+                        <!-- 3. И ТОЛЬКО ЭТОТ блок скроллится -->
+                        <div id="app-logs" class="logs-container">
+                            <!-- Сюда JS добавляет записи -->
                         </div>
                     </div>
                 </div>

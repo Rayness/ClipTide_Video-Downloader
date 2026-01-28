@@ -85,22 +85,18 @@
 }
 
 .queue-thumb-wrapper {
-    width: 120px;       /* Чуть шире для формата 16:9 */
-    height: 68px;       /* Высота */
-    flex-shrink: 0;     /* ЗАПРЕЩАЕМ сжиматься, если текст длинный */
+    width: 100px;
+    height: 60px;
+    flex-shrink: 0;
     border-radius: 4px;
-    overflow: hidden;   /* Обрезаем всё лишнее */
-    background: #000;   /* Черный фон, если картинка не прогрузилась */
-    position: relative;
-    border: 1px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    background: #000;
 }
 
-/* Сама картинка */
 .queue-thumb-wrapper img {
     width: 100%;
     height: 100%;
-    object-fit: cover;  /* Заполняет блок, обрезая лишнее */
-    display: block;     /* Убирает отступ снизу */
+    object-fit: cover;
 }
 
 .video-info {
@@ -231,9 +227,23 @@
     color: #aaa;
 }
 
-
-
-
+/* Логи (оставляем без изменений или чуть подправляем) */
+.logs-container {
+    height: 5rem;
+    background: var(--input-bg-transparent);
+    border-radius: var(--border-radius-sm);
+    padding: 0.5rem;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.75rem;
+    display: flex;
+    flex-direction: column-reverse;
+}
+.log-entry {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    padding: 1px 0;
+    color: #ccc;
+}
 
 /* --- SKELETON LOADING (Прелоадер добавления) --- */
 

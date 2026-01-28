@@ -16,14 +16,27 @@ from app.utils.utils import resource_path
 
 # Класс для фильтрации шума в консоли
 class YtLogger:
+    def __init__(self, downloader_instance):
+        self.dl = downloader_instance
+
     def debug(self, msg):
-        pass
+        # Игнорируем технические дебаги yt-dlp, их слишком много
+        if msg.startswith('[debug] '):
+            return 
+        # Но полезные сообщения (например, про ffmpeg merge) можно оставить как info
+        if "[Merger]" in msg or "[ExtractAudio]" in msg:
+            self.dl.log(msg, "info")
 
     def warning(self, msg):
-        pass
+        # Отправляем как WARN (Желтый)
+        # Убираем префикс WARNING: если он есть
+        clean_msg = msg.replace('WARNING:', '').strip()
+        self.dl.log(clean_msg, "warn")
 
     def error(self, msg):
-        print(f"[YTDLP ERROR] {msg}")
+        # Отправляем как ERROR (Красный)
+        clean_msg = msg.replace('ERROR:', '').strip()
+        self.dl.log(clean_msg, "error", "YTDLP_ERR")
 
 class Downloader:
     def __init__(self, context):
@@ -39,9 +52,12 @@ class Downloader:
 
         # Путь к QuickJS
         self.qjs_path = resource_path(os.path.join("data", "bin", "qjs.exe"))
+        
         if not os.path.exists(self.qjs_path):
-            print(f"WARNING: QuickJS not found at {self.qjs_path}")
+            print(f"[WARN] QuickJS not found at: {self.qjs_path}")
             self.qjs_path = None
+        else:
+            print(f"[INFO] QuickJS found: {self.qjs_path}")
 
     def _js_exec(self, code):
         if self.ctx.window:
@@ -53,10 +69,22 @@ class Downloader:
         if isinstance(value, dict) and key: return value.get(key, default or key)
         return default or key or category
 
-    def log(self, message):
-        print(f"[LOG] {message}")
-        safe_msg = message.replace('"', '\\"').replace("'", "\\'")
-        self._js_exec(f'addLog("{safe_msg}")')
+    def log(self, message, level="info", code=""):
+        """
+        level: info, success, warn, error
+        code: код ошибки для документации (опционально)
+        """
+        # Пишем в консоль разработчика для отладки
+        prefix = f"[{level.upper()}]"
+        print(f"{prefix} {message}")
+        
+        # Экранируем для JS
+        safe_msg = message.replace('"', '\\"').replace("'", "\\'").replace('\n', ' ')
+        
+        # Отправляем в UI
+        # Обрати внимание: если code None, передаем пустую строку
+        code_str = code if code else ""
+        self._js_exec(f'addLog("{safe_msg}", "{level}", "{code_str}")')
 
     def open_dl_folder(self):
         path = self.ctx.download_folder
@@ -68,7 +96,7 @@ class Downloader:
             else:
                 subprocess.Popen(["xdg-open", path])
         except Exception as e:
-            self.log(f"Error opening folder: {e}")
+            self.log(f"Error opening folder: {e}", "error", "OPEN_FOLDER_ERR")
 
     # Вспомогательные методы форматирования
     def _format_size(self, bytes_val):
@@ -91,7 +119,7 @@ class Downloader:
         task_id = str(uuid.uuid4())
         
         status_pending = self.get_trans('status', 'status_text', 'Pending...')
-        self.log(f"{status_pending} ({video_url})")
+        self.log(f"{status_pending} ({video_url})", "info")
         
         def _analyze():
             # Ленивый импорт для скорости
@@ -105,7 +133,8 @@ class Downloader:
                     'cookies': COOKIES_FILE,
                     'quiet': True,
                     'extract_flat': 'in_playlist', # Не качаем данные каждого видео
-                    'logger': YtLogger()
+                    'logger': YtLogger(self),
+                    'extractor_args': {'youtube': {'player_client': ['default']}} 
                 }
                 
                 if self.qjs_path:
@@ -117,7 +146,7 @@ class Downloader:
 
                 # === ЭТО ПЛЕЙЛИСТ ===
                 if 'entries' in info:
-                    self.log(f"Найден плейлист: {info.get('title')}")
+                    self.log(f"Найден плейлист: {info.get('title')}", "info")
                     
                     playlist_data = {
                         "title": info.get('title', 'Playlist'),
@@ -189,11 +218,11 @@ class Downloader:
                 self._js_exec(f'addVideoToList({json.dumps(video_data)})')
                 
                 msg_added = self.get_trans('status', 'to_queue', 'Added to queue')
-                self.log(f"{msg_added}: {title}")
+                self.log(f"{msg_added}: {title}", "success")
 
             except Exception as e:
                 err_msg = self.get_trans('status', 'error_adding', 'Error adding')
-                self.log(f"{err_msg}: {str(e)}")
+                self.log(f"{err_msg}: {str(e)}", "error", "DL_GENERIC_ERR")
                 if temp_id:
                     self._js_exec(f'removeLoadingItem("{temp_id}")')
 
@@ -230,11 +259,11 @@ class Downloader:
         save_queue_to_file(self.ctx.download_queue)
         
         msg_removed = self.get_trans('status', 'removed_from_queue', 'Removed')
-        self.log(f"{msg_removed}: {title}")
+        self.log(f"{msg_removed}: {title}", "success")
 
     def stop_single_task(self, task_id):
         self.interrupt_flags[task_id] = True
-        self.log(f"Stopping task: {task_id}")
+        self.log(f"Stopping task: {task_id}", "info")
 
     def start_single_task(self, task_id):
         if not self.is_running:
@@ -250,11 +279,11 @@ class Downloader:
     def startDownload(self):
         if not self.ctx.download_queue:
             msg_empty = self.get_trans('status', 'the_queue_is_empty', 'Queue empty')
-            self.log(msg_empty)
+            self.log(msg_empty, "warn")
             return
 
         if self.is_running:
-            self.log("Download manager is already running.")
+            self.log("Download manager is already running.", "warn")
             return
 
         # Возобновление зависших задач
@@ -267,7 +296,7 @@ class Downloader:
         
         if resumed_count > 0:
             msg = self.get_trans('status', 'resuming', 'Resuming tasks...')
-            self.log(f"{msg} ({resumed_count})")
+            self.log(f"{msg} ({resumed_count})", "info")
 
         self.stop_requested = False
         self.is_running = True
@@ -277,18 +306,18 @@ class Downloader:
         self.stop_requested = True
         self.is_running = False
         msg = self.get_trans('status', 'stopping', 'Stopping...')
-        self.log(msg)
+        self.log(msg, "info")
 
     def _download_manager(self):
         msg_start = self.get_trans('status', 'manager_started', 'Manager Started')
-        self.log(msg_start)
+        self.log(msg_start, "info")
         
         while self.is_running and not self.stop_requested:
             queued_tasks = [v for v in self.ctx.download_queue if v.get("status") == "queued"]
             
             if not queued_tasks and self.active_tasks == 0:
                 msg_fin = self.get_trans('status', 'queue_finished', 'Queue finished.')
-                self.log(msg_fin)
+                self.log(msg_fin, "success")
                 self.is_running = False
                 break
 
@@ -311,7 +340,7 @@ class Downloader:
         
         if self.stop_requested:
             self.is_running = False
-            self.log("Download Manager Stopped.")
+            self.log("Download Manager Stopped.", "info")
 
     def _download_worker(self, task):
             import yt_dlp 
@@ -327,7 +356,7 @@ class Downloader:
             
             try:
                 msg_start = self.get_trans('status', 'downloading', 'Downloading')
-                self.log(f"{msg_start}: {title}")
+                self.log(f"{msg_start}: {title}", "info")
                 
                 t_mbs = self.get_trans('mbs', 'MB/s')
                 t_sec = self.get_trans('sec', 's')
@@ -385,9 +414,10 @@ class Downloader:
                     'progress_hooks': [progress_hook],
                     'quiet': True,
                     'nocheckcertificate': True,
-                    'logger': YtLogger(),
+                    'logger': YtLogger(self),
                     'sleep_interval': 1,
-                    'sleep_subtitles': 1
+                    'sleep_subtitles': 1,
+                    'extractor_args': {'youtube': {'player_client': ['default']}} 
                 }
 
                 # === НАСТРОЙКИ АУДИО ===
@@ -404,7 +434,7 @@ class Downloader:
 
                 # 1. Сценарий: Скачать ВСЕ аудиодорожки
                 if audio_pref == "all_tracks":
-                    self.log(f"Multi-audio mode enabled for {title}")
+                    self.log(f"Multi-audio mode enabled for {title}", "info")
                     
                     # Включаем поддержку мульти-аудио
                     ydl_opts['audio_multistreams'] = True
@@ -469,7 +499,7 @@ class Downloader:
                     ydl.download([task["url"]])
 
                 # === ФИНАЛ ===
-                self.log(f"{t_done}: {title}")
+                self.log(f"{t_done}: {title}", "success")
                 self._js_exec(f'updateItemProgress("{task_id}", 100, "{t_done}", "")')
                 
                 # Удаление из очереди
@@ -505,9 +535,11 @@ class Downloader:
 
             except Exception as e:
                 t_err = self.get_trans('status', 'error', 'Error')
-                self.log(f"{t_err} [{title}]: {str(e)}")
+                self.log(f"{t_err} [{title}]: {str(e)}", "error", "DL_GENERIC_ERR")
                 task["status"] = "error" 
                 self._js_exec(f'updateItemProgress("{task_id}", 0, "{t_err}", "Failed")')
+                
+                self._js_exec('openLogsOnError()')
                 
             finally:
                 self.active_tasks -= 1

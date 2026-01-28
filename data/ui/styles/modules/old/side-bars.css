@@ -1,0 +1,132 @@
+
+/* ===== Side Panel ===== */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 4rem;
+    max-height: 100%;
+    /* background: var(--card-bg-transparent); */
+    border-radius: var(--border-radius-md);
+}
+
+.left-panel .utils {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.left-panel .utils .tab-btn {
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    background: var(--card-bg-transparent);
+    box-shadow: var(--shadow-sm);
+}
+
+.icon-container {
+    padding: 1rem;
+}
+
+
+.left-panel .utils .tab-btn.active, .left-panel .settings .tab-btn.active {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.utils {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.utils div,
+.left-panel .settings div {
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease-out;
+}
+
+.left-panel .settings {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.left-panel .settings .tab-btn {
+    border-radius: var(--border-radius-lg);
+    background: var(--card-bg-transparent);
+}
+
+.utils .tab-btn:hover,
+.left-panel .settings .tab-btn:hover {
+    background: var(--dark-bg);
+}
+
+svg {
+    fill: white;
+}
+
+.left-panel .utils div.active::after, .left-panel .settings div.active::after {
+    display: var(--after-display, inline-block);
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 20%;
+    bottom: 20%;
+    border-radius: 0.2rem;
+    width: 0.2rem;
+    background-color: var(--danger-color);
+    overflow: visible;
+}
+
+.main .utils div.active::before {
+    display: var(--after-display, inline-block);
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 20%;
+    bottom: 20%;
+    border-radius: 0.2rem;
+    width: 0.2rem;
+    background-color: var(--danger-color);
+}
+
+.left-panel .settings, .controls .buttons {
+    display: flex;
+    flex-direction: column;
+}
+
+.controls .buttons {
+    justify-content: space-between;
+    height: 100%;
+
+}
+
+.controls .buttons button {
+    appearance: none;
+    border: none;
+    background: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 4rem;
+    width: 4rem;
+    color: wheat;
+    cursor: pointer;
+}
+
+.controls .buttons button:disabled {
+    cursor: not-allowed;
+}
+
+.controls .buttons button:hover {
+    align-items: center;
+    background: var(--danger-color);
+    border-radius: var(--border-radius-lg);
+}

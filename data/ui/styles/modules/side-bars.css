@@ -1,132 +1,57 @@
+/* ===== Side Panel (Left Navigation) ===== */
 
-/* ===== Side Panel ===== */
 .left-panel {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 4rem;
-    max-height: 100%;
-    /* background: var(--card-bg-transparent); */
-    border-radius: var(--border-radius-md);
+    width: 4.5rem;
+    height: 100%;
+    background: var(--dark-bg);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1rem 0;
+    box-sizing: border-box;
+    z-index: 50;
+    flex-shrink: 0; /* Чтобы не сжималась */
 }
 
-.left-panel .utils {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.left-panel .utils .tab-btn {
-    display: flex;
-    position: relative;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--border-radius-md);
-    cursor: pointer;
-    background: var(--card-bg-transparent);
-    box-shadow: var(--shadow-sm);
-}
-
-.icon-container {
-    padding: 1rem;
-}
-
-
-.left-panel .utils .tab-btn.active, .left-panel .settings .tab-btn.active {
-    animation: pulse 2s ease-in-out infinite;
-}
-
-.utils {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.utils div,
-.left-panel .settings div {
-    display: flex;
-    position: relative;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s ease-out;
-}
-
+.left-panel .utils,
 .left-panel .settings {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.5rem;
-    cursor: pointer;
 }
 
-.left-panel .settings .tab-btn {
-    border-radius: var(--border-radius-lg);
-    background: var(--card-bg-transparent);
-}
-
-.utils .tab-btn:hover,
-.left-panel .settings .tab-btn:hover {
-    background: var(--dark-bg);
-}
-
-svg {
-    fill: white;
-}
-
-.left-panel .utils div.active::after, .left-panel .settings div.active::after {
-    display: var(--after-display, inline-block);
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 20%;
-    bottom: 20%;
-    border-radius: 0.2rem;
-    width: 0.2rem;
-    background-color: var(--danger-color);
-    overflow: visible;
-}
-
-.main .utils div.active::before {
-    display: var(--after-display, inline-block);
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 20%;
-    bottom: 20%;
-    border-radius: 0.2rem;
-    width: 0.2rem;
-    background-color: var(--danger-color);
-}
-
-.left-panel .settings, .controls .buttons {
-    display: flex;
-    flex-direction: column;
-}
-
-.controls .buttons {
-    justify-content: space-between;
-    height: 100%;
-
-}
-
-.controls .buttons button {
-    appearance: none;
-    border: none;
-    background: inherit;
+/* Кнопки навигации */
+.tab-btn {
+    width: 3rem;
+    height: 3rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 4rem;
-    width: 4rem;
-    color: wheat;
+    border-radius: 12px;
     cursor: pointer;
+    background: transparent;
+    color: #888; /* Цвет иконок по умолчанию */
+    transition: all 0.2s ease;
+    position: relative;
+    font-size: 1.4rem; /* Размер иконки */
 }
 
-.controls .buttons button:disabled {
-    cursor: not-allowed;
+/* Hover эффект */
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
 }
 
-.controls .buttons button:hover {
-    align-items: center;
-    background: var(--danger-color);
-    border-radius: var(--border-radius-lg);
+/* Активное состояние */
+.tab-btn.active {
+    background: var(--accent-color);
+    color: white; /* Белая иконка на цветном фоне */
+    box-shadow: 0 4px 15px var(--accent-color-transparent);
+}
+
+/* Специфика для светлой темы (если нужно) */
+body.style-light .tab-btn.active {
+    color: white;
 }

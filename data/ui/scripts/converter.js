@@ -71,27 +71,40 @@ window.addConverterItem = function(item) {
 
     li.innerHTML = `
         <div class="conv-item-top">
-            <button class="btn-expand" onclick="toggleConvDetails('${item.id}')">
+            <!-- Кнопка раскрытия -->
+            <button class="btn-q-expand" onclick="toggleConvDetails('${item.id}')" title="Детали">
                 <i class="fa-solid fa-chevron-down"></i>
             </button>
+
+            <!-- Превью -->
             <img src="${thumbSrc}" class="conv-thumb">
+            
+            <!-- Инфо -->
             <div class="conv-info">
                 <div class="conv-filename" title="${item.filename}">${item.filename}</div>
-                <div class="conv-meta"><i class="fa-regular fa-clock"></i> ${durationStr}</div>
+                <div class="conv-meta">
+                    <span><i class="fa-regular fa-clock"></i> ${durationStr}</span>
+                    <!-- Можно добавить размер файла, если есть -->
+                </div>
             </div>
+            
+            <!-- Статус -->
             <div class="conv-status" id="conv-status-${item.id}">${txtQueued}</div>
-            <button class="delete-button" onclick="removeConverterItem('${item.id}')">
+            
+            <!-- Удаление -->
+            <button class="icon-btn small" style="width: 2rem; height: 2rem; color: #666;" onclick="removeConverterItem('${item.id}')" title="Убрать">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
+
+        <!-- Скрытые детали -->
         <div class="conv-details">
             <div class="detail-row"><span class="detail-label">Res:</span> <span>${d.resolution}</span></div>
             <div class="detail-row"><span class="detail-label">Codec:</span> <span>${d.codec}</span></div>
-            <div class="detail-row"><span class="detail-label">Bitrate:</span> <span>${d.bitrate} kbps</span></div>
-            <div class="detail-row" style="grid-column: span 2;">
-                <span class="detail-label">Audio:</span> <span>${d.audio}</span>
-            </div>
+            <!-- ... остальные детали ... -->
         </div>
+
+        <!-- Прогресс -->
         <div class="conv-progress-bg">
             <div class="conv-progress-fill" id="conv-prog-${item.id}"></div>
         </div>
@@ -148,13 +161,19 @@ function updateSidebarUI(settings, id) {
     docBlock.style.display = 'none';
 
     if (type === 'image') {
-        imageBlock.style.display = 'block';
+        imageBlock.style.display = 'flex'; 
+        imageBlock.style.flexDirection = 'column';
+        imageBlock.style.gap = '1rem';
         if (settings) setImageInputValues(settings);
     } else if (type === 'document') {
-        docBlock.style.display = 'block';
+        docBlock.style.display = 'flex';
+        docBlock.style.flexDirection = 'column';
+        docBlock.style.gap = '1rem';
         if (settings) document.getElementById('cv-doc-format').value = settings.doc_format;
     } else {
-        videoBlock.style.display = 'block';
+        videoBlock.style.display = 'flex';
+        videoBlock.style.flexDirection = 'column';
+        videoBlock.style.gap = '1rem';
         if (settings) setInputValues(settings);
     }
 }

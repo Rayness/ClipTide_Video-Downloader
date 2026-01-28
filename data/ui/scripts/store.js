@@ -44,7 +44,7 @@ document.getElementById('btn-refresh-store').addEventListener('click', () => {
 });
 
 // Автозагрузка при входе в "Store"
-document.getElementById('coming-soon').addEventListener('click', () => { // id кнопки таба в меню
+document.getElementById('store').addEventListener('click', () => { // id кнопки таба в меню
     const list = document.getElementById('modules-list');
     if (!list.querySelector('.module-card')) {
         window.pywebview.api.store_fetch_data();

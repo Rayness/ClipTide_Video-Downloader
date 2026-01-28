@@ -1,0 +1,144 @@
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.5s ease-in forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+
+/* Ключевые кадры пульсации */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 245, 255, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(0, 245, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 245, 255, 0);
+  }
+}
+
+@keyframes glow {
+    0% {
+      box-shadow: 0 0 0 0 rgba(54, 82, 217, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 20px rgba(54, 82, 217, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(54, 82, 217, 0);
+    }
+}
+
+/* Анимации */
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* Анимация добавления */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ПРЕЛОАДЕР */
+#app-preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1e1e28; /* Цвет фона твоего приложения */
+    z-index: 99999; /* Поверх всего */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+}
+
+/* Класс для скрытия */
+#app-preloader.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.preloader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.preloader-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 1rem;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    animation: float 3s ease-in-out infinite;
+}
+
+#preloader-text {
+    color: #888;
+    font-family: monospace;
+    font-weight: normal;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+/* Анимация логотипа (парение) */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Спиннер (точки) */
+.preloader-spinner {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.preloader-spinner .dot {
+    width: 10px;
+    height: 10px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.preloader-spinner .dot:nth-child(1) { animation-delay: -0.32s; }
+.preloader-spinner .dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}

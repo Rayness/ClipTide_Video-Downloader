@@ -1,75 +1,59 @@
-
+/* ===== Title Bar ===== */
 
 .drag-area {    
-    margin: 0;
-    position: relative;     
-    height: 2.3rem;
-    color: white;
+    width: 100%;
+    height: 40px;
     display: flex;
     justify-content: space-between;
-    border-radius: var(--border-radius-sm);
     align-items: center;
-    padding: 1rem 1rem 0.5rem 0.5rem;
+    padding: 0 1rem;
+    background: var(--dark-bg); /* Цвет как у сайдбара */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-sizing: border-box;
+    -webkit-app-region: drag; /* Нативное перетаскивание */
 }
 
 .drag-area .title {
     display: flex;
-    justify-content: center;
     align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: 0.5px;
+    opacity: 0.9;
 }
 
-.drag-area .title img{
-    margin-right: 1rem;
-    border-radius: var(--border-radius-md);
-    width: 3rem;
+.drag-area .title img {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
 }
 
+/* Кнопки управления окном (Mac-style или Windows-style) */
 .window-controls {
-    background: transparent;
-    position: absolute;
     display: flex;
-    gap: 0.1rem;
-    border: none;
-    color: white;
-    font-size: 14px;
-    right: 1rem; 
-    padding: 0.1rem;
+    gap: 8px;
+    -webkit-app-region: no-drag;
 }
 
-.window-controls button {
-    -webkit-user-drag: none;
-    border: none;
-    background: inherit;
-    cursor: pointer;
-}
-
-.window-controls button:hover {
-    border: var(--text-color);
-    background: white;
-}
-
-
-.circle {
-    padding: 0 4px;
-}
-
-.box {
-    display: inline-block;
-    align-items: center;
-    width: 10px;
-    height: 10px;
-    padding: 1px;
+.circle button {
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: block;
+    transition: transform 0.2s, opacity 0.2s;
 }
 
-.red {
-    background-color: #ff605c;
+.circle button:hover {
+    transform: scale(1.2);
 }
 
-.yellow {
-    background-color: #ffbd44;
-}
+.green { background-color: #28c840; } /* Maximize */
+.yellow { background-color: #ffbd2e; } /* Minimize */
+.red { background-color: #ff5f57; }    /* Close */
 
-.green {
-    background-color: #00ca4e;
-}
+/* Если хочешь Windows-стиль (квадратные кнопки), можно переопределить здесь */

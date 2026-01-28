@@ -26,9 +26,11 @@ class Converter:
         if self.ctx.window:
             self.ctx.window.evaluate_js(code)
 
-    def log(self, message):
-        safe_msg = message.replace('"', '\\"').replace("'", "\\'")
-        self._js_exec(f'addLog("[CONV] {safe_msg}")')
+    def log(self, message, level="info", code=""):
+        print(f"[CONV {level.upper()}] {message}")
+        safe_msg = message.replace('"', '\\"').replace("'", "\\'").replace('\n', ' ')
+        code_str = code if code else ""
+        self._js_exec(f'addLog("{safe_msg}", "{level}", "{code_str}")')
 
     def openFile(self):
         import webview
@@ -137,10 +139,10 @@ class Converter:
                     json_item = json.dumps(item)
                     self._js_exec(f'addConverterItem({json_item})')
                     
-                    self.log(f"Добавлен: {filename}")
+                    self.log(f"Добавлен: {filename}", "info")
                     
                 except Exception as e:
-                    self.log(f"Критическая ошибка добавления {path}: {e}")
+                    self.log(f"Критическая ошибка добавления {path}: {e}", "error", "ADD_FILE_ERROR")
             
             self._js_exec('hideSpinner()')
 
@@ -148,7 +150,7 @@ class Converter:
 
     def remove_item(self, task_id):
         self.queue = [x for x in self.queue if x["id"] != task_id]
-        self.log("Файл удален из очереди")
+        self.log("Файл удален из очереди", "info")
 
     def start_conversion(self, settings_map):
         """
@@ -181,10 +183,10 @@ class Converter:
         self.stop_requested = True
         if self.current_process:
             self.current_process.terminate()
-        self.log("Остановка конвертации...")
+        self.log("Остановка конвертации...", "info")
 
     def _conversion_loop(self):
-            self.log("Старт пакетной конвертации")
+            self.log("Старт пакетной конвертации", "info")
             
             out_folder = self.ctx.converter_folder
             if not os.path.exists(out_folder):
@@ -235,7 +237,7 @@ class Converter:
                     # СЦЕНАРИЙ 1: ВНЕШНИЙ МОДУЛЬ (DOCX, XLSX и т.д.)
                     # ==========================================
                     if external_module:
-                        self.log(f"Модуль {external_module['name']}: {item['filename']}")
+                        self.log(f"Модуль {external_module['name']}: {item['filename']}", "info")
                         
                         # Передаем колбэки
                         def update_progress(percent):
@@ -256,7 +258,7 @@ class Converter:
                         if success:
                             item["status"] = "done"
                             self._js_exec(f'updateConvStatus("{task_id}", "Done", 100)')
-                            self.log(f"Успешно: {item['filename']}")
+                            self.log(f"Успешно: {item['filename']}", "success")
                             
                             # === УВЕДОМЛЕНИЕ О ЗАВЕРШЕНИИ ===
                             if self.ctx.config.get("Notifications", "conversion", fallback="True") == "True":
@@ -282,7 +284,7 @@ class Converter:
 
                         else:
                             if self.stop_requested:
-                                self.log("Остановлено пользователем")
+                                self.log("Остановлено пользователем", "info")
                                 self._js_exec(f'updateConvStatus("{task_id}", "Stopped", 0)')
                             else:
                                 raise Exception("Ошибка модуля (см. консоль)")
@@ -337,7 +339,7 @@ class Converter:
 
                         # --- ЕСЛИ PDF: Разбиваем на страницы ---
                         if input_ext == 'pdf':
-                            self.log(f"PDF Splitting: {item['filename']}")
+                            self.log(f"PDF Splitting: {item['filename']}", "info")
                             # Создаем папку с именем файла
                             pdf_folder = os.path.join(out_folder, base_name)
                             if not os.path.exists(pdf_folder):
@@ -364,7 +366,7 @@ class Converter:
                         # --- ЕСЛИ ПРОСТО КАРТИНКА ---
                         else:
                             out_path = os.path.join(out_folder, f"conv_{base_name}.{out_fmt}")
-                            self.log(f"IMG Convert: {item['filename']}")
+                            self.log(f"IMG Convert: {item['filename']}", "info")
                             with Image.open(item["path"]) as img:
                                 process_and_save_image(img, out_path)
                         
@@ -393,7 +395,7 @@ class Converter:
                                     command.extend(['-vf', f'scale=-2:{res}'])
 
                         command.append(output_path)
-                        self.log(f"FFmpeg: {item['filename']}")
+                        self.log(f"FFmpeg: {item['filename']}", "info")
                         
                         self.current_process = subprocess.Popen(
                             command,
@@ -427,7 +429,7 @@ class Converter:
                             self._js_exec(f'updateConvStatus("{task_id}", "Error", 0)')
 
                 except Exception as e:
-                    self.log(f"Error: {e}")
+                    self.log(f"Error: {e}", "error", "CONVERSION_ERROR")
                     item["status"] = "error"
                     self._js_exec(f'updateConvStatus("{task_id}", "Error", 0)')
 

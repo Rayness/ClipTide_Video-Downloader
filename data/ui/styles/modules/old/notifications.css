@@ -1,0 +1,147 @@
+.notification-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0.5rem;
+    overflow-y: auto;
+}
+
+/* Уведомления */
+
+.notification-container .block {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    background: var(--dark-bg-transparent);
+    border-radius: var(--border-radius-md);
+}
+
+.notification-container .block .body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.notification-container .block .body h4, p {
+    margin: 0;
+}
+
+.notification-container .block .body .datetime {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.notification-container .block .icon {
+    display: flex;
+    font-size: 2rem;
+    justify-content: center;
+    align-items: center;
+    min-width: 5rem;
+}
+
+.notification-container .block .remove {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 5rem;
+    min-height: 5rem;
+}
+
+.notification-container .block .remove button {
+    appearance: none;
+    background: none;
+    border: none;
+    color: wheat;
+    width: 3rem;
+}
+
+.notification-container .block .remove button svg {
+    fill: var(--danger-color);
+}
+
+.notification-container .block .remove button svg:hover {
+    cursor: pointer;
+    fill: var(--danger-dark);
+}
+
+/* Делаем уведомление кликабельным */
+.notification-container .block {
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.notification-container .block:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+/* Стили для модального окна истории */
+.history-card {
+    width: 550px;
+    max-width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--card-bg); /* Более плотный фон */
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 1rem;
+}
+
+.hist-body {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.hist-body img {
+    width: 160px;
+    border-radius: var(--border-radius-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+.hist-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.hist-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.hist-row span:first-child {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.hist-val {
+    color: white;
+    word-break: break-all;
+}
+
+.hist-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.hist-actions button {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}

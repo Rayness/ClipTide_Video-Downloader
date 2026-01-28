@@ -1,12 +1,12 @@
 {
     "stable": {
-        "version": "1.6.2",
+        "version": "1.6.3",
         "url": "https://github.com/Rayness/YT-Downloader/releases/download/v1.6/update.zip",
-        "description": "Стабильный релиз. Исправлены баги."
+        "description": "Стабильный релиз. Исправлены баги. Добавлена поддержка новых форматов. Добавлены новые темы оформления. Добавлен модуль Office Converter."
     },
     "dev": {
         "version": "1.7.1-build_1.0",
-        "url": "https://cliptide.ru/assets/UpdaterFiles/dev_update.zip",
-        "description": "Тестовая версия. Добавлены плагины."
+        "url": "https://github.com/Rayness/YT-Downloader/pre-releases/download/v1.7.1-build_1.0/update.zip",
+        "description": "Тестовая версия."
     }
 }

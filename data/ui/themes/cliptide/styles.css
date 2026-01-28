@@ -1,110 +1,155 @@
- /* Copyright (C) 2025 Rayness */
+/* Cliptide Default Theme (Modern Dark) */
 
-/* ===== Variables ===== */
 :root {
-    --bg-color: #616161; /* чуть затемнён, оставлен как базовый */
-
-    --btn-bg: var(--card-bg-transparent);
-
-    --input-bg: #222232;
-    --input-bg-transparent: rgba(34, 34, 50, 0.4);
-
-    --text-color: #f0f0f5; /* чуть светлее белого для лучшего контраста */
-
-    /* Основная политра */
-    --card-bg: #1e1e28; /* заменён на более глубокий, нейтральный */
-    --card-bg-transparent: rgba(30, 30, 40, 0.4);
-
-    --dark-bg: #14141d;
-    --dark-bg-transparent: rgba(20, 20, 29, 0.5);
-
-    --accent-color: #8c7fff; /* обновлённый яркий фиолетово-лазурный */
-    --accent-dark: #5e4eff;
-    --accent-color-transparent: rgba(140, 127, 255, 0.4);
-    --accent-dark-transparent: rgba(94, 78, 255, 0.3);
-    --danger-color: #ff4c4c; /* ярче, чуть более современный */
-    --danger-dark: #cc3333;
-    --progress-gradient: linear-gradient(270deg, #a394fa, #7f65ff, #5e4eff, #7f65ff, #a394fa);
-    --main-gradient: linear-gradient(135deg, var(--accent-color-transparent), var(--accent-dark-transparent));
-
-    --accent-cyan: #00e0ff;
-    --accent-pink: #ff2ad4;
-    --accent-purple: #ae66ff;
-
-    --accent-gradient: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-pink) 100%);
-    --accent-gradient-text: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
+    /* --- ОСНОВНАЯ ПАЛИТРА --- */
     
-    /* Закругления */
-    --border-radius-sm: 0.3rem;
-    --border-radius-md: 0.5rem;
-    --border-radius-lg: 0.8rem;
+    /* Основной фон (Центральная часть) */
+    --bg-color: #1e1e2e; 
+    
+    /* Сайдбар и Шапка (Чуть темнее фона) */
+    --dark-bg: #181825;
+    --dark-bg-transparent: rgba(24, 24, 37, 0.8);
 
-    /* Тени */
-    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.25);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+    /* Карточки и Панели (Чуть светлее фона, чтобы выделяться) */
+    --card-bg: #313244;
+    --card-bg-transparent: rgba(49, 50, 68, 0.9);
 
-    /*  */
-    --titlebar-bg: #161620; /* современный тёмный с синим подтоном */
-    --titlebar-text: #ffffff;
-    --titlebar-btn-hover: #2a2a3d;
+    /* Поля ввода (Темные, утопленные) */
+    --input-bg: #11111b;
+    --input-bg-transparent: rgba(17, 17, 27, 0.6);
 
+    /* --- ТЕКСТ --- */
+    --text-color: #cdd6f4; /* Мягкий белый */
+    
+    /* --- АКЦЕНТЫ --- */
+    --accent-color: #cba6f7; /* Мягкий фиолетовый */
+    --accent-dark: #b68af2;
+    --accent-color-transparent: rgba(203, 166, 247, 0.2);
+    --accent-dark-transparent: rgba(182, 138, 242, 0.1);
+    
+    /* Вторичные акценты для градиентов */
+    --accent-cyan: #89dceb;
+    --accent-pink: #f5c2e7;
+    --accent-purple: #cba6f7;
+
+    /* --- СЛУЖЕБНЫЕ --- */
+    --btn-bg: rgba(203, 166, 247, 0.1); /* Фон кнопок */
+    
+    --danger-color: #f38ba8; /* Мягкий красный */
+    --danger-dark: #d26e85;
+
+    --success-color: #a6e3a1; /* Мягкий зеленый */
+
+    /* --- ГРАДИЕНТЫ --- */
+    --progress-gradient: linear-gradient(90deg, #cba6f7, #89dceb);
+    --main-gradient: linear-gradient(135deg, rgba(203, 166, 247, 0.1), rgba(137, 220, 235, 0.1));
+    --accent-gradient: linear-gradient(135deg, #1e1e2e, #313244);
+    --accent-gradient-text: linear-gradient(135deg, #cba6f7, #89dceb);
+
+    /* --- РАЗМЕРЫ И ТЕНИ --- */
+    --border-radius-sm: 6px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 18px;
+
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.3);
+
+    /* Настройки заголовка (обычно совпадают с dark-bg) */
+    --titlebar-bg: #181825;
+    --titlebar-text: #cdd6f4;
+    --titlebar-btn-hover: #313244;
 }
 
-body.style-wave {
-    --bg-color: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-pink) 100%); /* чуть затемнён, оставлен как базовый */
-    
-    --btn-bg: var(--accent-color-transparent);
-    
-    --card-bg: #1e1e28; /* заменён на более глубокий, нейтральный */
-    --card-bg-transparent: rgba(30, 30, 40, 0.6);
-    --dark-bg: #14141d;
-    --dark-bg-transparent: rgba(20, 20, 29, 0.5);
-    --input-bg: #222232;
-    --input-bg-transparent: rgba(34, 34, 50, 0.4);
-    --text-color: #f0f0f5; /* чуть светлее белого для лучшего контраста */
-    --accent-color: #8c7fff; /* обновлённый яркий фиолетово-лазурный */
-    --accent-dark: #5e4eff;
-    --accent-color-transparent: rgba(140, 127, 255, 0.4);
-    --accent-dark-transparent: rgba(94, 78, 255, 0.3);
-    --danger-color: #ff4c4c; /* ярче, чуть более современный */
-    --danger-dark: #cc3333;
-    --progress-gradient: linear-gradient(270deg, #a394fa, #7f65ff, #5e4eff, #7f65ff, #a394fa);
-    --main-gradient: linear-gradient(135deg, var(--accent-color-transparent), var(--accent-dark-transparent));
-
-    --accent-cyan: #00e0ff;
-    --accent-pink: #ff2ad4;
-    --accent-purple: #ae66ff;
-
-    --accent-gradient: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-pink) 100%);
-    --accent-gradient-text: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-purple) 100%);
-
-    --border-radius-sm: 0.3rem;
-    --border-radius-md: 0.5rem;
-    --border-radius-lg: 0.8rem;
-
-    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.25);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
-
-    --titlebar-bg: #161620; /* современный тёмный с синим подтоном */
-    --titlebar-text: #ffffff;
-    --titlebar-btn-hover: #2a2a3d;
-}
-
+/* === STYLE: LIGHT (Для контраста) === */
 body.style-light {
-    --bg-color: white;
+    /* --- ФОНЫ --- */
+    /* Основной фон делаем светло-серым, чтобы белые карточки на нем "лежали" */
+    --bg-color: #f0f2f5; 
+    
+    /* Сайдбар и Шапка - Чисто белые для чистоты */
+    --dark-bg: #ffffff;
+    --dark-bg-transparent: rgba(255, 255, 255, 0.95);
+
+    /* Карточки - Белые + Тень */
+    --card-bg: #ffffff;
+    --card-bg-transparent: rgba(255, 255, 255, 0.9);
+
+    /* Инпуты - Явно серые, чтобы их было видно на белой карточке */
+    --input-bg: #e4e6eb;
+    --input-bg-transparent: rgba(228, 230, 235, 0.8);
+
+    /* --- ТЕКСТ --- */
+    --text-color: #1c1e21; /* Почти черный, не серый */
+    
+    /* --- АКЦЕНТЫ --- */
+    --accent-color: #6200ea; /* Глубокий фиолетовый/синий */
+    --accent-dark: #3700b3;
+    
+    --accent-color-transparent: rgba(98, 0, 234, 0.1);
+    --accent-dark-transparent: rgba(55, 0, 179, 0.1);
+
+    /* --- СЛУЖЕБНЫЕ --- */
+    --btn-bg: rgba(98, 0, 234, 0.1);
+    
+    --danger-color: #dc3545;
+    --danger-dark: #b02a37;
+
+    --success-color: #198754;
+
+    /* --- ГРАДИЕНТЫ --- */
+    /* Более спокойные для светлой темы */
+    --progress-gradient: linear-gradient(90deg, #b388ff, #6200ea);
+    --main-gradient: linear-gradient(135deg, #f0f2f5, #ffffff);
+    --accent-gradient: linear-gradient(135deg, #ffffff, #f0f2f5);
+    --accent-gradient-text: linear-gradient(135deg, #6200ea, #3700b3);
+
+    /* --- ТЕНИ (Ключевой момент для светлой темы) --- */
+    /* Тени должны быть темными, чтобы создавать объем */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+    /* --- ЗАГОЛОВОК --- */
+    --titlebar-bg: #ffffff;
+    --titlebar-text: #1c1e21;
+    --titlebar-btn-hover: #e4e6eb;
 }
 
+/* Дополнительный фикс для границ в светлой теме */
+/* В темной теме границы белые прозрачные, в светлой они не видны.
+   Делаем их темными прозрачными. */
+body.style-light .left-panel,
+body.style-light .drag-area,
+body.style-light .conteiner .name,
+body.style-light .converter-main,
+body.style-light .converter-sidebar,
+body.style-light .conv-item,
+body.style-light .queue-container,
+body.style-light .download-bar,
+body.style-light .input-area,
+body.style-light .options-wrapper,
+body.style-light .global-controls {
+    border-color: rgba(0, 0, 0, 0.1) !important;
+}
 
+/* Фикс для разделителей в меню */
+body.style-light .sett-separator {
+    background: rgba(0, 0, 0, 0.1);
+}
 
-
-
-
-
-
-
-
-
-
-
+body.style-light .select-modern, 
+body.style-light .queue-select {
+    color: #333;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333333%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+}
+/* === STYLE: WAVE (Градиентный) === */
+body.style-wave {
+    --bg-color: #1e1e2e; /* База */
+    /* Делаем сайдбар полупрозрачным, чтобы видеть градиент подложки (если бы он был) */
+    --dark-bg: rgba(24, 24, 37, 0.95); 
+    --card-bg: rgba(49, 50, 68, 0.6);
+    
+    --accent-color: #f5c2e7; /* Розовый */
+    --progress-gradient: linear-gradient(90deg, #f5c2e7, #cba6f7);
+}

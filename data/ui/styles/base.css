@@ -1,130 +1,44 @@
- /* Copyright (C) 2025 Rayness */
- /* This program is free software under GPLv3. See LICENSE for details. */
+@import url('modules/modal.css');
+@import url('modules/flex.css');
+@import url('modules/animations.css');
+@import url('modules/side-bars.css');
+@import url('modules/center.css');
+@import url('modules/title-bar.css');
+@import url('modules/converter.css');
+@import url('modules/components.css');
+@import url('modules/settings.css');
+@import url('modules/settings-modal.css');
+@import url('modules/downloader.css');
+@import url('modules/notifications.css');
+@import url('modules/store.css');
 
-@import url(modules/modal.css);
-@import url(modules/flex.css);
-@import url(modules/animations.css);
-@import url(modules/side-bars.css);
-@import url(modules/center.css);
-@import url(modules/title-bar.css);
-@import url(modules/converter.css);
-@import url(modules/components.css);
-@import url(modules/settings.css);
-@import url(modules/downloader.css);
-@import url(modules/notifications.css);
-@import url(modules/store.css);
-@import url(modules/settings-modal.css);
-
-/* ===== Base Styles ===== */
 html, body {
     font-size: 16px;
     scroll-behavior: smooth;
     margin: 0;
     padding: 0;
     height: 100%;
+    width: 100%;
+    overflow: hidden; /* Убираем скролл у самого окна */
+    background: var(--bg-color);
 }
 
 .app {
     width: 100%;
-    font-family: "Roboto", sans-serif;
-    background: var(--bg-color);
+    height: 100%;
+    font-family: "Segoe UI", "Roboto", sans-serif;
     color: var(--text-color);
     line-height: 1.5;
     display: flex;
-    height: 100%;
     flex-direction: column;
-    overflow: hidden;
 }
 
+/* Главная рабочая область (под шапкой) */
 .body-app {
     display: flex;
     flex-direction: row;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    /* height: calc(100% - 5.5rem); */
-    height: 100%;
-    min-height: 0;
-}
-
-.content {
-    flex: 1;
-    max-height: 100%;
-    display: none;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.content.active {
-    max-height: 100%;
-    overflow: hidden;
-    
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-
-    animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.content .coming-soon {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--dark-bg);
-    height: 100%;
-    border-radius: var(--border-radius-md);
-}
-
-.content .coming-soon i {
-    color: #555;
-    font-size: 5rem;
-}
-
-.content .coming-soon h1 {
-    color: #555;
-    font-size: 2rem;
-}
-
-.conteiner {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    justify-content: space-between;
-    height: 100%;
-    min-height: 0;
-    border-radius: var(--border-radius-md);
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.conteiner .name {
-    display: flex;
-    min-height: 3.5rem;
-    height: 3.5rem;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: var(--border-radius-md);
-    backdrop-filter: blur(10px);
-}
-
-.conteiner .name h3{
-    margin-left: 1rem;
-}
-
-.conteiner .main {
-    flex: 1;
-    min-height: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    border-radius: var(--border-radius-md);
-    background: var(--card-bg-transparent);
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-sm);
-}
-
-.conteiner .down-panel {
-    border-radius: var(--border-radius-md);
-    background: var(--card-bg-transparent);
-    backdrop-filter: blur(10px);
+    flex: 1; /* Занимает все оставшееся место */
+    min-height: 0; /* Важно для работы скролла внутри */
+    gap: 0; /* Нет зазоров между меню и контентом */
+    padding: 0;
 }
