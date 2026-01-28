@@ -23,7 +23,7 @@
 }
 
 /* Кнопки навигации */
-.tab-btn {
+.tab-btn, .side-btn-settings {
     width: 3rem;
     height: 3rem;
     display: flex;
@@ -39,7 +39,7 @@
 }
 
 /* Hover эффект */
-.tab-btn:hover {
+.tab-btn:hover, .side-btn-settings:hover {
     background: rgba(255, 255, 255, 0.05);
     color: var(--text-color);
 }

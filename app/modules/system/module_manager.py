@@ -128,7 +128,6 @@ class ModuleManager:
             self.available_modules = final_list # Сохраняем в память
             
             # Отправляем в UI
-            import json
             installed_ids = list(self.installed_modules.keys())
             
             # Если список пуст и source=cache, значит вообще ничего нет
@@ -225,7 +224,6 @@ class ModuleManager:
                 
                 installed_ids = [t['id'] for t in get_themes()]
                 
-                import json
                 self._js_exec(f'updateThemesStoreList({json.dumps(available_themes)}, {json.dumps(installed_ids)})')
             except Exception as e:
                 print(e)
@@ -350,7 +348,6 @@ class ModuleManager:
                     installed_themes = get_themes()
                     installed_ids = [t['id'] for t in installed_themes]
                     
-                    import json
                     self._js_exec(f'updateThemesStoreList({json.dumps(available_themes)}, {json.dumps(installed_ids)})')
                 else:
                     print(f"Themes fetch error: {response.status_code}")
@@ -415,7 +412,6 @@ class ModuleManager:
                 
                 # Обновляем список тем в настройках (функция из settings/themes)
                 themes = get_themes()
-                import json
                 self._js_exec(f'updateThemeList({json.dumps(themes)})')
                 
                 # Готово
@@ -438,7 +434,6 @@ class ModuleManager:
                 shutil.rmtree(target_dir)
                 # Обновляем UI магазина и настроек
                 themes = get_themes()
-                import json
                 self._js_exec(f'updateThemeList({json.dumps(themes)})')
                 # Перезагружаем список магазина, чтобы кнопка стала "Скачать"
                 self.fetch_themes_catalog()
