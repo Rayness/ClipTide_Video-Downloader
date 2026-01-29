@@ -6,7 +6,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 1rem;
+    padding: 0px 0rem 0rem 1rem;
     background: var(--dark-bg); /* Цвет как у сайдбара */
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     box-sizing: border-box;
@@ -31,25 +31,48 @@
 }
 
 /* Кнопки управления окном (Mac-style или Windows-style) */
+/* Кнопки окна */
 .window-controls {
     display: flex;
-    gap: 8px;
+    gap: 0; /* В Windows кнопки обычно слипшиеся, но можно gap: 5px */
+    height: 100%;
     -webkit-app-region: no-drag;
 }
 
-.circle button {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
+.win-btn {
+    width: 46px; /* Широкие кнопки, как в Windows 10/11 */
+    height: 100%; /* На всю высоту шапки (40px) */
+    background: transparent;
     border: none;
     cursor: pointer;
-    padding: 0;
-    display: block;
-    transition: transform 0.2s, opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    transition: background 0.2s, color 0.2s;
+    outline: none;
 }
 
-.circle button:hover {
-    transform: scale(1.2);
+/* Иконки через FontAwesome (псевдоэлементы), чтобы их можно было менять в CSS */
+.win-btn::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 0.9rem;
+}
+
+/* Дефолтные иконки */
+.win-btn.minimize::before { content: "\f2d1"; } /* fa-window-minimize */
+.win-btn.maximize::before { content: "\f2d0"; } /* fa-window-maximize (квадрат) */
+.win-btn.close::before { content: "\f00d"; font-size: 1.1rem; }    /* fa-xmark */
+
+/* Hover эффекты */
+.win-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.win-btn.close:hover {
+    background: #e81123; /* Стандартный красный цвет Windows */
+    color: white;
 }
 
 .green { background-color: #28c840; } /* Maximize */

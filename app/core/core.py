@@ -1,6 +1,9 @@
 # Copyright (C) 2025 Rayness
 # This program is free software under GPLv3. See LICENSE for details.
 
+import ctypes
+from ctypes import windll
+
 from app.modules.downloader.downloader import Downloader
 from app.modules.converter.converter import Converter
 from app.modules.settings.settings import SettingsManager, open_folder
@@ -16,6 +19,24 @@ class WebViewApi:
     def set_window(self, window):
         # ОЧЕНЬ ВАЖНО: передаем окно в контекст
         self.ctx.set_window(window)
+        
+    def resize_window(self, direction):
+        if not self._api.ctx.window: return
+        
+        mapping = {
+            "left": 10, "right": 11, "top": 12, "top-left": 13,
+            "top-right": 14, "bottom": 15, "bottom-left": 16, "bottom-right": 17
+        }
+        
+        if direction in mapping:
+            try:
+                # ВАЖНО: Приводим к int, так как там может быть объект IntPtr
+                hwnd = int(self._api.ctx.window.gui.hwnd)
+                
+                ctypes.windll.user32.ReleaseCapture()
+                ctypes.windll.user32.SendMessageW(hwnd, 0xA1, mapping[direction], 0)
+            except Exception as e:
+                print(f"Resize error: {e}")
 
 class PublicWebViewApi:
     def __init__(self, real_api):

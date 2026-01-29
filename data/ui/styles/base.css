@@ -42,3 +42,43 @@ html, body {
     gap: 0; /* Нет зазоров между меню и контентом */
     padding: 0;
 }
+
+/* --- RESIZE HANDLES --- */
+.resize-handle {
+    position: fixed;
+    z-index: 999999; /* Поверх всего */
+    background: transparent; /* Невидимые */
+    /* background: rgba(255, 0, 0, 0.3); */
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+/* Толщина границы захвата */
+.resize-handle.top, .resize-handle.bottom {
+    height: 5px;
+    left: 10px; right: 10px; /* Отступ для углов */
+    cursor: ns-resize;
+}
+.resize-handle.top { top: 0; }
+.resize-handle.bottom { bottom: 0; }
+
+.resize-handle.left, .resize-handle.right {
+    width: 5px;
+    top: 10px; bottom: 10px;
+    cursor: ew-resize;
+}
+.resize-handle.left { left: 0; }
+.resize-handle.right { right: 0; }
+
+/* Углы (должны быть больше) */
+.resize-handle.top-left, .resize-handle.top-right, 
+.resize-handle.bottom-left, .resize-handle.bottom-right {
+    width: 10px;
+    height: 10px;
+}
+
+.resize-handle.top-left { top: 0; left: 0; cursor: nwse-resize; }
+.resize-handle.top-right { top: 0; right: 0; cursor: nesw-resize; }
+.resize-handle.bottom-left { bottom: 0; left: 0; cursor: nesw-resize; }
+.resize-handle.bottom-right { bottom: 0; right: 0; cursor: nwse-resize; }

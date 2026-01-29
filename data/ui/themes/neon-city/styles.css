@@ -81,3 +81,13 @@
     box-shadow: 0 0 15px var(--accent-color);
     border-color: var(--accent-color);
 }
+
+/* Подмена иконки Загрузчика (id="video-downloader") */
+#video-downloader i::before {
+    content: "\f135"; /* Код иконки fa-rocket */
+}
+
+/* Подмена иконки Настроек */
+#btn-open-settings i::before {
+    content: "\f013"; /* fa-gear (по умолчанию) -> \f085 (fa-gears) */
+}

@@ -103,3 +103,11 @@ if (updateChannel) {
         }
     });
 }
+
+function resizeWindow(event, direction) {
+    // 1. Запрещаем браузеру выделять текст или тащить картинки
+    event.preventDefault();
+    
+    // 2. Вызываем Python
+    window.pywebview.api.resize_window(direction);
+}

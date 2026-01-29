@@ -13,6 +13,16 @@
     <title>ClipTide Video Downloader</title>
 </head>
 <body>
+    <!-- RESIZE HANDLES (Невидимые границы для ресайза) -->
+    <div class="resize-handle top" onmousedown="resizeWindow(event, 'top')"></div>
+    <div class="resize-handle bottom" onmousedown="resizeWindow(event, 'bottom')"></div>
+    <div class="resize-handle left" onmousedown="resizeWindow(event, 'left')"></div>
+    <div class="resize-handle right" onmousedown="resizeWindow(event, 'right')"></div>
+    
+    <div class="resize-handle top-left" onmousedown="resizeWindow(event, 'top-left')"></div>
+    <div class="resize-handle top-right" onmousedown="resizeWindow(event, 'top-right')"></div>
+    <div class="resize-handle bottom-left" onmousedown="resizeWindow(event, 'bottom-left')"></div>
+    <div class="resize-handle bottom-right" onmousedown="resizeWindow(event, 'bottom-right')"></div>
     <!-- ПРЕЛОАДЕР -->
     <div id="app-preloader">
         <div class="preloader-content">
@@ -33,22 +43,9 @@
                 <h3>ClipTide</h3>
             </div>
             <div class="window-controls">
-                <div class="circle">
-                    <button onclick="pywebview.api.minimize()">
-
-                        <span class="green"></span>
-                    </button>                        
-                </div>
-                <div class="circle">
-                    <button onclick="pywebview.api.toggle_fullscreen()">
-                        <span class="yellow"></span>
-                    </button>
-                </div>
-                <div class="circle">
-                    <button onclick="pywebview.api.close()">
-                        <span class="red"></span>
-                    </button>
-                </div>
+                <button class="win-btn minimize" onclick="pywebview.api.minimize()" title="Свернуть"></button>
+                <button class="win-btn maximize" onclick="pywebview.api.toggle_fullscreen()" title="Развернуть"></button>
+                <button class="win-btn close" onclick="pywebview.api.close()" title="Закрыть"></button>
             </div>
         </div>
 

@@ -91,11 +91,15 @@ def startApp():
         f'ClipTide {version}',
         html_file_path,
         js_api=public_api,
+        
         height=780,
         width=1200,
+        
         resizable=True,
-        text_select=True,
         frameless=True,
+        text_select=True,
+        
+        min_size=(800, 600)
     )
     real_api.set_window(window)
     print("Window object passed to API") # Добавь этот принт для проверки
@@ -140,7 +144,7 @@ def startApp():
         window.evaluate_js('window.removePreloader()')
 
     window.events.loaded += on_loaded
-    webview.start(debug=False)
+    webview.start(debug=True)
 
 def main():
     unicodefix()
