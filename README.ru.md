@@ -16,11 +16,11 @@
 > Пока только на русском и английском, позже добавлю перевод на другие языки. 
 
 ### Актуальная версия с графическим интерфейсом: 
-<img src="https://github.com/user-attachments/assets/214742ec-41d7-4da8-8197-79d1d7fdf6da" width="600">
+<img src="https://github.com/user-attachments/assets/4bd9f3bb-25a7-467c-96f6-42ce111f8427" width="600">
 
 ## Загрузка
 
-**[Актуальная версия](https://github.com/Rayness/YouTube-Downloader/releases/tag/v1.6.1)** - 1.6.1
+**[Актуальная версия](https://github.com/Rayness/YouTube-Downloader/releases/tag/v1.7.0)** - 1.7.0
 
 ## Как запустить:
 - Как и любое другое приложение;
