@@ -37,10 +37,6 @@ After launching the graphical interface, you need to:
   - If you closed the program, then launch it and repeat the action from the fifth step, but this time without closing the program.
 7. After downloading, the folder with the downloaded videos will open and you can close the program.
 
-## Known errors:
-1. Problem: Incorrect display of playlist downloads, how to determine: the indicator spins for a very long time and nothing happens for a long time. If you wait, the playlist name will appear in the queue without a preview. The entire playlist will be downloaded.
-  - Solution: Do not add playlists to the queue, or wait;
-
 ## Future plans:
 - [x] Add auto-update ( Updater added );
 - [ ] Transfer the project to Electron ( someday );
