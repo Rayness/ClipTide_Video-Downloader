@@ -14,7 +14,7 @@ This small program is designed to download video content in audio and video form
 > 
 > So far, it's only in Russian and English, but I'll add a translation into other languages later.
 
-### Current version with graphical interface:
+### Old version with graphical interface:
 <img src="https://github.com/user-attachments/assets/5f04bb15-5e93-4a0a-a6d7-562cd5280fc4" width="600">
 
 ## Download
