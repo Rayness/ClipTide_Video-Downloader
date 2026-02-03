@@ -109,6 +109,11 @@
             "style" : "Style:",
             "open_folder" : "Open a folder with themes"
         },
+        "display": {
+            "title": "Display",
+            "window_size": "Window size",
+            "ui_scale": "Interface scale"
+        },
         "folders": {
             "title" : "Download Management",
             "placeholder_download": "Path to the downloads folder",

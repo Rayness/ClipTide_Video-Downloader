@@ -116,6 +116,10 @@ def startApp():
         
         audio_lang = ctx.config.get("Audio", "lang", fallback="none")
         
+        # Настройки отображения
+        window_size = ctx.config.get("Display", "window_size", fallback="1200x780")
+        ui_scale = ctx.config.get("Display", "ui_scale", fallback="1")
+        
         cmds = [
             f'updateDownloadFolder({json.dumps(ctx.download_folder)})',
             f'updateConvertFolder({json.dumps(ctx.converter_folder)})',
@@ -131,7 +135,8 @@ def startApp():
             f'load_settingsNotificatios("{notif_dl}","{notif_cv}")',
             f'loadTheme("{ctx.theme}", "{ctx.style}", {themes})',
             f'get_version("{version}")',
-            f'loadData({json.dumps(modal_content)})'
+            f'loadData({json.dumps(modal_content)})',
+            f'loadDisplaySettings("{window_size}", "{ui_scale}")'
         ]
         
         for cmd in cmds:

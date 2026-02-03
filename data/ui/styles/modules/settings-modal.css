@@ -7,12 +7,13 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--bg-color); /* Или темнее */
+    background: var(--bg-color);
     z-index: 9000;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.2s ease, visibility 0.2s;
     display: flex;
+    flex-direction: column; /* Title bar сверху, контент снизу */
 }
 
 .settings-overlay.show {
@@ -20,10 +21,48 @@
     visibility: visible;
 }
 
+/* Title bar в настройках (для перетаскивания) */
+.settings-drag-area {
+    width: 100%;
+    height: 40px;
+    min-height: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 0 1rem;
+    background: var(--dark-bg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-sizing: border-box;
+    -webkit-app-region: drag;
+}
+
+.settings-drag-area .title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: 0.5px;
+    opacity: 0.9;
+}
+
+.settings-drag-area .title img {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.settings-drag-area .window-controls {
+    display: flex;
+    height: 100%;
+    -webkit-app-region: no-drag;
+}
+
 .settings-container {
     display: flex;
     width: 100%;
-    height: 100%;
+    flex: 1; /* Занимает оставшееся место под title bar */
     overflow: hidden;
 }
 

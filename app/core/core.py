@@ -21,20 +21,48 @@ class WebViewApi:
         self.ctx.set_window(window)
         
     def resize_window(self, direction):
-        if not self._api.ctx.window: return
+        """Изменение размера окна через Windows API (как в стандартных приложениях)"""
+        if not self.ctx.window: 
+            return
         
+        # HT-коды для non-client hit test (используются с WM_NCLBUTTONDOWN)
+        # Эти коды говорят Windows "пользователь нажал на границу окна"
         mapping = {
-            "left": 10, "right": 11, "top": 12, "top-left": 13,
-            "top-right": 14, "bottom": 15, "bottom-left": 16, "bottom-right": 17
+            "left": 10,        # HTLEFT
+            "right": 11,       # HTRIGHT
+            "top": 12,         # HTTOP
+            "top-left": 13,    # HTTOPLEFT
+            "top-right": 14,   # HTTOPRIGHT
+            "bottom": 15,      # HTBOTTOM
+            "bottom-left": 16, # HTBOTTOMLEFT
+            "bottom-right": 17 # HTBOTTOMRIGHT
         }
         
         if direction in mapping:
             try:
-                # ВАЖНО: Приводим к int, так как там может быть объект IntPtr
-                hwnd = int(self._api.ctx.window.gui.hwnd)
+                window = self.ctx.window
+                
+                # Получаем hwnd по заголовку окна
+                hwnd = None
+                if hasattr(window, 'title'):
+                    hwnd = ctypes.windll.user32.FindWindowW(None, window.title)
+                
+                if not hwnd:
+                    hwnd = ctypes.windll.user32.GetForegroundWindow()
+                
+                if not hwnd:
+                    print("Could not get window hwnd")
+                    return
+                
+                # WM_NCLBUTTONDOWN = 0x00A1
+                # Это сообщение говорит "левая кнопка мыши нажата в non-client области"
+                # Windows сама обрабатывает интерактивный resize
+                WM_NCLBUTTONDOWN = 0x00A1
+                ht_code = mapping[direction]
                 
                 ctypes.windll.user32.ReleaseCapture()
-                ctypes.windll.user32.SendMessageW(hwnd, 0xA1, mapping[direction], 0)
+                ctypes.windll.user32.SendMessageW(hwnd, WM_NCLBUTTONDOWN, ht_code, 0)
+                
             except Exception as e:
                 print(f"Resize error: {e}")
 
@@ -112,12 +140,24 @@ class PublicWebViewApi:
 
     def close(self):
         if self._api.ctx.window: self._api.ctx.window.destroy()
+    
+    def resize_window(self, direction):
+        """Изменение размера окна перетаскиванием границ"""
+        self._api.resize_window(direction)
 
     def saveTheme(self, theme):
         self._api.settings.switch_theme(theme)
 
     def saveStyle(self, style):
         self._api.settings.switch_style(style)
+
+    def switch_window_size(self, size):
+        """Изменение размера окна"""
+        self._api.settings.switch_window_size(size)
+
+    def switch_ui_scale(self, scale):
+        """Изменение масштаба интерфейса"""
+        self._api.settings.switch_ui_scale(scale)
         
     def get_themes(self):
         from app.utils.ui.themes import get_themes

@@ -53,6 +53,22 @@ class SettingsManager:
         self.ctx.style = style
         self.ctx.update_config_value("Themes", "style", style)
 
+    def switch_window_size(self, size):
+        """Изменение размера окна (например '1280x720')"""
+        try:
+            width, height = map(int, size.split('x'))
+            self.ctx.update_config_value("Display", "window_size", size)
+            if self.ctx.window:
+                self.ctx.window.resize(width, height)
+        except Exception as e:
+            print(f"Error changing window size: {e}")
+
+    def switch_ui_scale(self, scale):
+        """Изменение масштаба интерфейса (zoom)"""
+        self.ctx.update_config_value("Display", "ui_scale", scale)
+        # Применяем zoom через CSS
+        self.ctx.js_exec(f'applyUIScale({scale})')
+
     def swith_update_setting(self, key, value):
         self.ctx.update_config_value("Updates", key, value)
 

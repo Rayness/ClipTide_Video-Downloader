@@ -76,6 +76,8 @@ window.updateTranslations = function(translations) {
         safeSetText('lang_pl', translations.settings.language.polish);
         safeSetText('lang_ja', translations.settings.language.japan);
         safeSetText('lang_ua', translations.settings.language.ukraine);
+        
+        
         safeSetText('lang_it', translations.settings.language.italian);
         safeSetText('lang_de', translations.settings.language.german);
         safeSetText('lang_fr', translations.settings.language.french);
@@ -94,6 +96,13 @@ window.updateTranslations = function(translations) {
     if (s.themes) {
         safeSetText('theme-title', s.themes.theme);
         safeSetText('style-title', s.themes.style);
+    }
+
+    // Отображение
+    if (s.display) {
+        safeSetText('hdr-display', s.display.title);
+        safeSetText('lbl-window-size', s.display.window_size);
+        safeSetText('lbl-ui-scale', s.display.ui_scale);
     }
 
     // Папки 

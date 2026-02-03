@@ -111,3 +111,84 @@ function resizeWindow(event, direction) {
     // 2. Вызываем Python
     window.pywebview.api.resize_window(direction);
 }
+
+// === Настройки отображения ===
+
+// Применение масштаба интерфейса с адаптацией скролла
+window.applyUIScale = function(scale) {
+    // Сохраняем позиции скролла всех скроллируемых контейнеров
+    const scrollContainers = [
+        document.querySelector('.settings-scroll-view'),
+        document.querySelector('.queue-container'),
+        document.querySelector('.converter-list'),
+        document.getElementById('app-logs')
+    ].filter(el => el);
+    
+    const scrollPositions = scrollContainers.map(el => ({
+        element: el,
+        scrollTop: el.scrollTop,
+        scrollHeight: el.scrollHeight
+    }));
+    
+    // Применяем zoom
+    document.body.style.zoom = scale;
+    
+    // Восстанавливаем позиции скролла (пропорционально)
+    requestAnimationFrame(() => {
+        scrollPositions.forEach(({element, scrollTop, scrollHeight}) => {
+            if (scrollHeight > 0) {
+                const ratio = scrollTop / scrollHeight;
+                element.scrollTop = ratio * element.scrollHeight;
+            }
+        });
+    });
+    
+    // Сохраняем в localStorage для быстрого применения при старте
+    localStorage.setItem('ui_scale', scale);
+}
+
+// Загрузка настроек отображения при старте
+window.loadDisplaySettings = function(windowSize, uiScale) {
+    // Размер окна
+    const sizeSelect = document.getElementById('window-size');
+    if (sizeSelect && windowSize) {
+        sizeSelect.value = windowSize;
+    }
+    
+    // Масштаб интерфейса
+    const scaleSelect = document.getElementById('ui-scale');
+    if (scaleSelect && uiScale) {
+        scaleSelect.value = uiScale;
+        applyUIScale(uiScale);
+    }
+    
+    // Обновляем кастомные селекты если они инициализированы
+    if (typeof refreshCustomSelectOptions === 'function') {
+        refreshCustomSelectOptions();
+    }
+}
+
+// Обработчики изменения настроек отображения
+document.addEventListener('DOMContentLoaded', function() {
+    const windowSizeSelect = document.getElementById('window-size');
+    if (windowSizeSelect) {
+        windowSizeSelect.addEventListener('change', function(e) {
+            window.pywebview.api.switch_window_size(e.target.value);
+        });
+    }
+    
+    const uiScaleSelect = document.getElementById('ui-scale');
+    if (uiScaleSelect) {
+        uiScaleSelect.addEventListener('change', function(e) {
+            window.pywebview.api.switch_ui_scale(e.target.value);
+        });
+    }
+});
+
+// Быстрое применение масштаба из localStorage (до загрузки Python)
+(function() {
+    const savedScale = localStorage.getItem('ui_scale');
+    if (savedScale) {
+        document.body.style.zoom = savedScale;
+    }
+})();

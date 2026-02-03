@@ -30,6 +30,7 @@
     border-radius: 4px;
 }
 
+
 /* Кнопки управления окном (Mac-style или Windows-style) */
 /* Кнопки окна */
 .window-controls {
@@ -67,8 +68,10 @@
 
 /* Hover эффекты */
 .win-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1); 
 }
+
+
 
 .win-btn.close:hover {
     background: #e81123; /* Стандартный красный цвет Windows */

@@ -51,6 +51,18 @@
 
         <!-- МОДАЛЬНОЕ ОКНО НАСТРОЕК -->
         <div id="settings-modal" class="settings-overlay">
+            <!-- Title bar для перетаскивания окна в настройках -->
+            <div class="settings-drag-area pywebview-drag-region">
+                <div class="title">
+                    <img src="src/logo.png" alt="LOGO">
+                    <h3>ClipTide</h3>
+                </div>
+                <div class="window-controls">
+                    <button class="win-btn minimize" onclick="pywebview.api.minimize()" title="Свернуть"></button>
+                    <button class="win-btn maximize" onclick="pywebview.api.toggle_fullscreen()" title="Развернуть"></button>
+                    <button class="win-btn close" onclick="pywebview.api.close()" title="Закрыть"></button>
+                </div>
+            </div>
             <div class="settings-container">
                 
                 <!-- Левая колонка -->
@@ -121,6 +133,33 @@
                                 <div class="sett-group">
                                     <label id="style-title">Стиль (Подтема)</label>
                                     <select class="theme-selector select-control js-custom-select" id="style"></select>
+                                </div>
+                            </div>
+
+                            <div class="sett-card">
+                                <h4 id="hdr-display">Отображение</h4>
+                                <div class="sett-group">
+                                    <label id="lbl-window-size">Размер окна</label>
+                                    <select id="window-size" class="select-control js-custom-select">
+                                        <option value="1024x768">1024 × 768</option>
+                                        <option value="1200x780" selected>1200 × 780</option>
+                                        <option value="1280x720">1280 × 720 (HD)</option>
+                                        <option value="1366x768">1366 × 768</option>
+                                        <option value="1440x900">1440 × 900</option>
+                                        <option value="1600x900">1600 × 900</option>
+                                        <option value="1920x1080">1920 × 1080 (FHD)</option>
+                                    </select>
+                                </div>
+                                <div class="sett-group">
+                                    <label id="lbl-ui-scale">Масштаб интерфейса</label>
+                                    <select id="ui-scale" class="select-control js-custom-select">
+                                        <option value="0.8">80%</option>
+                                        <option value="0.9">90%</option>
+                                        <option value="1" selected>100%</option>
+                                        <option value="1.1">110%</option>
+                                        <option value="1.2">120%</option>
+                                        <option value="1.3">130%</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
