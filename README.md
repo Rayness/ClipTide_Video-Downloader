@@ -277,7 +277,7 @@ If you find ClipTide useful, consider supporting the project:
 - 🐛 **Report bugs and issues**
 - 💡 **Suggest new features**
 - 🌍 **Help with translations**
-- ☕ **[Buy me a coffee](https://github.com/sponsors/Rayness)**
+- ☕ **[Buy me a coffee](https://boosty.to/rayness/donate)**
 
 ---
 
