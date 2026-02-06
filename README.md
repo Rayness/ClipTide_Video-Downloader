@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌊 ClipTide
+# ClipTide
 
 ### Modern Media Downloader with Beautiful UI
 
