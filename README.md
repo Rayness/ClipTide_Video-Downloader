@@ -142,6 +142,7 @@ ClipTide/
 pip install pyinstaller
 
 # Build executable
+pyinstaller ClipTide.spec
 pyinstaller updater.spec
 
 # Output will be in dist/ folder

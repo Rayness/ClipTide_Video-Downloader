@@ -142,6 +142,7 @@ ClipTide/
 pip install pyinstaller
 
 # Соберите исполняемый файл
+pyinstaller ClipTide.spec
 pyinstaller updater.spec
 
 # Результат будет в папке dist/
