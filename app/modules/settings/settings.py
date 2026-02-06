@@ -72,6 +72,10 @@ class SettingsManager:
     def swith_update_setting(self, key, value):
         self.ctx.update_config_value("Updates", key, value)
 
+    def switch_update_channel(self, channel):
+        """Сохранение канала обновлений (stable/dev)"""
+        self.ctx.update_config_value("Updates", "channel", channel)
+
     def switch_proxy_url(self, proxy):
         self.ctx.proxy_url = proxy
         self.ctx.update_config_value("Proxy", "url", proxy)

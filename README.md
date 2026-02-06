@@ -1,52 +1,300 @@
-[![Supported Python Versions](https://img.shields.io/badge/python-3.12%20%7C%203.13-%234B8BBE)](https://www.python.org/downloads/) [![Downloads](https://img.shields.io/github/downloads/Rayness/YouTube-Downloader/total)](https://github.com/Rayness/YouTube-Downloader/releases) [![Release date](https://img.shields.io/github/release-date/Rayness/YouTube-Downloader)]() [![Version tag](https://img.shields.io/github/v/tag/Rayness/YouTube-Downloader)]()
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/9b7b0afc-d138-4496-9e87-176246057eeb" width="500" style="border-radius: 20px">
-</p>
+<div align="center">
 
-[English Readme](https://github.com/Rayness/YouTube-Downloader/blob/main/README.md)
-• [Russian Readme](https://github.com/Rayness/YouTube-Downloader/blob/main/README.ru.md)
+# 🌊 ClipTide
 
-## General information
-This small program is designed to download video content in audio and video formats from the YouTube, Twitch and other platforms are also supported, such as: Rutube, Vkvideo, ok and many others. The full list can be found [here](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md), most likely videos will be downloaded from all these sources if they (the sources) are not blocked in your country.
+### Modern Media Downloader with Beautiful UI
 
-> [!NOTE]
-> The app also has a website: [cliptide.ru](https://cliptide.ru/index.html)
-> 
-> So far, it's only in Russian and English, but I'll add a translation into other languages later.
+[![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13-%234B8BBE?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![Downloads](https://img.shields.io/github/downloads/Rayness/YouTube-Downloader/total?style=for-the-badge&logo=github)](https://github.com/Rayness/YouTube-Downloader/releases)
+[![Version](https://img.shields.io/github/v/tag/Rayness/YouTube-Downloader?style=for-the-badge&logo=semver&label=version)](https://github.com/Rayness/YouTube-Downloader/releases)
+[![License](https://img.shields.io/badge/license-GPLv3-blue.svg?style=for-the-badge&logo=gnu)](LICENSE)
 
-### Current version with graphical interface:
-<img src="https://github.com/user-attachments/assets/4bd9f3bb-25a7-467c-96f6-42ce111f8427" width="600">
+<img src="https://github.com/user-attachments/assets/9b7b0afc-d138-4496-9e87-176246057eeb" width="650" style="border-radius: 20px">
 
-## Download
+**[Website](https://cliptide.ru)** • **[Download](https://github.com/Rayness/YouTube-Downloader/releases)** • **[Documentation](#-quick-start)** • **[Report Bug](https://github.com/Rayness/YouTube-Downloader/issues)**
 
-**[Current version](https://github.com/Rayness/YouTube-Downloader/releases/tag/v1.7.0)** - 1.7.0
+[English](README.md) • [Русский](README.ru.md)
 
-## How to run:
-- Like any other application;
-  - If you downloaded the installer, then run it and follow the installation instructions;
-  - If you downloaded the archive, then extract the contents to any folder and run "ClipTide.exe"
+</div>
 
-## How to use:
-After launching the graphical interface, you need to:
-1. Paste the link to the video (copy from the url line in the browser);
-2. Select the desired video format and quality (by default, the video will be downloaded in mp4 in FullHD);
-3. Click the "Add to queue" button;
-4. Repeat the first three steps as many times as necessary, or go to the fifth;
-5. Click the "Start download" button;
-6. Wait until all the videos are downloaded, or close the program if you want, the queue will be saved;
-  - If you closed the program, then launch it and repeat the action from the fifth step, but this time without closing the program.
-7. After downloading, the folder with the downloaded videos will open and you can close the program.
+---
 
-## Future plans:
-- [x] Add auto-update ( Updater added );
-- [ ] Transfer the project to Electron ( someday );
-- [ ] Make a mobile application ( not very soon )
+## ✨ Features
 
-## License
-This project is now licensed under **GNU GPLv3**. See [LICENSE](LICENSE) for details.  
+<table>
+<tr>
+<td width="50%">
 
-## Third-party licenses  
-This project uses the following libraries:  
-- **pywebview** (BSD 3-Clause) — [https://github.com/r0x0r/pywebview](https://github.com/r0x0r/pywebview)  
-- **yt-dlp** (Public Domain) — [https://github.com/yt-dlp/yt-dlp](https://github.com/yt-dlp/yt-dlp)
-- **FFmpeg** (LGPL/GPL) — https://ffmpeg.org
+### 🎥 **Multi-Platform Support**
+Download content from YouTube, Twitch, Rutube, VKVideo, and [1000+ sites](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md)
+
+### 🎨 **Beautiful Themes**
+5 stunning built-in themes: ClipTide, DarkTide, Forest, Neon City, and Sunset
+
+### 🌍 **Multilingual**
+Full support for English, Russian, Ukrainian, Chinese, Japanese, German, French, Italian, and Polish
+
+</td>
+<td width="50%">
+
+### 🔄 **Format Conversion**
+Built-in converter powered by FFmpeg for seamless format changes
+
+### 📥 **Queue System**
+Add multiple downloads and let them process in the background
+
+### ⚙️ **Advanced Options**
+Proxy support, subtitle downloads, audio language selection, and more
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+
+### Modern Interface
+<img src="https://github.com/user-attachments/assets/4bd9f3bb-25a7-467c-96f6-42ce111f8427" width="700">
+
+*ClipTide's sleek and intuitive interface*
+
+</div>
+
+---
+
+## 🚀 Quick Start
+
+### 📦 Installation
+
+#### Option 1: Installer (Recommended)
+1. Download the latest installer from [Releases](https://github.com/Rayness/YouTube-Downloader/releases)
+2. Run `ClipTide-Setup.exe`
+3. Follow the installation wizard
+4. Launch ClipTide from your Start Menu
+
+#### Option 2: Portable Version
+1. Download `ClipTide-Portable.zip` from [Releases](https://github.com/Rayness/YouTube-Downloader/releases)
+2. Extract to your preferred location
+3. Run `ClipTide.exe`
+
+### 🎯 How to Use
+
+1. **Paste URL** - Copy and paste the video link from your browser
+2. **Select Format** - Choose your desired quality and format (default: MP4 FullHD)
+3. **Add to Queue** - Click "Add to queue" button
+4. **Start Download** - Click "Start download" and wait for completion
+5. **Enjoy** - Your downloaded files will automatically open in the folder
+
+> **💡 Tip:** The download queue is automatically saved. You can close the app anytime and resume later!
+
+---
+
+## 🛠️ Development
+
+### Prerequisites
+
+- Python 3.12 or 3.13
+- Git
+- Windows OS (for building executables)
+
+### Local Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/Rayness/YouTube-Downloader.git
+cd YouTube-Downloader
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+python start.py
+```
+
+### Project Structure
+
+```
+ClipTide/
+├── app/                    # Main application code
+│   ├── core/              # Core functionality
+│   ├── modules/           # Feature modules
+│   │   ├── downloader/    # Download module
+│   │   ├── converter/     # Format converter
+│   │   └── settings/      # Settings manager
+│   └── utils/             # Utility functions
+├── data/                   # Application data
+│   ├── ui/                # Frontend files
+│   │   ├── scripts/       # JavaScript modules
+│   │   ├── styles/        # CSS stylesheets
+│   │   └── themes/        # Theme definitions
+│   └── localization/      # Translation files
+├── update/                # Auto-updater
+└── start.py               # Application entry point
+```
+
+### Building from Source
+
+```bash
+# Install PyInstaller
+pip install pyinstaller
+
+# Build executable
+pyinstaller updater.spec
+
+# Output will be in dist/ folder
+```
+
+---
+
+## 🎨 Customization
+
+### Themes
+
+ClipTide comes with 5 beautiful themes:
+
+- **ClipTide** - Default light theme with ocean vibes
+- **DarkTide** - Sleek dark mode
+- **Forest** - Nature-inspired green palette
+- **Neon City** - Futuristic cyberpunk aesthetics
+- **Sunset** - Warm evening colors
+
+Create your own theme by adding a new folder in `data/ui/themes/` with `config.json` and `styles.css`.
+
+### Languages
+
+To contribute a translation:
+1. Copy `data/localization/en.json`
+2. Translate the values (keep the keys unchanged)
+3. Save as `data/localization/[language_code].json`
+4. Submit a pull request!
+
+---
+
+## 🔧 Configuration
+
+### Download Settings
+- **Output Folder** - Choose where files are saved
+- **Quality** - Select from 144p to 8K
+- **Format** - MP4, WebM, MKV, MP3, and more
+- **Subtitles** - Auto-download, embed, or save separately
+
+### Network Settings
+- **Proxy Support** - HTTP/HTTPS/SOCKS5
+- **Connection Timeout** - Adjust for slow networks
+- **Parallel Downloads** - Control concurrent downloads
+
+### Advanced Features
+- **Audio Language** - Select preferred audio track
+- **Subtitle Languages** - Download multiple subtitle tracks
+- **Notifications** - Desktop notifications on completion
+- **Auto-update** - Stay up to date automatically
+
+---
+
+## 📚 FAQ
+
+<details>
+<summary><b>Why is the download slow?</b></summary>
+<br>
+Download speed depends on your internet connection and the source server. Try enabling proxy if the site is throttled in your region.
+</details>
+
+<details>
+<summary><b>Can I download entire playlists?</b></summary>
+<br>
+Yes! Just paste the playlist URL, and all videos will be added to the queue automatically.
+</details>
+
+<details>
+<summary><b>What video formats are supported?</b></summary>
+<br>
+ClipTide supports MP4, WebM, MKV, FLV, 3GP, and many others. For audio: MP3, M4A, WAV, FLAC, OGG, and more.
+</details>
+
+<details>
+<summary><b>Is it legal to download videos?</b></summary>
+<br>
+Downloading videos is legal for personal use in most countries. Always respect copyright laws and terms of service of the platforms you download from.
+</details>
+
+---
+
+## 🗺️ Roadmap
+
+- [x] Multi-language support
+- [x] Auto-updater
+- [x] Theme system
+- [x] Built-in converter
+- [ ] Electron migration (future)
+- [ ] Mobile application (future)
+- [ ] Browser extension (planned)
+- [ ] Cloud sync (planned)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how you can help:
+
+1. 🐛 **Report Bugs** - Open an issue with details
+2. 💡 **Suggest Features** - Share your ideas
+3. 🌍 **Translate** - Add support for more languages
+4. 🎨 **Create Themes** - Design new color schemes
+5. 💻 **Submit PRs** - Fix bugs or add features
+
+### Development Guidelines
+
+- Follow PEP 8 style guide for Python
+- Write clear commit messages
+- Test your changes before submitting
+- Update documentation when needed
+
+---
+
+## 📄 License
+
+This project is licensed under **GNU General Public License v3.0** - see [LICENSE](LICENSE) for details.
+
+### Third-Party Licenses
+
+ClipTide uses the following open-source libraries:
+
+- **[pywebview](https://github.com/r0x0r/pywebview)** - BSD 3-Clause License
+- **[yt-dlp](https://github.com/yt-dlp/yt-dlp)** - Public Domain
+- **[FFmpeg](https://ffmpeg.org)** - LGPL/GPL License
+
+---
+
+## 💖 Support
+
+If you find ClipTide useful, consider supporting the project:
+
+- ⭐ **Star this repository**
+- 🐛 **Report bugs and issues**
+- 💡 **Suggest new features**
+- 🌍 **Help with translations**
+- ☕ **[Buy me a coffee](https://github.com/sponsors/Rayness)**
+
+---
+
+## 📞 Contact
+
+- **Website:** [cliptide.ru](https://cliptide.ru)
+- **GitHub:** [@Rayness](https://github.com/Rayness)
+- **Issues:** [Report a bug](https://github.com/Rayness/YouTube-Downloader/issues)
+
+---
+
+<div align="center">
+
+**Made with ❤️ by [Rayness](https://github.com/Rayness)**
+
+*Download the web, one clip at a time* 🌊
+
+[![GitHub stars](https://img.shields.io/github/stars/Rayness/YouTube-Downloader?style=social)](https://github.com/Rayness/YouTube-Downloader/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Rayness/YouTube-Downloader?style=social)](https://github.com/Rayness/YouTube-Downloader/network/members)
+
+</div>

@@ -120,6 +120,9 @@ def startApp():
         window_size = ctx.config.get("Display", "window_size", fallback="1200x780")
         ui_scale = ctx.config.get("Display", "ui_scale", fallback="1")
         
+        # Канал обновлений
+        update_channel = ctx.config.get("Updates", "channel", fallback="stable")
+        
         cmds = [
             f'updateDownloadFolder({json.dumps(ctx.download_folder)})',
             f'updateConvertFolder({json.dumps(ctx.converter_folder)})',
@@ -136,7 +139,8 @@ def startApp():
             f'loadTheme("{ctx.theme}", "{ctx.style}", {themes})',
             f'get_version("{version}")',
             f'loadData({json.dumps(modal_content)})',
-            f'loadDisplaySettings("{window_size}", "{ui_scale}")'
+            f'loadDisplaySettings("{window_size}", "{ui_scale}")',
+            f'loadUpdateSettings("{update_channel}")'
         ]
         
         for cmd in cmds:

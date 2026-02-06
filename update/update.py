@@ -314,8 +314,8 @@ def main():
         width=450,
         height=500,
         resizable=False,
-        frameless=True, 
-        easy_drag=False 
+        frameless=True,
+        easy_drag=False  # Отключаем easy_drag, используем -webkit-app-region в CSS
     )
     
     api.set_window(window)
