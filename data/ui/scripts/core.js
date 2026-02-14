@@ -92,7 +92,8 @@ if (notifiBtn) {
         const block = document.getElementById('12');
         if (block) {
             block.classList.add('active');
-            document.getElementById('name').textContent = "История событий";
+            const title = window.i18n?.sections?.notifications || "Notifications";
+            document.getElementById('name').textContent = title;
         }
         
         // Визуально подсвечиваем кнопку (опционально)

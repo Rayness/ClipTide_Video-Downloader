@@ -1,14 +1,13 @@
 {
-    "video_URL" : "Введите URL видео",
-    "audio_only" : "Только аудио",
+    "video_URL": "Введите URL видео",
+    "audio_only": "Только аудио",
     "audio_text": "Аудио",
     "format": "Формат: ",
     "resolution": "Разрешение: ",
-    "add_to_queue" : "Добавить в очередь",
-    "start_downloading" : "Начать загрузку",
-
-    "status" : {
-        "status_text" : "Статус: Ожидание...",
+    "add_to_queue": "Добавить в очередь",
+    "start_downloading": "Начать загрузку",
+    "status": {
+        "status_text": "Статус: Ожидание...",
         "pending": "Анализ...",
         "paused": "Пауза",
         "error": "Ошибка",
@@ -17,36 +16,34 @@
         "manager_started": "Менеджер загрузок запущен",
         "manager_stopped": "Менеджер загрузок остановлен",
         "stopping": "Остановка...",
-        "unknown video" : "Неизвестное видео",
-        "download_success" : "Видео успешно загружено",
-        "download_error" : "Ошибка при загрузке",
-        "to_queue" : "Видео добавлено в очередь",
-        "in_format" : "в формате",
-        "in_resolution" : "в разрешении",
-        "error_adding" : "Ошибка при добавлении видео:",
-        "downloading_already" : "Загрузка уже запущена.",
-        "the_queue_is_empty" : "Очередь пуста. Нечего загружать.",
-        "the_queue_is_empty_download_success" : "Очередь пуста. Нечего загружать.",
-        "download_started" : "Загрузка начата.",
-        "downloading" : "Загружаю",
-        "removed_from_queue" : "Видео удалено из очереди: ",
-        "error_removing" : "Видео удалено из очереди: ",
-        "converting" : "Конвертация",
-        "convert_success" : "Конвертация успешно завершена",
-        "convert_stopped" : "Конвертация была отменена",
-        "download_ended" : "Завершение загрузки..."
+        "unknown video": "Неизвестное видео",
+        "download_success": "Видео успешно загружено",
+        "download_error": "Ошибка при загрузке",
+        "to_queue": "Видео добавлено в очередь",
+        "in_format": "в формате",
+        "in_resolution": "в разрешении",
+        "error_adding": "Ошибка при добавлении видео:",
+        "downloading_already": "Загрузка уже запущена.",
+        "the_queue_is_empty": "Очередь пуста. Нечего загружать.",
+        "the_queue_is_empty_download_success": "Очередь пуста. Нечего загружать.",
+        "download_started": "Загрузка начата.",
+        "downloading": "Загружаю",
+        "removed_from_queue": "Видео удалено из очереди: ",
+        "error_removing": "Видео удалено из очереди: ",
+        "converting": "Конвертация",
+        "convert_success": "Конвертация успешно завершена",
+        "convert_stopped": "Конвертация была отменена",
+        "download_ended": "Завершение загрузки..."
     },
-
-    "queue" : "Очередь: ",
-    "progress" : "Прогресс: ",
-    "speed" : "Скорость: ",
-    "eta" : "Осталось: ",
-    "bs" : "Б/с",
-    "mbs" : "МБ/с",
-    "min" : "мин",
-    "sec" : "сек",
+    "queue": "Очередь: ",
+    "progress": "Прогресс: ",
+    "speed": "Скорость: ",
+    "eta": "Осталось: ",
+    "bs": "Б/с",
+    "mbs": "МБ/с",
+    "min": "мин",
+    "sec": "сек",
     "error": "Ошибка",
-
     "sections": {
         "coming_soon": "Скоро",
         "video_downloader": "Видео загрузчик",
@@ -56,10 +53,8 @@
         "profile": "Профиль",
         "notifications": "Уведомления"
     },
-
-    "settings" : {
-        "title" : "Настройки",
-
+    "settings": {
+        "title": "Настройки",
         "settings_ui": {
             "nav_app": "Приложение",
             "nav_download": "Загрузка",
@@ -79,37 +74,40 @@
             "txt_licenses": "Используемые библиотеки: yt-dlp, ffmpeg, pillow, pywebview. Лицензия: GPLv3",
             "btn_close": "ESC"
         },
-
-        "language" : {
-            "title" : "Управление языковыми настройками",
-            "language" : "Язык: ",
-            "russian" : "Русский",
-            "english" : "English",
-            "polish" : "Polski",
-            "ukraine" : "Український",
-            "italian" : "Italiano",
-            "german" : "Deutsch",
-            "french" : "Français",
-            "japan" : "日本語",
-            "chinese" : "中文",
-            "open_folder" : "Открыть папку с локализацией"
+        "language": {
+            "title": "Управление языковыми настройками",
+            "language": "Язык: ",
+            "russian": "Русский",
+            "english": "English",
+            "polish": "Polski",
+            "ukraine": "Український",
+            "italian": "Italiano",
+            "german": "Deutsch",
+            "french": "Français",
+            "japan": "日本語",
+            "chinese": "中文",
+            "open_folder": "Открыть папку с локализацией"
         },
         "subtitles": {
             "title": "Управление субтитрами",
             "enable": "Скачивать субтитры",
             "auto": "Скачивать авто-субтитры",
             "embed": "Встраивать в файл",
-            "lang": "Язык:"
+            "lang": "Язык:",
+            "all_available": "Все доступные"
         },
         "audio": {
             "title": "Управление аудио",
-            "lang": "Предпочитаемый язык:"
+            "lang": "Предпочитаемый язык:",
+            "auto": "Авто",
+            "all_tracks": "Все дорожки (MKV)",
+            "original": "Оригинал"
         },
-        "themes" : {
-            "decoration" : "Управление оформлением",
-            "theme" : "Тема: ",
-            "style" : "Стиль: ",
-            "open_folder" : "Открыть папку с темами"
+        "themes": {
+            "decoration": "Управление оформлением",
+            "theme": "Тема: ",
+            "style": "Стиль: ",
+            "open_folder": "Открыть папку с темами"
         },
         "display": {
             "title": "Отображение",
@@ -117,57 +115,65 @@
             "ui_scale": "Масштаб интерфейса"
         },
         "folders": {
-            "title" : "Управление загрузкой",
-            "placeholder_download" : "Путь к папке загрузок",
-            "placeholder_conversion" : "Путь к папке конвертации",
-            "open_after_download" : "Открыть папку после загрузки",
-            "open_after_conversion" : "Открыть папку после конвертации",
-            "choose_download_folder" : "Изменить папку загрузки",
-            "open_download_folder" : "Открыть папку загрузки",
-            "choose_converter_folder" : "Изменить папку конвертации",
-            "open_converter_folder" : "Открыть папку конвертации",
-            "by_defoult" : "Вернуть папку по умолчанию"
+            "title": "Управление загрузкой",
+            "placeholder_download": "Путь к папке загрузок",
+            "placeholder_conversion": "Путь к папке конвертации",
+            "open_after_download": "Открыть папку после загрузки",
+            "open_after_conversion": "Открыть папку после конвертации",
+            "choose_download_folder": "Изменить папку загрузки",
+            "open_download_folder": "Открыть папку загрузки",
+            "choose_converter_folder": "Изменить папку конвертации",
+            "open_converter_folder": "Открыть папку конвертации",
+            "by_defoult": "Вернуть папку по умолчанию"
         },
-        "notifications" : {
-            "title" : "Управление конвертацией",
-            "notifi_download" : "Получать уведомления о завершении загрузки",
-            "notifi_conversion" : "Получать уведомления о завершении конвертации"
+        "notifications": {
+            "title": "Управление конвертацией",
+            "notifi_download": "Получать уведомления о завершении загрузки",
+            "notifi_conversion": "Получать уведомления о завершении конвертации"
         },
-        "proxys" : {
-            "title" : "Управление прокси сервером",
-            "turn_on" : "Включить Прокси-сервер",
-            "reset" : "Вернуть значение по умолчанию",
-            "button_apply" : "Применить"
+        "proxys": {
+            "title": "Управление прокси сервером",
+            "turn_on": "Включить Прокси-сервер",
+            "reset": "Вернуть значение по умолчанию",
+            "button_apply": "Применить"
         },
-        "updates" : {
-            "title" : "Управление обновлениями",
-            "update_text_ready" : "Доступно обновление",
-            "update_text_not_ready" : "Обновление не требуется",
-            "update_text_error" : "Ошибка получения версии",
-            "update_button" : " Запустить Updater",
-            "auto_update" : "Автоматическое обновление"
+        "updates": {
+            "title": "Управление обновлениями",
+            "update_text_ready": "Доступно обновление",
+            "update_text_not_ready": "Обновление не требуется",
+            "update_text_error": "Ошибка получения версии",
+            "update_button": " Запустить Updater",
+            "auto_update": "Автоматическое обновление",
+            "update_channel_label": "Канал обновлений:",
+            "checking_text": "Проверка...",
+            "check_error_prefix": "Ошибка проверки:",
+            "available_prefix": "Доступна версия",
+            "latest_installed": "Установлена последняя версия",
+            "patchnotes_title_default": "Что нового в текущей версии",
+            "patchnotes_title_latest": "Что нового в",
+            "patchnotes_title_current": "Описание текущей версии",
+            "patchnotes_loading": "Информация загружается...",
+            "stable_label": "Stable",
+            "dev_label": "Dev / Beta"
         },
-        "about" : {
-            "title" : "О приложении",
-            "version" : "Версия:",
-            "date" : "Дата выхода:"
+        "about": {
+            "title": "О приложении",
+            "version": "Версия:",
+            "date": "Дата выхода:"
         }
     },
-
-    "notifications" : {
-        "video_title" : "Загрузка завершена!",
-        "video_message_1" : "Видео ",
-        "video_message_2" : " успешно скачано!",
-        "queue_title" : "Загрузка завершена",
-        "queue_message" : "Все видео из очереди были загружены",
-        "convert_title" : "Конвертация завершена"
+    "notifications": {
+        "video_title": "Загрузка завершена!",
+        "video_message_1": "Видео ",
+        "video_message_2": " успешно скачано!",
+        "queue_title": "Загрузка завершена",
+        "queue_message": "Все видео из очереди были загружены",
+        "convert_title": "Конвертация завершена"
     },
-
-    "donate" : {
-        "title" : "Донат",
-        "description" : "Если есть желание помочь финансово и ускорить дальнейшую разработку приложения!"
+    "donate": {
+        "title": "Донат",
+        "description": "Если есть желание помочь финансово и ускорить дальнейшую разработку приложения!"
     },
-
     "downloader": {
         "author": "Автор",
         "fps": "FPS",
@@ -182,7 +188,6 @@
         "status_done": "Готово",
         "status_error": "Ошибка"
     },
-
     "store": {
         "title": "Магазин дополнений",
         "tab_modules": "Модули",
@@ -196,9 +201,14 @@
         "status_downloading": "Загрузка...",
         "status_extracting": "Распаковка...",
         "status_installing": "Установка...",
-        "status_error": "Ошибка"
+        "status_error": "Ошибка",
+        "no_description": "Нет описания",
+        "unknown_author": "Неизвестен",
+        "confirm_delete_module": "Удалить этот модуль?",
+        "confirm_delete_theme": "Удалить эту тему?",
+        "cannot_delete_default_theme": "Нельзя удалить стандартную тему",
+        "load_hint": "Нажмите \"Обновить\" для загрузки каталога"
     },
-
     "converter": {
         "add_files_btn": "Добавить файлы",
         "settings_title": "Настройки",
@@ -217,27 +227,24 @@
         "status_processing": "В работе...",
         "status_done": "Готово",
         "status_error": "Ошибка",
-        "click_for_add_video" : "Кликните для выбора видео",
-        "convertion_settings" : "Настройки конвертации",
-        "conversion_button" : "Конвертировать",
-        "format" : "Формат: ",
-        "close_video" : "Отмена",
-        
-        "video_info" : {
-            "title" : "Информация о видео:",
-            "duration" : "Длительность: ",
-            "framerate" : "Частота кадров: ",
-            "video_codec" : "Видеокодек: ",
-            "video_bitrate" : "Битрейт видео: ",
-            "audio_codec" : "Аудиокодек: ",
-            "audio_bitrate" : "Битрейт аудио: "
+        "click_for_add_video": "Кликните для выбора видео",
+        "convertion_settings": "Настройки конвертации",
+        "conversion_button": "Конвертировать",
+        "format": "Формат: ",
+        "close_video": "Отмена",
+        "video_info": {
+            "title": "Информация о видео:",
+            "duration": "Длительность: ",
+            "framerate": "Частота кадров: ",
+            "video_codec": "Видеокодек: ",
+            "video_bitrate": "Битрейт видео: ",
+            "audio_codec": "Аудиокодек: ",
+            "audio_bitrate": "Битрейт аудио: "
         },
-
         "video_add": "Видео было добавлено",
         "video_error": "Ошибка добавления видео",
         "video_adding": "Добавление видео"
     },
-
     "history": {
         "date_label": "Дата загрузки:",
         "format_label": "Формат:",
@@ -245,9 +252,10 @@
         "open_browser": "Открыть в браузере",
         "btn_download_again": "Скачать снова",
         "btn_delete_record": "Удалить запись",
-        "empty": "История пуста"
+        "empty": "История пуста",
+        "delete_title": "Удалить",
+        "info_missing": "Инфо отсутствует"
     },
-
     "logs": {
         "title": "Лог событий",
         "app_ready": "Приложение готово к работе"

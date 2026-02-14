@@ -1,13 +1,13 @@
 {
-    "video_URL" : "動画のURLを入力",
-    "audio_only" : "音声のみ",
+    "video_URL": "動画のURLを入力",
+    "audio_only": "音声のみ",
     "audio_text": "音声",
     "format": "形式: ",
     "resolution": "解像度: ",
-    "add_to_queue" : "キューに追加",
-    "start_downloading" : "ダウンロード開始",
-    "status" : {
-        "status_text" : "ステータス: 待機中...",
+    "add_to_queue": "キューに追加",
+    "start_downloading": "ダウンロード開始",
+    "status": {
+        "status_text": "ステータス: 待機中...",
         "pending": "解析中...",
         "paused": "一時停止",
         "error": "エラー",
@@ -16,35 +16,34 @@
         "manager_started": "ダウンロードマネージャー起動",
         "manager_stopped": "ダウンロードマネージャー停止",
         "stopping": "停止中...",
-        "unknown video" : "不明な動画",
-        "download_success" : "動画のダウンロード成功",
-        "download_error" : "ダウンロードエラー",
-        "to_queue" : "動画をキューに追加しました",
-        "in_format" : "形式: ",
-        "in_resolution" : "解像度: ",
-        "error_adding" : "動画追加エラー: ",
-        "downloading_already" : "ダウンロードは既に実行中です。",
-        "the_queue_is_empty" : "キューは空です。ダウンロードするものがありません。",
-        "the_queue_is_empty_download_success" : "キューは空です。ダウンロードするものがありません。",
-        "download_started" : "ダウンロードを開始しました。",
-        "downloading" : "ダウンロード中",
-        "removed_from_queue" : "動画をキューから削除しました: ",
-        "error_removing" : "キューからの削除中にエラーが発生しました: ",
-        "converting" : "変換中",
-        "convert_success" : "変換が正常に完了しました",
-        "convert_stopped" : "変換がキャンセルされました",
-        "download_ended" : "ダウンロード終了中..."
+        "unknown video": "不明な動画",
+        "download_success": "動画のダウンロード成功",
+        "download_error": "ダウンロードエラー",
+        "to_queue": "動画をキューに追加しました",
+        "in_format": "形式: ",
+        "in_resolution": "解像度: ",
+        "error_adding": "動画追加エラー: ",
+        "downloading_already": "ダウンロードは既に実行中です。",
+        "the_queue_is_empty": "キューは空です。ダウンロードするものがありません。",
+        "the_queue_is_empty_download_success": "キューは空です。ダウンロードするものがありません。",
+        "download_started": "ダウンロードを開始しました。",
+        "downloading": "ダウンロード中",
+        "removed_from_queue": "動画をキューから削除しました: ",
+        "error_removing": "キューからの削除中にエラーが発生しました: ",
+        "converting": "変換中",
+        "convert_success": "変換が正常に完了しました",
+        "convert_stopped": "変換がキャンセルされました",
+        "download_ended": "ダウンロード終了中..."
     },
-    "queue" : "キュー: ",
-    "progress" : "進捗: ",
-    "speed" : "速度: ",
-    "eta" : "残り時間: ",
-    "bs" : "B/s",
-    "mbs" : "MB/s",
-    "min" : "分",
-    "sec" : "秒",
+    "queue": "キュー: ",
+    "progress": "進捗: ",
+    "speed": "速度: ",
+    "eta": "残り時間: ",
+    "bs": "B/s",
+    "mbs": "MB/s",
+    "min": "分",
+    "sec": "秒",
     "error": "エラー",
-
     "sections": {
         "coming_soon": "近日公開",
         "video_downloader": "動画ダウンローダー",
@@ -54,92 +53,127 @@
         "profile": "プロフィール",
         "notifications": "通知"
     },
-
-    "settings" : {
-        "title" : "設定",
-        "language" : {
-            "title" : "言語設定の管理",
-            "language" : "言語: ",
-            "russian" : "Русский",
-            "english" : "English",
-            "polish" : "Polski",
-            "ukraine" : "Український",
-            "italian" : "Italiano",
-            "german" : "Deutsch",
-            "french" : "Français",
-            "japan" : "日本語",
-            "chinese" : "中文",
-            "open_folder" : "言語フォルダを開く"
+    "settings": {
+        "title": "設定",
+        "language": {
+            "title": "言語設定の管理",
+            "language": "言語: ",
+            "russian": "Русский",
+            "english": "English",
+            "polish": "Polski",
+            "ukraine": "Український",
+            "italian": "Italiano",
+            "german": "Deutsch",
+            "french": "Français",
+            "japan": "日本語",
+            "chinese": "中文",
+            "open_folder": "言語フォルダを開く"
         },
         "audio": {
             "title": "オーディオ設定の管理",
-            "lang":"言語:"
+            "lang": "言語:",
+            "auto": "自動",
+            "all_tracks": "すべてのトラック (MKV)",
+            "original": "オリジナル"
         },
         "subtitles": {
             "title": "字幕管理",
             "enable": "字幕をダウンロードする",
             "auto": "自動字幕をダウンロードする",
             "embed": "ファイルに埋め込む",
-            "lang": "言語:"
+            "lang": "言語:",
+            "all_available": "利用可能なすべて"
         },
-        "themes" : {
-            "decoration" : "外観の管理",
-            "theme" : "テーマ: ",
-            "style" : "スタイル: ",
-            "open_folder" : "テーマフォルダを開く"
+        "themes": {
+            "decoration": "外観の管理",
+            "theme": "テーマ: ",
+            "style": "スタイル: ",
+            "open_folder": "テーマフォルダを開く"
         },
         "folders": {
-            "title" : "ダウンロード管理",
-            "placeholder_download" : "ダウンロードフォルダのパス",
-            "placeholder_conversion" : "変換フォルダのパス",
-            "choose_download_folder" : "ダウンロード先を変更",
-            "open_download_folder" : "ダウンロード先を開く",
-            "open_after_download" : "ダウンロード後にフォルダを開く",
-            "open_after_conversion" : "変換後にフォルダを開く",
-            "choose_converter_folder" : "変換先を変更",
-            "open_converter_folder" : "変換先を開く",
-            "by_defoult" : "デフォルトに戻す"
+            "title": "ダウンロード管理",
+            "placeholder_download": "ダウンロードフォルダのパス",
+            "placeholder_conversion": "変換フォルダのパス",
+            "choose_download_folder": "ダウンロード先を変更",
+            "open_download_folder": "ダウンロード先を開く",
+            "open_after_download": "ダウンロード後にフォルダを開く",
+            "open_after_conversion": "変換後にフォルダを開く",
+            "choose_converter_folder": "変換先を変更",
+            "open_converter_folder": "変換先を開く",
+            "by_defoult": "デフォルトに戻す"
         },
-        "notifications" : {
-            "title" : "変換管理",
-            "notifi_download" : "ダウンロード完了時に通知を受け取る",
-            "notifi_conversion" : "変換完了時に通知を受け取る"
+        "notifications": {
+            "title": "変換管理",
+            "notifi_download": "ダウンロード完了時に通知を受け取る",
+            "notifi_conversion": "変換完了時に通知を受け取る"
         },
-        "proxys" : {
-            "title" : "プロキシサーバー管理",
-            "turn_on" : "プロキシサーバーを有効化",
-            "reset" : "デフォルトに戻す",
-            "button_apply" : "適用"
+        "proxys": {
+            "title": "プロキシサーバー管理",
+            "turn_on": "プロキシサーバーを有効化",
+            "reset": "デフォルトに戻す",
+            "button_apply": "適用"
         },
-        "updates" : {
-            "title" : "アップデート管理",
-            "update_text_ready" : "アップデートが利用可能です",
-            "update_text_not_ready" : "アップデートは不要です",
-            "update_text_error" : "バージョン取得エラー",
-            "update_button" : " Updaterを起動",
-            "auto_update" : "自動アップデート"
+        "updates": {
+            "title": "アップデート管理",
+            "update_text_ready": "アップデートが利用可能です",
+            "update_text_not_ready": "アップデートは不要です",
+            "update_text_error": "バージョン取得エラー",
+            "update_button": " Updaterを起動",
+            "auto_update": "自動アップデート",
+            "update_channel_label": "更新チャンネル:",
+            "checking_text": "確認中...",
+            "check_error_prefix": "確認エラー:",
+            "available_prefix": "利用可能なバージョン",
+            "latest_installed": "最新バージョンがインストールされています",
+            "patchnotes_title_default": "現在のバージョンの新機能",
+            "patchnotes_title_latest": "新機能:",
+            "patchnotes_title_current": "現在のバージョンのノート",
+            "patchnotes_loading": "情報を読み込み中...",
+            "stable_label": "安定版",
+            "dev_label": "開発版 / ベータ"
         },
-        "about" : {
-            "title" : "アプリについて",
-            "version" : "バージョン:",
-            "date" : "リリース日:"
+        "about": {
+            "title": "アプリについて",
+            "version": "バージョン:",
+            "date": "リリース日:"
+        },
+        "settings_ui": {
+            "nav_app": "アプリ",
+            "nav_download": "ダウンロード",
+            "nav_convert": "変換",
+            "nav_proxy": "プロキシ",
+            "nav_version": "バージョン",
+            "nav_about": "アプリ情報",
+            "hdr_appearance": "外観と言語",
+            "hdr_download": "ダウンローダー設定",
+            "hdr_folders": "フォルダー",
+            "hdr_convert": "コンバーター設定",
+            "lbl_proxy_string": "接続文字列:",
+            "btn_check": "確認",
+            "btn_save": "保存",
+            "desc_about": "メディア向けの汎用ツールです。",
+            "hdr_licenses": "ライセンス",
+            "txt_licenses": "使用ライブラリ: yt-dlp, ffmpeg, pillow, pywebview. ライセンス: GPLv3",
+            "btn_close": "ESC"
+        },
+        "display": {
+            "title": "表示",
+            "window_size": "ウィンドウサイズ",
+            "ui_scale": "インターフェースの拡大率"
         }
     },
-
-    "notifications" : {
-        "video_title" : "ダウンロード完了！",
-        "video_message_1" : "動画 ",
-        "video_message_2" : " のダウンロードが完了しました！",
-        "queue_title" : "ダウンロード完了",
-        "queue_message" : "キュー内のすべての動画がダウンロードされました",
-        "convert_title" : "変換完了"
+    "notifications": {
+        "video_title": "ダウンロード完了！",
+        "video_message_1": "動画 ",
+        "video_message_2": " のダウンロードが完了しました！",
+        "queue_title": "ダウンロード完了",
+        "queue_message": "キュー内のすべての動画がダウンロードされました",
+        "convert_title": "変換完了"
     },
-
-    "donate" : {
-        "title" : "寄付",
-        "description" : "開発を金銭的に支援し、今後の開発を加速させたい方へ！"
+    "donate": {
+        "title": "寄付",
+        "description": "開発を金銭的に支援し、今後の開発を加速させたい方へ！"
     },
-
     "converter": {
         "add_files_btn": "ファイルを追加",
         "settings_title": "設定",
@@ -158,27 +192,24 @@
         "status_processing": "処理中...",
         "status_done": "完了",
         "status_error": "エラー",
-        "click_for_add_video" : "クリックして動画を選択",
-        "convertion_settings" : "変換設定",
-        "conversion_button" : "変換",
-        "format" : "形式: ",
-        "close_video" : "キャンセル",
-        
-        "video_info" : {
-            "title" : "動画情報:",
-            "duration" : "再生時間: ",
-            "framerate" : "フレームレート: ",
-            "video_codec" : "ビデオコーデック: ",
-            "video_bitrate" : "ビデオビットレート: ",
-            "audio_codec" : "オーディオコーデック: ",
-            "audio_bitrate" : "オーディオビットレート: "
+        "click_for_add_video": "クリックして動画を選択",
+        "convertion_settings": "変換設定",
+        "conversion_button": "変換",
+        "format": "形式: ",
+        "close_video": "キャンセル",
+        "video_info": {
+            "title": "動画情報:",
+            "duration": "再生時間: ",
+            "framerate": "フレームレート: ",
+            "video_codec": "ビデオコーデック: ",
+            "video_bitrate": "ビデオビットレート: ",
+            "audio_codec": "オーディオコーデック: ",
+            "audio_bitrate": "オーディオビットレート: "
         },
-
         "video_add": "動画が追加されました",
         "video_error": "動画追加エラー",
         "video_adding": "動画を追加中"
     },
-
     "history": {
         "date_label": "ダウンロード日:",
         "format_label": "形式:",
@@ -186,11 +217,20 @@
         "open_browser": "ブラウザで開く",
         "btn_download_again": "再ダウンロード",
         "btn_delete_record": "履歴を削除",
-        "empty": "履歴は空です"
+        "empty": "履歴は空です",
+        "delete_title": "削除",
+        "info_missing": "情報なし"
     },
-
     "logs": {
         "title": "イベントログ",
         "app_ready": "アプリケーションの準備完了"
+    },
+    "store": {
+        "no_description": "説明はありません",
+        "unknown_author": "不明",
+        "confirm_delete_module": "このモジュールを削除しますか？",
+        "confirm_delete_theme": "このテーマを削除しますか？",
+        "cannot_delete_default_theme": "標準テーマは削除できません",
+        "load_hint": "「更新」を押してカタログを読み込みます"
     }
 }

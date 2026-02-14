@@ -1,13 +1,13 @@
 {
-    "video_URL" : "Entrez l'URL de la vidéo",
-    "audio_only" : "Audio seulement",
+    "video_URL": "Entrez l'URL de la vidéo",
+    "audio_only": "Audio seulement",
     "audio_text": "Audio",
     "format": "Format : ",
     "resolution": "Résolution : ",
-    "add_to_queue" : "Ajouter à la file",
-    "start_downloading" : "Démarrer le téléchargement",
-    "status" : {
-        "status_text" : "Statut : En attente...",
+    "add_to_queue": "Ajouter à la file",
+    "start_downloading": "Démarrer le téléchargement",
+    "status": {
+        "status_text": "Statut : En attente...",
         "pending": "Analyse...",
         "paused": "Pause",
         "error": "Erreur",
@@ -16,35 +16,34 @@
         "manager_started": "Gestionnaire de téléchargement démarré",
         "manager_stopped": "Gestionnaire de téléchargement arrêté",
         "stopping": "Arrêt en cours...",
-        "unknown video" : "Vidéo inconnue",
-        "download_success" : "Vidéo téléchargée avec succès",
-        "download_error" : "Erreur de téléchargement",
-        "to_queue" : "Vidéo ajoutée à la file d'attente",
-        "in_format" : "au format",
-        "in_resolution" : "en résolution",
-        "error_adding" : "Erreur lors de l'ajout de la vidéo :",
-        "downloading_already" : "Le téléchargement est déjà en cours.",
-        "the_queue_is_empty" : "La file est vide. Rien à télécharger.",
-        "the_queue_is_empty_download_success" : "La file est vide. Rien à télécharger.",
-        "download_started" : "Téléchargement commencé.",
-        "downloading" : "Téléchargement",
-        "removed_from_queue" : "Vidéo retirée de la file : ",
-        "error_removing" : "Erreur lors du retrait de la file : ",
-        "converting" : "Conversion",
-        "convert_success" : "Conversion terminée avec succès",
-        "convert_stopped" : "La conversion a été annulée",
-        "download_ended" : "Fin du téléchargement..."
+        "unknown video": "Vidéo inconnue",
+        "download_success": "Vidéo téléchargée avec succès",
+        "download_error": "Erreur de téléchargement",
+        "to_queue": "Vidéo ajoutée à la file d'attente",
+        "in_format": "au format",
+        "in_resolution": "en résolution",
+        "error_adding": "Erreur lors de l'ajout de la vidéo :",
+        "downloading_already": "Le téléchargement est déjà en cours.",
+        "the_queue_is_empty": "La file est vide. Rien à télécharger.",
+        "the_queue_is_empty_download_success": "La file est vide. Rien à télécharger.",
+        "download_started": "Téléchargement commencé.",
+        "downloading": "Téléchargement",
+        "removed_from_queue": "Vidéo retirée de la file : ",
+        "error_removing": "Erreur lors du retrait de la file : ",
+        "converting": "Conversion",
+        "convert_success": "Conversion terminée avec succès",
+        "convert_stopped": "La conversion a été annulée",
+        "download_ended": "Fin du téléchargement..."
     },
-    "queue" : "File d'attente : ",
-    "progress" : "Progression : ",
-    "speed" : "Vitesse : ",
-    "eta" : "Restant : ",
-    "bs" : "o/s",
-    "mbs" : "Mo/s",
-    "min" : "min",
-    "sec" : "sec",
+    "queue": "File d'attente : ",
+    "progress": "Progression : ",
+    "speed": "Vitesse : ",
+    "eta": "Restant : ",
+    "bs": "o/s",
+    "mbs": "Mo/s",
+    "min": "min",
+    "sec": "sec",
     "error": "Erreur",
-
     "sections": {
         "coming_soon": "Bientôt",
         "video_downloader": "Téléchargeur vidéo",
@@ -54,92 +53,127 @@
         "profile": "Profil",
         "notifications": "Notifications"
     },
-
-    "settings" : {
-        "title" : "Paramètres",
-        "language" : {
-            "title" : "Gestion de la langue",
-            "language" : "Langue : ",
-            "russian" : "Русский",
-            "english" : "English",
-            "polish" : "Polski",
-            "ukraine" : "Український",
-            "italian" : "Italiano",
-            "german" : "Deutsch",
-            "french" : "Français",
-            "japan" : "日本語",
-            "chinese" : "中文",
-            "open_folder" : "Ouvrir le dossier des langues"
+    "settings": {
+        "title": "Paramètres",
+        "language": {
+            "title": "Gestion de la langue",
+            "language": "Langue : ",
+            "russian": "Русский",
+            "english": "English",
+            "polish": "Polski",
+            "ukraine": "Український",
+            "italian": "Italiano",
+            "german": "Deutsch",
+            "french": "Français",
+            "japan": "日本語",
+            "chinese": "中文",
+            "open_folder": "Ouvrir le dossier des langues"
         },
         "subtitles": {
             "title": "Gestion des sous-titres",
             "enable": "Télécharger les sous-titres",
             "auto": "Télécharger les sous-titres automatiques",
             "embed": "Intégrer dans le fichier",
-            "lang": "Langue :"
+            "lang": "Langue :",
+            "all_available": "Toutes disponibles"
         },
         "audio": {
             "title": "Gestion des paramètres audio",
-            "lang":"Langue :"
+            "lang": "Langue :",
+            "auto": "Auto",
+            "all_tracks": "Toutes les pistes (MKV)",
+            "original": "Original"
         },
-        "themes" : {
-            "decoration" : "Gestion de l'apparence",
-            "theme" : "Thème : ",
-            "style" : "Style : ",
-            "open_folder" : "Ouvrir le dossier des thèmes"
+        "themes": {
+            "decoration": "Gestion de l'apparence",
+            "theme": "Thème : ",
+            "style": "Style : ",
+            "open_folder": "Ouvrir le dossier des thèmes"
         },
         "folders": {
-            "title" : "Gestion des téléchargements",
-            "placeholder_download" : "Chemin du dossier de téléchargement",
-            "placeholder_conversion" : "Chemin du dossier de conversion",
-            "choose_download_folder" : "Changer le dossier de téléchargement",
-            "open_download_folder" : "Ouvrir le dossier de téléchargement",
-            "open_after_download" : "Ouvrir le dossier après le téléchargement",
-            "open_after_conversion" : "Ouvrir le dossier après la conversion",
-            "choose_converter_folder" : "Changer le dossier de conversion",
-            "open_converter_folder" : "Ouvrir le dossier de conversion",
-            "by_defoult" : "Restaurer le dossier par défaut"
+            "title": "Gestion des téléchargements",
+            "placeholder_download": "Chemin du dossier de téléchargement",
+            "placeholder_conversion": "Chemin du dossier de conversion",
+            "choose_download_folder": "Changer le dossier de téléchargement",
+            "open_download_folder": "Ouvrir le dossier de téléchargement",
+            "open_after_download": "Ouvrir le dossier après le téléchargement",
+            "open_after_conversion": "Ouvrir le dossier après la conversion",
+            "choose_converter_folder": "Changer le dossier de conversion",
+            "open_converter_folder": "Ouvrir le dossier de conversion",
+            "by_defoult": "Restaurer le dossier par défaut"
         },
-        "notifications" : {
-            "title" : "Gestion de la conversion",
-            "notifi_download" : "Notifier à la fin du téléchargement",
-            "notifi_conversion" : "Notifier à la fin de la conversion"
+        "notifications": {
+            "title": "Gestion de la conversion",
+            "notifi_download": "Notifier à la fin du téléchargement",
+            "notifi_conversion": "Notifier à la fin de la conversion"
         },
-        "proxys" : {
-            "title" : "Gestion du serveur proxy",
-            "turn_on" : "Activer le serveur proxy",
-            "reset" : "Rétablir les valeurs par défaut",
-            "button_apply" : "Appliquer"
+        "proxys": {
+            "title": "Gestion du serveur proxy",
+            "turn_on": "Activer le serveur proxy",
+            "reset": "Rétablir les valeurs par défaut",
+            "button_apply": "Appliquer"
         },
-        "updates" : {
-            "title" : "Gestion des mises à jour",
-            "update_text_ready" : "Mise à jour disponible",
-            "update_text_not_ready" : "Aucune mise à jour requise",
-            "update_text_error" : "Erreur de récupération de version",
-            "update_button" : " Lancer l'Updater",
-            "auto_update" : "Mise à jour automatique"
+        "updates": {
+            "title": "Gestion des mises à jour",
+            "update_text_ready": "Mise à jour disponible",
+            "update_text_not_ready": "Aucune mise à jour requise",
+            "update_text_error": "Erreur de récupération de version",
+            "update_button": " Lancer l'Updater",
+            "auto_update": "Mise à jour automatique",
+            "update_channel_label": "Canal de mise à jour :",
+            "checking_text": "Vérification...",
+            "check_error_prefix": "Erreur de vérification :",
+            "available_prefix": "Version disponible",
+            "latest_installed": "La dernière version est installée",
+            "patchnotes_title_default": "Nouveautés de la version actuelle",
+            "patchnotes_title_latest": "Nouveautés de",
+            "patchnotes_title_current": "Notes de la version actuelle",
+            "patchnotes_loading": "Chargement des informations...",
+            "stable_label": "Stable",
+            "dev_label": "Dev / Bêta"
         },
-        "about" : {
-            "title" : "À propos de l'application",
-            "version" : "Version :",
-            "date" : "Date de sortie :"
+        "about": {
+            "title": "À propos de l'application",
+            "version": "Version :",
+            "date": "Date de sortie :"
+        },
+        "settings_ui": {
+            "nav_app": "Application",
+            "nav_download": "Téléchargement",
+            "nav_convert": "Conversion",
+            "nav_proxy": "Proxy",
+            "nav_version": "Version",
+            "nav_about": "À propos",
+            "hdr_appearance": "Apparence et langue",
+            "hdr_download": "Paramètres du téléchargeur",
+            "hdr_folders": "Dossiers",
+            "hdr_convert": "Paramètres du convertisseur",
+            "lbl_proxy_string": "Chaîne de connexion :",
+            "btn_check": "Vérifier",
+            "btn_save": "Enregistrer",
+            "desc_about": "Outil universel pour les médias.",
+            "hdr_licenses": "Licences",
+            "txt_licenses": "Bibliothèques utilisées : yt-dlp, ffmpeg, pillow, pywebview. Licence : GPLv3",
+            "btn_close": "ESC"
+        },
+        "display": {
+            "title": "Affichage",
+            "window_size": "Taille de fenetre",
+            "ui_scale": "Echelle de l'interface"
         }
     },
-
-    "notifications" : {
-        "video_title" : "Téléchargement terminé !",
-        "video_message_1" : "La vidéo ",
-        "video_message_2" : " a été téléchargée avec succès !",
-        "queue_title" : "Téléchargement terminé",
-        "queue_message" : "Toutes les vidéos de la file d'attente ont été téléchargées",
-        "convert_title" : "Conversion terminée"
+    "notifications": {
+        "video_title": "Téléchargement terminé !",
+        "video_message_1": "La vidéo ",
+        "video_message_2": " a été téléchargée avec succès !",
+        "queue_title": "Téléchargement terminé",
+        "queue_message": "Toutes les vidéos de la file d'attente ont été téléchargées",
+        "convert_title": "Conversion terminée"
     },
-
-    "donate" : {
-        "title" : "Faire un don",
-        "description" : "Si vous souhaitez aider financièrement et accélérer le développement futur de l'application !"
+    "donate": {
+        "title": "Faire un don",
+        "description": "Si vous souhaitez aider financièrement et accélérer le développement futur de l'application !"
     },
-
     "converter": {
         "add_files_btn": "Ajouter des fichiers",
         "settings_title": "Paramètres",
@@ -158,27 +192,24 @@
         "status_processing": "En cours...",
         "status_done": "Terminé",
         "status_error": "Erreur",
-        "click_for_add_video" : "Cliquez pour choisir une vidéo",
-        "convertion_settings" : "Paramètres de conversion",
-        "conversion_button" : "Convertir",
-        "format" : "Format : ",
-        "close_video" : "Annuler",
-        
-        "video_info" : {
-            "title" : "Infos vidéo :",
-            "duration" : "Durée : ",
-            "framerate" : "Fréquence d'images : ",
-            "video_codec" : "Codec vidéo : ",
-            "video_bitrate" : "Débit vidéo : ",
-            "audio_codec" : "Codec audio : ",
-            "audio_bitrate" : "Débit audio : "
+        "click_for_add_video": "Cliquez pour choisir une vidéo",
+        "convertion_settings": "Paramètres de conversion",
+        "conversion_button": "Convertir",
+        "format": "Format : ",
+        "close_video": "Annuler",
+        "video_info": {
+            "title": "Infos vidéo :",
+            "duration": "Durée : ",
+            "framerate": "Fréquence d'images : ",
+            "video_codec": "Codec vidéo : ",
+            "video_bitrate": "Débit vidéo : ",
+            "audio_codec": "Codec audio : ",
+            "audio_bitrate": "Débit audio : "
         },
-
         "video_add": "La vidéo a été ajoutée",
         "video_error": "Erreur lors de l'ajout de la vidéo",
         "video_adding": "Ajout de la vidéo"
     },
-
     "history": {
         "date_label": "Date de téléchargement :",
         "format_label": "Format :",
@@ -186,11 +217,20 @@
         "open_browser": "Ouvrir dans le navigateur",
         "btn_download_again": "Télécharger à nouveau",
         "btn_delete_record": "Supprimer l'enregistrement",
-        "empty": "L'historique est vide"
+        "empty": "L'historique est vide",
+        "delete_title": "Supprimer",
+        "info_missing": "Aucune information"
     },
-
     "logs": {
         "title": "Journal des événements",
         "app_ready": "L'application est prête"
+    },
+    "store": {
+        "no_description": "Pas de description",
+        "unknown_author": "Inconnu",
+        "confirm_delete_module": "Supprimer ce module ?",
+        "confirm_delete_theme": "Supprimer ce theme ?",
+        "cannot_delete_default_theme": "Impossible de supprimer le theme par defaut",
+        "load_hint": "Appuyez sur \"Rafraichir\" pour charger le catalogue"
     }
 }

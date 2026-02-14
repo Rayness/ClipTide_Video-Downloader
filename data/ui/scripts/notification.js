@@ -9,13 +9,14 @@ function loadNotifications(data) {
     container.innerHTML = "";
     
     // Обновляем кэш
-    cachedNotifications = data; 
+    cachedNotifications = Array.isArray(data) ? data : [];
     console.log("Notifications loaded:", cachedNotifications.length);
 
-    const sortedData = [...data].reverse();
+    const sortedData = [...cachedNotifications].reverse();
+    const tHistory = window.i18n?.history || {};
 
     if (sortedData.length === 0) {
-        container.innerHTML = `<div style="text-align:center; color:#777; margin-top:2rem;">История пуста</div>`;
+        container.innerHTML = `<div style="text-align:center; color:#777; margin-top:2rem;">${tHistory.empty || 'History is empty'}</div>`;
         return;
     }
 
@@ -44,7 +45,7 @@ function loadNotifications(data) {
                 </div>
             </div>
             <div class="remove">
-                <button class="delete-notif-btn" title="Удалить">
+                <button class="delete-notif-btn" title="${tHistory.delete_title || 'Delete'}">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </div>
@@ -104,79 +105,84 @@ function openHistoryModal(id) {
         notif.read = "True";
     }
 
-    // Заполняем данными
-    const payload = notif.payload || {};
-    
-    document.getElementById("hist-title").innerText = notif.title;
-    document.getElementById("hist-date").innerText = notif.timestamp;
-    
-    const img = document.getElementById("hist-img");
-    // Проверка, есть ли картинка, иначе дефолт
-    img.src = payload.thumbnail ? payload.thumbnail : "src/default_thumbnail.png";
-    
-    // Формат
-    let fmtInfo = "Инфо отсутствует";
-    if (payload.format) {
-        fmtInfo = payload.format.toUpperCase();
-        if (payload.resolution) fmtInfo += ` / ${payload.resolution}p`;
-    }
-    document.getElementById("hist-fmt").innerText = fmtInfo;
+    try {
+        // Заполняем данными
+        const payload = (notif && typeof notif.payload === "object" && notif.payload) ? notif.payload : {};
+        const tHistory = window.i18n?.history || {};
+        
+        document.getElementById("hist-title").innerText = notif.title || "";
+        document.getElementById("hist-date").innerText = notif.timestamp || "";
+        
+        const img = document.getElementById("hist-img");
+        // Проверка, есть ли картинка, иначе дефолт
+        img.src = payload.thumbnail ? payload.thumbnail : "src/default_thumbnail.png";
+        
+        // Формат
+        let fmtInfo = tHistory.info_missing || "No details";
+        if (typeof payload.format === "string" && payload.format.length > 0) {
+            fmtInfo = payload.format.toUpperCase();
+            if (payload.resolution) fmtInfo += ` / ${payload.resolution}p`;
+        }
+        document.getElementById("hist-fmt").innerText = fmtInfo;
 
-    // Ссылка
-    const linkEl = document.getElementById("hist-link");
-    if (payload.url) {
-        linkEl.href = payload.url;
-        linkEl.innerText = payload.url;
-        linkEl.style.display = "block";
-    } else {
-        linkEl.style.display = "none";
-    }
+        // Ссылка
+        const linkEl = document.getElementById("hist-link");
+        if (payload.url) {
+            linkEl.href = payload.url;
+            linkEl.innerText = payload.url;
+            linkEl.style.display = "block";
+        } else {
+            linkEl.style.display = "none";
+        }
 
-    // Кнопка ре-скачивания
-    const btnRedownload = document.getElementById("btn-redownload");
-    if (payload.url) {
-        btnRedownload.style.display = "flex";
-        btnRedownload.onclick = function() {
+        // Кнопка ре-скачивания
+        const btnRedownload = document.getElementById("btn-redownload");
+        if (payload.url) {
+            btnRedownload.style.display = "flex";
+            btnRedownload.onclick = function() {
+                modal.classList.remove("show");
+                
+                // Переход на вкладку 1 (Загрузчик)
+                const tab = document.querySelector('[data-tab="1"]');
+                if(tab) tab.click();
+
+                // Создаем заглушку и отправляем запрос
+                const tempId = Date.now().toString();
+                if (typeof window.createLoadingItem === 'function') window.createLoadingItem(tempId);
+
+                window.pywebview.api.addVideoToQueue(
+                    payload.url, 
+                    payload.format || 'mp4', 
+                    payload.resolution || '1080', 
+                    tempId
+                );
+            };
+        } else {
+            btnRedownload.style.display = "none";
+        }
+
+        // Кнопка открытия папки
+        const btnFolder = document.getElementById("btn-hist-folder");
+        if (payload.folder) {
+            btnFolder.style.display = "flex";
+            btnFolder.onclick = function() {
+                // Вызываем Python метод
+                window.pywebview.api.open_path(payload.folder);
+            };
+        } else {
+            btnFolder.style.display = "none";
+        }
+
+
+        // Кнопка удаления
+        const btnDel = document.getElementById("btn-hist-delete");
+        btnDel.onclick = function() {
+            deleteNotification(id);
             modal.classList.remove("show");
-            
-            // Переход на вкладку 1 (Загрузчик)
-            const tab = document.querySelector('[data-tab="1"]');
-            if(tab) tab.click();
-
-            // Создаем заглушку и отправляем запрос
-            const tempId = Date.now().toString();
-            if (typeof window.createLoadingItem === 'function') window.createLoadingItem(tempId);
-
-            window.pywebview.api.addVideoToQueue(
-                payload.url, 
-                payload.format || 'mp4', 
-                payload.resolution || '1080', 
-                tempId
-            );
         };
-    } else {
-        btnRedownload.style.display = "none";
+    } catch (err) {
+        console.error("Failed to render history modal:", err);
     }
-
-    // Кнопка открытия папки
-    const btnFolder = document.getElementById("btn-hist-folder");
-    if (payload.folder) {
-        btnFolder.style.display = "flex";
-        btnFolder.onclick = function() {
-            // Вызываем Python метод
-            window.pywebview.api.open_path(payload.folder);
-        };
-    } else {
-        btnFolder.style.display = "none";
-    }
-
-
-    // Кнопка удаления
-    const btnDel = document.getElementById("btn-hist-delete");
-    btnDel.onclick = function() {
-        deleteNotification(id);
-        modal.classList.remove("show");
-    };
 
     // Показываем окно
     modal.classList.add("show");

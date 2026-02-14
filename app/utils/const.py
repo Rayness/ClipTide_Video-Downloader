@@ -30,6 +30,8 @@ HEADERS = {
     "User-Agent": "Updater-App",
     "Accept": "application/vnd.github.v3+json"
 }
+
+MANIFEST_URL = "https://raw.githubusercontent.com/Rayness/ClipTide_Video-Downloader/refs/heads/main/updates.json"
 # Путь к папке с переводами
 TRANSLATIONS_DIR = os.path.abspath("./data/localization")
 

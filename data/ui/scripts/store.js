@@ -45,7 +45,9 @@ if (storeTabs.length > 0) {
 
 function loadModulesData() {
     const list = document.getElementById('modules-list');
-    if (list) list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка модулей...</div>';
+    const t = window.i18n?.store || {};
+    const loadingText = t.status_loading || 'Loading catalog...';
+    if (list) list.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> ${loadingText}</div>`;
     
     if (window.pywebview && window.pywebview.api) {
         window.pywebview.api.store_fetch_data();
@@ -54,7 +56,9 @@ function loadModulesData() {
 
 function loadThemesData() {
     const list = document.getElementById('themes-list');
-    if (list) list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Загрузка тем...</div>';
+    const t = window.i18n?.store || {};
+    const loadingText = t.status_loading || 'Loading catalog...';
+    if (list) list.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> ${loadingText}</div>`;
     
     if (window.pywebview && window.pywebview.api) {
         window.pywebview.api.store_fetch_themes();
@@ -98,7 +102,8 @@ window.updateStoreList = function(available, installedIds) {
     container.innerHTML = "";
 
     if (!available || available.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #666;">Каталог пуст или недоступен</div>';
+        const t = window.i18n?.store || {};
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #666;">${t.status_empty || 'Catalog is empty or unavailable'}</div>`;
         return;
     }
 
@@ -157,13 +162,12 @@ window.updateThemesStoreList = function(available, installedIds) {
     const container = document.getElementById('themes-list');
     if (!container) return;
     container.innerHTML = "";
+    const t = window.i18n?.store || {};
 
     if (!available || available.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #666;">Каталог пуст</div>';
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #666;">${t.status_empty || 'Catalog is empty or unavailable'}</div>`;
         return;
     }
-
-    const t = window.i18n?.store || {};
 
     available.forEach(theme => {
         const isInstalled = installedIds.includes(theme.id);
@@ -196,8 +200,8 @@ window.updateThemesStoreList = function(available, installedIds) {
             <div class="theme-preview" style="${previewStyle}"></div>
             <div class="card-content">
                 <h4>${theme.name}</h4>
-                <p>${theme.description || 'No description'}</p>
-                <div class="card-meta">${t.author || 'Author'}: ${theme.author || 'Unknown'}</div>
+                <p>${theme.description || (t.no_description || 'No description')}</p>
+                <div class="card-meta">${t.author || 'Author'}: ${theme.author || (t.unknown_author || 'Unknown')}</div>
             </div>
             <div class="mod-footer" style="padding: 0 0.8rem 0.8rem 0.8rem;">
                 <div class="mod-status" id="theme-status-${theme.id}"></div>
@@ -224,7 +228,8 @@ window.installModule = function(id) {
 }
 
 window.uninstallModule = function(id) {
-    if(!confirm("Удалить этот модуль?")) return;
+    const t = window.i18n?.store || {};
+    if(!confirm(t.confirm_delete_module || "Delete this module?")) return;
     window.pywebview.api.store_uninstall_module(id);
 }
 
@@ -238,8 +243,9 @@ window.installTheme = function(id, url) {
 }
 
 window.deleteTheme = function(id) {
-    if(id === 'cliptide') { alert("Нельзя удалить стандартную тему"); return; }
-    if(!confirm("Удалить эту тему?")) return;
+    const t = window.i18n?.store || {};
+    if(id === 'cliptide') { alert(t.cannot_delete_default_theme || "Cannot delete default theme"); return; }
+    if(!confirm(t.confirm_delete_theme || "Delete this theme?")) return;
     window.pywebview.api.store_delete_theme(id);
 }
 

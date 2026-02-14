@@ -279,3 +279,149 @@
     flex-direction: column;
     align-items: center;
 }
+
+/* === Канал обновлений === */
+.update-channel-row {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.update-channel-row label {
+    color: #888;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* === Статус проверки канала === */
+.channel-check-status {
+    width: 100%;
+    margin-bottom: 1rem;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.channel-spinner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.channel-spinner i {
+    font-size: 1rem;
+    color: var(--accent-color);
+}
+
+.channel-result {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    width: 100%;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.channel-result i {
+    font-size: 1.1rem;
+}
+
+.channel-result--available {
+    background: rgba(93, 138, 81, 0.25);
+    color: #8ecf7a;
+    border: 1px solid rgba(93, 138, 81, 0.4);
+}
+
+.channel-result--available i {
+    color: #8ecf7a;
+}
+
+.channel-result--latest {
+    background: rgba(62, 77, 58, 0.25);
+    color: #9cb896;
+    border: 1px solid rgba(62, 77, 58, 0.4);
+}
+
+.channel-result--latest i {
+    color: #9cb896;
+}
+
+.channel-result--error {
+    background: rgba(124, 54, 61, 0.25);
+    color: #d98a90;
+    border: 1px solid rgba(124, 54, 61, 0.4);
+}
+
+.channel-result--error i {
+    color: #d98a90;
+}
+
+/* === Патчноут === */
+.patchnotes-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.patchnotes-header i {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+}
+
+.patchnotes-header h4 {
+    margin: 0;
+    color: var(--accent-color);
+    font-size: 1rem;
+}
+
+.patchnotes-content {
+    text-align: left;
+}
+
+.patchnotes-placeholder {
+    color: #666;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.patchnotes-text {
+    color: #ccc;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.patchnotes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.patchnotes-list li {
+    position: relative;
+    padding: 0.4rem 0 0.4rem 1.5rem;
+    color: #ccc;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.patchnotes-list li:last-child {
+    border-bottom: none;
+}
+
+.patchnotes-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0.4rem;
+    color: var(--accent-color);
+    font-weight: bold;
+    font-size: 1.1rem;
+}

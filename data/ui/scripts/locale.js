@@ -4,17 +4,8 @@
 window.i18n = {};
 
 updateApp = function(update, translations) {
-    update_text = document.getElementById('update__text');
-    if (update) {
-        safeSetText('update__text', translations.settings.updates.update_text_ready);
-        update_text.style.backgroundColor=  "#5d8a51";
-    } else if (!update) {
-        safeSetText('update__text', translations.settings.updates.update_text_not_ready);
-        update_text.style.backgroundColor = "#3e4d3a";
-    } else {
-        safeSetText('update__text', translations.settings.updates.update_text_error);
-        update_text.style.backgroundColor = "#7c363d";
-    }
+    // Статус обновления теперь обрабатывается через onChannelCheckResult
+    // Оставляем для обратной совместимости, но не показываем старый элемент
 }
 
 function safeSetText(id, text) {
@@ -75,7 +66,7 @@ window.updateTranslations = function(translations) {
         safeSetText('lang_en', translations.settings.language.english);
         safeSetText('lang_pl', translations.settings.language.polish);
         safeSetText('lang_ja', translations.settings.language.japan);
-        safeSetText('lang_ua', translations.settings.language.ukraine);
+        safeSetText('lang_uk', translations.settings.language.ukraine);
         
         
         safeSetText('lang_it', translations.settings.language.italian);
@@ -91,6 +82,15 @@ window.updateTranslations = function(translations) {
         safeSetText('lbl_subs_auto', s.subtitles.auto);
         safeSetText('lbl_subs_embed', s.subtitles.embed);
         safeSetText('lbl_subs_lang', s.subtitles.lang);
+        safeSetText('subs_lang_all', s.subtitles.all_available);
+    }
+
+    if (s.audio) {
+        safeSetText('audio-title', s.audio.title);
+        safeSetText('lbl_audio_lang', s.audio.lang);
+        safeSetText('audio_lang_none', s.audio.auto);
+        safeSetText('audio_lang_all_tracks', s.audio.all_tracks);
+        safeSetText('audio_lang_orig', s.audio.original);
     }
 
     if (s.themes) {
@@ -130,9 +130,21 @@ window.updateTranslations = function(translations) {
     if (s.updates) {
         safeSetText('updates-title', s.updates.title);
         safeSetText('txt-btn-update', s.updates.update_button);
-    }
+        safeSetText('lbl-update-channel', s.updates.update_channel_label);
+        safeSetText('channel-check-loading-text', s.updates.checking_text);
+        safeSetText('patchnotes-title', s.updates.patchnotes_title_default);
 
-    safeSetText('update__text', s.updates.update_text_ready);
+        const patchnotesPlaceholder = document.querySelector('#patchnotes-content .patchnotes-placeholder');
+        if (patchnotesPlaceholder && s.updates.patchnotes_loading) {
+            patchnotesPlaceholder.textContent = s.updates.patchnotes_loading;
+        }
+
+        const channelSelect = document.getElementById('update_channel');
+        if (channelSelect && channelSelect.options && channelSelect.options.length >= 2) {
+            channelSelect.options[0].text = s.updates.stable_label || channelSelect.options[0].text;
+            channelSelect.options[1].text = s.updates.dev_label || channelSelect.options[1].text;
+        }
+    }
 
     // О приложении
     if (s.about) {
@@ -156,6 +168,8 @@ window.updateTranslations = function(translations) {
     if (translations.store) {
         safeSetText('tab-store-modules', translations.store.tab_modules);
         safeSetText('tab-store-themes', translations.store.tab_themes);
+        safeSetText('store-loading-modules', translations.store.status_loading);
+        safeSetText('store-loading-themes-hint', translations.store.load_hint);
         const btnRefresh = document.getElementById('btn-refresh-store');
         if (btnRefresh) btnRefresh.title = translations.store.btn_refresh;
     }
@@ -168,7 +182,7 @@ window.updateTranslations = function(translations) {
         
         // Заголовок сайдбара обновляется динамически, но дефолт зададим
         const headerTitle = document.getElementById('setting-header-title');
-        if(headerTitle && headerTitle.innerText.includes("Глобальные")) { 
+        if (headerTitle) {
             headerTitle.innerText = translations.converter.global_settings;
         }
         
@@ -217,7 +231,7 @@ window.updateTranslations = function(translations) {
     // Логи
     // Если лог пустой (только старт), можно обновить первую запись
     if (translations.logs) {
-        safeSetText('event-log-title', translations.logs.tittle);
+        safeSetText('event-log-title', translations.logs.title);
     }
     const logContainer = document.getElementById("app-logs");
     if (logContainer && logContainer.children.length === 1) {

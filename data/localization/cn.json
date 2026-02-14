@@ -1,13 +1,13 @@
 {
-    "video_URL" : "输入视频链接",
-    "audio_only" : "仅音频",
+    "video_URL": "输入视频链接",
+    "audio_only": "仅音频",
     "audio_text": "音频",
     "format": "格式：",
     "resolution": "分辨率：",
-    "add_to_queue" : "添加到队列",
-    "start_downloading" : "开始下载",
-    "status" : {
-        "status_text" : "状态：等待中...",
+    "add_to_queue": "添加到队列",
+    "start_downloading": "开始下载",
+    "status": {
+        "status_text": "状态：等待中...",
         "pending": "分析中...",
         "paused": "暂停",
         "error": "错误",
@@ -16,35 +16,34 @@
         "manager_started": "下载管理器已启动",
         "manager_stopped": "下载管理器已停止",
         "stopping": "正在停止...",
-        "unknown video" : "未知视频",
-        "download_success" : "视频下载成功",
-        "download_error" : "下载出错",
-        "to_queue" : "视频已添加到队列",
-        "in_format" : "格式为",
-        "in_resolution" : "分辨率为",
-        "error_adding" : "添加视频时出错：",
-        "downloading_already" : "下载已在进行中。",
-        "the_queue_is_empty" : "队列为空。没有可下载的内容。",
-        "the_queue_is_empty_download_success" : "队列为空。没有可下载的内容。",
-        "download_started" : "下载已开始。",
-        "downloading" : "正在下载",
-        "removed_from_queue" : "视频已从队列中移除：",
-        "error_removing" : "从队列中移除视频时出错：",
-        "converting" : "转换中",
-        "convert_success" : "转换成功完成",
-        "convert_stopped" : "转换已取消",
-        "download_ended" : "下载完成..."
+        "unknown video": "未知视频",
+        "download_success": "视频下载成功",
+        "download_error": "下载出错",
+        "to_queue": "视频已添加到队列",
+        "in_format": "格式为",
+        "in_resolution": "分辨率为",
+        "error_adding": "添加视频时出错：",
+        "downloading_already": "下载已在进行中。",
+        "the_queue_is_empty": "队列为空。没有可下载的内容。",
+        "the_queue_is_empty_download_success": "队列为空。没有可下载的内容。",
+        "download_started": "下载已开始。",
+        "downloading": "正在下载",
+        "removed_from_queue": "视频已从队列中移除：",
+        "error_removing": "从队列中移除视频时出错：",
+        "converting": "转换中",
+        "convert_success": "转换成功完成",
+        "convert_stopped": "转换已取消",
+        "download_ended": "下载完成..."
     },
-    "queue" : "队列：",
-    "progress" : "进度：",
-    "speed" : "速度：",
-    "eta" : "剩余时间：",
-    "bs" : "B/s",
-    "mbs" : "MB/s",
-    "min" : "分",
-    "sec" : "秒",
+    "queue": "队列：",
+    "progress": "进度：",
+    "speed": "速度：",
+    "eta": "剩余时间：",
+    "bs": "B/s",
+    "mbs": "MB/s",
+    "min": "分",
+    "sec": "秒",
     "error": "错误",
-
     "sections": {
         "coming_soon": "即将推出",
         "video_downloader": "视频下载器",
@@ -54,92 +53,127 @@
         "profile": "个人资料",
         "notifications": "通知"
     },
-
-    "settings" : {
-        "title" : "设置",
-        "language" : {
-            "title" : "语言设置管理",
-            "language" : "语言：",
-            "russian" : "Русский",
-            "english" : "English",
-            "polish" : "Polski",
-            "ukraine" : "Український",
-            "italian" : "Italiano",
-            "german" : "Deutsch",
-            "french" : "Français",
-            "japan" : "日本語",
-            "chinese" : "中文",
-            "open_folder" : "打开语言文件夹"
+    "settings": {
+        "title": "设置",
+        "language": {
+            "title": "语言设置管理",
+            "language": "语言：",
+            "russian": "Русский",
+            "english": "English",
+            "polish": "Polski",
+            "ukraine": "Український",
+            "italian": "Italiano",
+            "german": "Deutsch",
+            "french": "Français",
+            "japan": "日本語",
+            "chinese": "中文",
+            "open_folder": "打开语言文件夹"
         },
         "subtitles": {
             "title": "字幕管理",
             "enable": "下载字幕",
             "auto": "下载自动生成字幕",
             "embed": "嵌入到文件中",
-            "lang": "语言："
+            "lang": "语言：",
+            "all_available": "全部可用"
         },
-        "audio" : {
-            "title" : "音频设置管理",
-            "lang":"语言："
+        "audio": {
+            "title": "音频设置管理",
+            "lang": "语言：",
+            "auto": "自动",
+            "all_tracks": "所有音轨 (MKV)",
+            "original": "原始"
         },
-        "themes" : {
-            "decoration" : "外观管理",
-            "theme" : "主题：",
-            "style" : "风格：",
-            "open_folder" : "打开主题文件夹"
+        "themes": {
+            "decoration": "外观管理",
+            "theme": "主题：",
+            "style": "风格：",
+            "open_folder": "打开主题文件夹"
         },
         "folders": {
-            "title" : "下载管理",
-            "placeholder_download" : "下载文件夹路径",
-            "placeholder_conversion" : "转换文件夹路径",
-            "choose_download_folder" : "更改下载文件夹",
-            "open_download_folder" : "打开下载文件夹",
-            "open_after_download" : "下载后打开文件夹",
-            "open_after_conversion" : "转换后打开文件夹",
-            "choose_converter_folder" : "更改转换文件夹",
-            "open_converter_folder" : "打开转换文件夹",
-            "by_defoult" : "恢复默认文件夹"
+            "title": "下载管理",
+            "placeholder_download": "下载文件夹路径",
+            "placeholder_conversion": "转换文件夹路径",
+            "choose_download_folder": "更改下载文件夹",
+            "open_download_folder": "打开下载文件夹",
+            "open_after_download": "下载后打开文件夹",
+            "open_after_conversion": "转换后打开文件夹",
+            "choose_converter_folder": "更改转换文件夹",
+            "open_converter_folder": "打开转换文件夹",
+            "by_defoult": "恢复默认文件夹"
         },
-        "notifications" : {
-            "title" : "转换管理",
-            "notifi_download" : "接收下载完成通知",
-            "notifi_conversion" : "接收转换完成通知"
+        "notifications": {
+            "title": "转换管理",
+            "notifi_download": "接收下载完成通知",
+            "notifi_conversion": "接收转换完成通知"
         },
-        "proxys" : {
-            "title" : "代理服务器管理",
-            "turn_on" : "启用代理服务器",
-            "reset" : "恢复默认值",
-            "button_apply" : "应用"
+        "proxys": {
+            "title": "代理服务器管理",
+            "turn_on": "启用代理服务器",
+            "reset": "恢复默认值",
+            "button_apply": "应用"
         },
-        "updates" : {
-            "title" : "更新管理",
-            "update_text_ready" : "有可用更新",
-            "update_text_not_ready" : "无需更新",
-            "update_text_error" : "获取版本出错",
-            "update_button" : " 运行更新程序",
-            "auto_update" : "自动更新"
+        "updates": {
+            "title": "更新管理",
+            "update_text_ready": "有可用更新",
+            "update_text_not_ready": "无需更新",
+            "update_text_error": "获取版本出错",
+            "update_button": " 运行更新程序",
+            "auto_update": "自动更新",
+            "update_channel_label": "更新渠道：",
+            "checking_text": "正在检查...",
+            "check_error_prefix": "检查错误：",
+            "available_prefix": "可用版本",
+            "latest_installed": "已安装最新版本",
+            "patchnotes_title_default": "当前版本的新内容",
+            "patchnotes_title_latest": "以下版本的新内容",
+            "patchnotes_title_current": "当前版本说明",
+            "patchnotes_loading": "正在加载信息...",
+            "stable_label": "稳定版",
+            "dev_label": "开发版 / 测试版"
         },
-        "about" : {
-            "title" : "关于应用",
-            "version" : "版本：",
-            "date" : "发布日期："
+        "about": {
+            "title": "关于应用",
+            "version": "版本：",
+            "date": "发布日期："
+        },
+        "settings_ui": {
+            "nav_app": "应用",
+            "nav_download": "下载",
+            "nav_convert": "转换",
+            "nav_proxy": "代理",
+            "nav_version": "版本",
+            "nav_about": "关于",
+            "hdr_appearance": "外观和语言",
+            "hdr_download": "下载器设置",
+            "hdr_folders": "文件夹",
+            "hdr_convert": "转换器设置",
+            "lbl_proxy_string": "连接字符串：",
+            "btn_check": "检查",
+            "btn_save": "保存",
+            "desc_about": "通用媒体工具。",
+            "hdr_licenses": "许可证",
+            "txt_licenses": "使用的库：yt-dlp、ffmpeg、pillow、pywebview。许可证：GPLv3",
+            "btn_close": "ESC"
+        },
+        "display": {
+            "title": "显示",
+            "window_size": "窗口大小",
+            "ui_scale": "界面缩放"
         }
     },
-
-    "notifications" : {
-        "video_title" : "下载完成！",
-        "video_message_1" : "视频 ",
-        "video_message_2" : " 已成功下载！",
-        "queue_title" : "下载完成",
-        "queue_message" : "队列中的所有视频已下载",
-        "convert_title" : "转换完成"
+    "notifications": {
+        "video_title": "下载完成！",
+        "video_message_1": "视频 ",
+        "video_message_2": " 已成功下载！",
+        "queue_title": "下载完成",
+        "queue_message": "队列中的所有视频已下载",
+        "convert_title": "转换完成"
     },
-
-    "donate" : {
-        "title" : "捐赠",
-        "description" : "如果您想在经济上提供帮助并加速应用程序的后续开发！"
+    "donate": {
+        "title": "捐赠",
+        "description": "如果您想在经济上提供帮助并加速应用程序的后续开发！"
     },
-
     "converter": {
         "add_files_btn": "添加文件",
         "settings_title": "设置",
@@ -158,27 +192,24 @@
         "status_processing": "处理中...",
         "status_done": "完成",
         "status_error": "错误",
-        "click_for_add_video" : "点击选择视频",
-        "convertion_settings" : "转换设置",
-        "conversion_button" : "转换",
-        "format" : "格式：",
-        "close_video" : "取消",
-        
-        "video_info" : {
-            "title" : "视频信息：",
-            "duration" : "时长：",
-            "framerate" : "帧率：",
-            "video_codec" : "视频编解码器：",
-            "video_bitrate" : "视频码率：",
-            "audio_codec" : "音频编解码器：",
-            "audio_bitrate" : "音频码率："
+        "click_for_add_video": "点击选择视频",
+        "convertion_settings": "转换设置",
+        "conversion_button": "转换",
+        "format": "格式：",
+        "close_video": "取消",
+        "video_info": {
+            "title": "视频信息：",
+            "duration": "时长：",
+            "framerate": "帧率：",
+            "video_codec": "视频编解码器：",
+            "video_bitrate": "视频码率：",
+            "audio_codec": "音频编解码器：",
+            "audio_bitrate": "音频码率："
         },
-
         "video_add": "视频已添加",
         "video_error": "添加视频出错",
         "video_adding": "正在添加视频"
     },
-
     "history": {
         "date_label": "下载日期：",
         "format_label": "格式：",
@@ -186,11 +217,20 @@
         "open_browser": "在浏览器中打开",
         "btn_download_again": "再次下载",
         "btn_delete_record": "删除记录",
-        "empty": "历史记录为空"
+        "empty": "历史记录为空",
+        "delete_title": "删除",
+        "info_missing": "无详细信息"
     },
-
     "logs": {
         "title": "事件日志",
         "app_ready": "应用程序已准备就绪"
+    },
+    "store": {
+        "no_description": "暂无描述",
+        "unknown_author": "未知",
+        "confirm_delete_module": "删除此模块？",
+        "confirm_delete_theme": "删除此主题？",
+        "cannot_delete_default_theme": "无法删除默认主题",
+        "load_hint": "点击“刷新”以加载目录"
     }
 }

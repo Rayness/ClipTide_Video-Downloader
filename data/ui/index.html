@@ -205,7 +205,7 @@
                                 <div class="sett-group">
                                     <label id="lbl_subs_lang">Язык субтитров</label>
                                     <select id="subs_language" class="select-control js-custom-select">
-                                        <option value="all">Все доступные</option>
+                                            <option id="subs_lang_all" value="all">Все доступные</option>
                                         <option value="en">English</option>
                                         <option value="ru">Russian</option>
                                     </select>
@@ -217,11 +217,11 @@
                                 <div class="sett-group">
                                     <label id="lbl_audio_lang">Предпочитаемый язык</label>
                                     <select id="audio_language" class="select-control js-custom-select">
-                                        <option value="none">Авто</option>
-                                        <option value="all_tracks">Все дорожки (MKV)</option>
+                                        <option id="audio_lang_none" value="none">Авто</option>
+                                        <option id="audio_lang_all_tracks" value="all_tracks">Все дорожки (MKV)</option>
                                         <option value="en">English</option>
                                         <option value="ru">Russian</option>
-                                        <option value="orig">Original</option>
+                                        <option id="audio_lang_orig" value="orig">Original</option>
                                     </select>
                                 </div>
                             </div>
@@ -287,19 +287,37 @@
                                 <h3 id="current-version">v1.6.2</h3>
                                 
                                 <!-- Выбор канала -->
-                                <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 10px;">
-                                    <label style="color: #888;">Канал обновлений:</label>
-                                    <select id="update_channel" class="select-control js-custom-select" style="width: 120px;">
+                                <div class="update-channel-row">
+                                    <label id="lbl-update-channel">Канал обновлений:</label>
+                                    <select id="update_channel" class="select-control js-custom-select" style="width: 140px;">
                                         <option value="stable">Stable</option>
                                         <option value="dev">Dev / Beta</option>
                                     </select>
                                 </div>
 
-                                <p id="update__text" style="color: #aaa; margin-bottom: 1rem;">Проверка...</p>
-                                
+                                <!-- Статус проверки -->
+                                <div id="channel-check-status" class="channel-check-status">
+                                    <div id="channel-check-spinner" class="channel-spinner" style="display: none;">
+                                        <i class="fa-solid fa-spinner fa-spin"></i>
+                                        <span id="channel-check-loading-text">Проверка...</span>
+                                    </div>
+                                    <div id="channel-check-result" class="channel-result" style="display: none;"></div>
+                                </div>
+
                                 <button class="primary-btn" id="update" style="width: 200px;">
                                     <i class="fa-solid fa-rotate"></i> <span id="txt-btn-update">Проверить обновления</span>
                                 </button>
+                            </div>
+
+                            <!-- Патчноут текущей версии -->
+                            <div class="sett-card" id="patchnotes-card">
+                                <div class="patchnotes-header">
+                                    <i class="fa-solid fa-scroll"></i>
+                                    <h4 id="patchnotes-title">Что нового в текущей версии</h4>
+                                </div>
+                                <div id="patchnotes-content" class="patchnotes-content">
+                                    <p class="patchnotes-placeholder">Информация загружается...</p>
+                                </div>
                             </div>
                         </div>
 
@@ -572,8 +590,8 @@
                             <!-- СЕКЦИЯ 1: МОДУЛИ (Активна по умолчанию) -->
                             <div class="store-section active" id="store-modules">
                                 <div class="store-grid" id="modules-list">
-                                    <div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
-                                        <i class="fa-solid fa-spinner fa-spin"></i> Загрузка модулей...
+                                    <div id="store-loading-modules" style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
+                                        <i class="fa-solid fa-spinner fa-spin"></i> Загрузка каталога...
                                     </div>
                                 </div>
                             </div>
@@ -581,8 +599,8 @@
                             <!-- СЕКЦИЯ 2: ТЕМЫ (Скрыта по умолчанию) -->
                             <div class="store-section" id="store-themes">
                                 <div class="store-grid" id="themes-list">
-                                    <div style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
-                                        Нажмите "Обновить" для загрузки тем
+                                    <div id="store-loading-themes-hint" style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
+                                        Нажмите "Обновить" для загрузки каталога
                                     </div>
                                 </div>
                             </div>

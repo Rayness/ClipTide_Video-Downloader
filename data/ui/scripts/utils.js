@@ -85,23 +85,111 @@ document.getElementById('audio_language').addEventListener('change', (e) => {
     window.pywebview.api.switch_audio_setting("lang", e.target.value);
 });
 
-// Загрузка
+// Загрузка настроек канала обновлений
 window.loadUpdateSettings = function(channel) {
     const sel = document.getElementById('update_channel');
     if(sel) {
         sel.value = channel;
         if(typeof refreshCustomSelectOptions === 'function') refreshCustomSelectOptions();
     }
+    // При загрузке сразу проверяем обновления для текущего канала
+    setTimeout(() => {
+        if(window.pywebview && window.pywebview.api && window.pywebview.api.check_update_for_channel) {
+            window.pywebview.api.check_update_for_channel(channel);
+        }
+    }, 500);
 }
 
-// Сохранение
+// Сохранение + проверка обновлений при смене канала
 const updateChannel = document.getElementById('update_channel');
 if (updateChannel) {
     updateChannel.addEventListener('change', (e) => {
+        const channel = e.target.value;
         if(window.pywebview.api.switch_update_channel) {
-            window.pywebview.api.switch_update_channel(e.target.value);
+            window.pywebview.api.switch_update_channel(channel);
+        }
+        // Сразу проверяем обновления для нового канала
+        if(window.pywebview.api.check_update_for_channel) {
+            window.pywebview.api.check_update_for_channel(channel);
         }
     });
+}
+
+// --- Обработка результатов проверки обновлений по каналу ---
+
+function getUpdatesTranslations() {
+    return window.i18n?.settings?.updates || {};
+}
+
+window.onChannelCheckStart = function() {
+    const spinner = document.getElementById('channel-check-spinner');
+    const result = document.getElementById('channel-check-result');
+    const loadingText = document.getElementById('channel-check-loading-text');
+    const t = getUpdatesTranslations();
+
+    if (loadingText) {
+        loadingText.textContent = t.checking_text || 'Checking...';
+    }
+    if(spinner) spinner.style.display = 'flex';
+    if(result) result.style.display = 'none';
+}
+
+window.onChannelCheckResult = function(data) {
+    const spinner = document.getElementById('channel-check-spinner');
+    const resultEl = document.getElementById('channel-check-result');
+    const patchnotesContent = document.getElementById('patchnotes-content');
+
+    if(spinner) spinner.style.display = 'none';
+    if(!resultEl) return;
+
+    resultEl.style.display = 'block';
+    const t = getUpdatesTranslations();
+
+    if(data.error) {
+        resultEl.className = 'channel-result channel-result--error';
+        resultEl.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> ' +
+            '<span>' + (t.check_error_prefix || 'Check error:') + ' ' + data.message + '</span>';
+        return;
+    }
+
+    if(data.has_update) {
+        resultEl.className = 'channel-result channel-result--available';
+        resultEl.innerHTML = '<i class="fa-solid fa-circle-up"></i> ' +
+            '<span>' + (t.available_prefix || 'Version available') + ' <strong>' + data.latest_version + '</strong> (' + data.channel + ')</span>';
+    } else {
+        resultEl.className = 'channel-result channel-result--latest';
+        resultEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> ' +
+            '<span>' + (t.latest_installed || 'Latest version is installed') + ' (' + data.channel + ')</span>';
+    }
+
+    // Обновляем патчноут
+    if(patchnotesContent && data.description) {
+        const lines = data.description.split(/[.;]/).filter(s => s.trim());
+        if(lines.length > 1) {
+            let html = '<ul class="patchnotes-list">';
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if(trimmed) html += '<li>' + trimmed + '</li>';
+            });
+            html += '</ul>';
+            patchnotesContent.innerHTML = html;
+        } else {
+            patchnotesContent.innerHTML = '<p class="patchnotes-text">' + data.description + '</p>';
+        }
+
+        // Показываем для какой версии патчноут
+        const titleEl = document.getElementById('patchnotes-title');
+        if(titleEl) {
+            const channelLabel = data.channel === 'dev'
+                ? (t.dev_label || 'Dev')
+                : (t.stable_label || 'Stable');
+            if(data.has_update) {
+                titleEl.textContent = (t.patchnotes_title_latest || 'What is new in') + ' ' + data.latest_version + ' (' + channelLabel + ')';
+            } else {
+                titleEl.textContent = (t.patchnotes_title_current || 'Current version notes') + ' (' + channelLabel + ')';
+            }
+        }
+    }
 }
 
 function resizeWindow(event, direction) {

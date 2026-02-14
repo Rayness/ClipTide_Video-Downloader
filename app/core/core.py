@@ -114,6 +114,10 @@ class PublicWebViewApi:
     def switch_update_channel(self, channel):
         """Сохранение канала обновлений"""
         self._api.settings.switch_update_channel(channel)
+
+    def check_update_for_channel(self, channel):
+        """Проверить наличие обновления для выбранного канала"""
+        self._api.settings.check_update_for_channel(channel)
     
     def choose_converter_folder(self):
         self._api.settings.choose_converter_folder()

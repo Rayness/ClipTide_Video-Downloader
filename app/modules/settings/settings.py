@@ -4,7 +4,8 @@ import json
 import subprocess
 import platform
 import threading
-from app.utils.const import download_dir, UPDATER, THEME_DIR
+import requests
+from app.utils.const import download_dir, UPDATER, THEME_DIR, MANIFEST_URL, VERSION_FILE
 from app.utils.locale.translations import load_translations
 from app.utils.network import check_proxy_connection
 
@@ -75,6 +76,52 @@ class SettingsManager:
     def switch_update_channel(self, channel):
         """Сохранение канала обновлений (stable/dev)"""
         self.ctx.update_config_value("Updates", "channel", channel)
+
+    def check_update_for_channel(self, channel):
+        """Проверяет наличие обновления для конкретного канала через манифест, возвращает результат в UI"""
+        def _check():
+            try:
+                self.ctx.js_exec('onChannelCheckStart()')
+
+                import os
+                local = "0.0.0"
+                if os.path.exists(VERSION_FILE):
+                    with open(VERSION_FILE, "r") as f:
+                        local = f.read().strip()
+
+                response = requests.get(MANIFEST_URL, headers={
+                    "User-Agent": "ClipTide-App",
+                    "Accept": "application/json"
+                }, timeout=10)
+
+                if response.status_code == 200:
+                    data = response.json()
+
+                    if channel not in data:
+                        self.ctx.js_exec(f'onChannelCheckResult({json.dumps({"error": True, "message": "Канал не найден"})})')
+                        return
+
+                    channel_data = data.get(channel, {})
+                    latest = channel_data.get("version", "0.0.0")
+                    description = channel_data.get("description", "")
+
+                    has_update = (latest != local)
+
+                    result = {
+                        "error": False,
+                        "has_update": has_update,
+                        "latest_version": latest,
+                        "current_version": local,
+                        "description": description,
+                        "channel": channel
+                    }
+                    self.ctx.js_exec(f'onChannelCheckResult({json.dumps(result)})')
+                else:
+                    self.ctx.js_exec(f'onChannelCheckResult({json.dumps({"error": True, "message": f"HTTP {response.status_code}"})})')
+            except Exception as e:
+                self.ctx.js_exec(f'onChannelCheckResult({json.dumps({"error": True, "message": str(e)})})')
+
+        threading.Thread(target=_check, daemon=True).start()
 
     def switch_proxy_url(self, proxy):
         self.ctx.proxy_url = proxy
