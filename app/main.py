@@ -153,7 +153,7 @@ def startApp():
         window.evaluate_js('window.removePreloader()')
 
     window.events.loaded += on_loaded
-    webview.start(debug=True)
+    webview.start(debug=False)
 
 def main():
     unicodefix()

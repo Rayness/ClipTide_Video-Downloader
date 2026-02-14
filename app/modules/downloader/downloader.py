@@ -134,7 +134,7 @@ class Downloader:
                     'quiet': True,
                     'extract_flat': 'in_playlist', # Не качаем данные каждого видео
                     'logger': YtLogger(self),
-                    'extractor_args': {'youtube': {'player_client': ['default']}} 
+                    'extractor_args': {'youtube': {'player_client': ['ios']}} 
                 }
                 
                 if self.qjs_path:
@@ -417,7 +417,7 @@ class Downloader:
                     'logger': YtLogger(self),
                     'sleep_interval': 1,
                     'sleep_subtitles': 1,
-                    'extractor_args': {'youtube': {'player_client': ['default']}} 
+                    'extractor_args': {'youtube': {'player_client': ['ios']}} 
                 }
 
                 # === НАСТРОЙКИ АУДИО ===

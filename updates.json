@@ -1,7 +1,7 @@
 {
     "stable": {
-        "version": "1.7.1",
-        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v1.7.1/ClipTide-1.7.1.zip",
+        "version": "1.7.1f",
+        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v1.7.1f/ClipTide-1.7.1f.zip",
         "description": "Стабильная версия. Рекомендуется для большинства пользователей. Содержит все основные функции и исправления ошибок."
     },
     "dev": {
