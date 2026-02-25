@@ -49,6 +49,7 @@ class Downloader:
 
         # Флаги для остановки конкретных задач
         self.interrupt_flags = {}
+        self.last_video_progress = 0
 
         # Путь к QuickJS
         self.qjs_path = resource_path(os.path.join("data", "bin", "qjs.exe"))
@@ -97,6 +98,44 @@ class Downloader:
                 subprocess.Popen(["xdg-open", path])
         except Exception as e:
             self.log(f"Error opening folder: {e}", "error", "OPEN_FOLDER_ERR")
+
+    def _sync_to_cliptide(self, task):
+        """
+        Синхронизировать завершённую загрузку с ClipTide API.
+        Работает асинхронно, не блокирует основной поток.
+        """
+        if not self.ctx.cliptide_sync_enabled or not self.ctx.cliptide_api:
+            return
+
+        import threading
+
+        def _do_sync():
+            try:
+                from datetime import datetime
+
+                download_data = {
+                    "url": task.get("url", ""),
+                    "title": task.get("title", ""),
+                    "format": task.get("format", "mp4"),
+                    "source": "cliptide",
+                    "createdAt": datetime.utcnow().isoformat() + "Z"
+                }
+
+                # Добавляем одну загрузку
+                success = self.ctx.cliptide_api.add_single_download(download_data)
+
+                if success:
+                    self.log("Synced with ClipTide", "info")
+                    # Сохраняем время последней синхронизации
+                    self.ctx.save_cliptide_last_sync(datetime.utcnow())
+                else:
+                    self.log("ClipTide sync failed", "warn")
+
+            except Exception as e:
+                self.log(f"ClipTide sync error: {e}", "error")
+
+        # Запускаем в отдельном потоке, чтобы не блокировать загрузку
+        threading.Thread(target=_do_sync, daemon=True).start()
 
     # Вспомогательные методы форматирования
     def _format_size(self, bytes_val):
@@ -174,7 +213,22 @@ class Downloader:
                     info = ydl.extract_info(video_url, download=False)
                     
                     title = info.get('title', 'Unknown').replace('"', "'")
+                    video_id = info.get('id')
                     thumbnail = info.get('thumbnail', '')
+                    
+                    extractor = info.get('extractor', '').lower()
+                    if extractor == 'youtube':
+                        video_id = info.get('id')
+                        if video_id:
+                            thumbnail = f"https://i.ytimg.com/vi/{video_id}/maxresdefault.jpg"
+                    
+                    if not thumbnail:
+                        thumbns = info.get('thumbnails', [])
+                        if thumbns:
+                            valid = [t for t in thumbns if t.get('url')]
+                            if valid:
+                                valid.sort(key=lambda x: x.get('width', 0) or 0, reverse=True)
+                                thumbnail = valid[-1]['url']
                     
                     # Метаданные
                     duration = self._format_duration(info.get('duration'))
@@ -501,11 +555,14 @@ class Downloader:
                 # === ФИНАЛ ===
                 self.log(f"{t_done}: {title}", "success")
                 self._js_exec(f'updateItemProgress("{task_id}", 100, "{t_done}", "")')
-                
+
+                # Синхронизация с ClipTide
+                self._sync_to_cliptide(task)
+
                 # Удаление из очереди
                 self.ctx.download_queue = [v for v in self.ctx.download_queue if v["id"] != task_id]
                 save_queue_to_file(self.ctx.download_queue)
-                time.sleep(1.5) 
+                time.sleep(1.5)
                 self._js_exec(f'window.removeVideoFromQueue("{task_id}")')
                 
                 open_dl = self.ctx.config.get("Folders", "dl", fallback="True")

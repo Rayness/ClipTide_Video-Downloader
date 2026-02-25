@@ -6,6 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <link id="theme-link" rel="stylesheet" href="themes/cliptide/styles.css">
     <link rel="stylesheet" href="styles/base.css">
     <!-- <link rel="stylesheet" href="/data/fontawesome/css/all.min.css"> -->
@@ -90,6 +91,12 @@
                         </button>
                         <button class="sett-btn" data-target="sect-about">
                             <i class="fa-solid fa-circle-info"></i> <span id="nav-about">О программе</span> <!-- ID -->
+                        </button>
+
+                        <div class="sett-separator"></div>
+
+                        <button class="sett-btn" data-target="sect-cliptide">
+                            <i class="fa-solid fa-cloud"></i> <span id="nav-cliptide">ClipTide</span>
                         </button>
                     </div>
                 </div>
@@ -324,18 +331,18 @@
                         <!-- 6. About -->
                         <div id="sect-about" class="sett-section">
                             <h2 id="about-title">О приложении</h2>
-                            
+
                             <div class="sett-card">
                                 <p><strong id="txt-app-name">ClipTide</strong> — <span id="desc-about">Универсальный инструмент.</span></p> <!-- ID -->
                                 <p style="color: #888; font-size: 0.9rem;"><span id="about-date">Дата релиза:</span> <span id="about-date-val">2025</span></p>
-                                
+
                                 <div class="social-links">
                                     <a href="https://github.com/Rayness/YT-Downloader" target="_blank" class="social-btn github"><i class="fa-brands fa-github"></i> GitHub</a>
                                     <a href="#" target="_blank" class="social-btn youtube"><i class="fa-brands fa-youtube"></i> YouTube</a>
                                     <a href="#" target="_blank" class="social-btn telegram"><i class="fa-brands fa-telegram"></i> Telegram</a>
                                     <a href="#" target="_blank" class="social-btn web"><i class="fa-solid fa-globe"></i> Website</a>
                                 </div>
-                                
+
                                 <div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
                                     <h5 id="hdr-licenses">Лицензии</h5> <!-- ID -->
                                     <p style="font-size: 0.8rem; color: #666;" id="txt-licenses">
@@ -343,6 +350,71 @@
                                         Лицензия: GPLv3
                                     </p> <!-- ID -->
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- 7. ClipTide Account -->
+                        <div id="sect-cliptide" class="sett-section">
+                            <h2 id="cliptide-title">ClipTide Аккаунт</h2>
+
+                            <!-- Блок авторизации (показывается если не авторизован) -->
+                            <div id="cliptide-auth-block" class="sett-card">
+                                <p style="color: #888; margin-bottom: 1rem;">Войдите в аккаунт ClipTide для синхронизации истории загрузок</p>
+                                
+                                <div class="sett-group">
+                                    <label>Email</label>
+                                    <input type="email" id="cliptide-email" class="input-folder" placeholder="user@example.com">
+                                </div>
+                                
+                                <div class="sett-group">
+                                    <label>Пароль</label>
+                                    <input type="password" id="cliptide-password" class="input-folder" placeholder="••••••••">
+                                </div>
+
+                                <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                                    <button class="primary-btn" id="btn-cliptide-login" style="flex: 1;">
+                                        <i class="fa-solid fa-sign-in-alt"></i> Войти
+                                    </button>
+                                    <button class="btn" id="btn-cliptide-register" style="flex: 1;">
+                                        <i class="fa-solid fa-user-plus"></i> Регистрация
+                                    </button>
+                                </div>
+
+                                <div id="cliptide-auth-status" style="margin-top: 1rem; font-size: 0.9rem;"></div>
+                            </div>
+
+                            <!-- Блок профиля (показывается если авторизован) -->
+                            <div id="cliptide-profile-block" class="sett-card" style="display: none;">
+                                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                    <div class="cliptide-avatar" style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;" id="cliptide-avatar-initial">U</div>
+                                    <div>
+                                        <p style="font-weight: 600;" id="cliptide-user-email">user@example.com</p>
+                                        <p style="font-size: 0.8rem; color: #888;">ClipTide Account</p>
+                                    </div>
+                                </div>
+
+                                <div class="sett-group">
+                                    <label>Синхронизация загрузок</label>
+                                    <div class="row-switch" style="margin: 0.5rem 0;">
+                                        <label class="switch">
+                                            <input type="checkbox" id="cliptide-sync-toggle">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span>Автоматически отправлять историю загрузок на сайт</span>
+                                    </div>
+                                </div>
+
+                                <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <button class="primary-btn" id="btn-cliptide-sync-now">
+                                        <i class="fa-solid fa-rotate"></i> Синхронизировать сейчас
+                                    </button>
+                                    <button class="btn" id="btn-cliptide-logout" style="background-color: var(--danger-color);">
+                                        <i class="fa-solid fa-sign-out-alt"></i> Выйти
+                                    </button>
+                                </div>
+
+                                <p id="cliptide-last-sync-label" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 1rem; display: none;"></p>
+                                <div id="cliptide-sync-status" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
                             </div>
                         </div>
 
@@ -798,6 +870,8 @@
     <script src="scripts/converter.js" defer></script>
     <script src="scripts/settings.js" defer></script>
     <script src="scripts/store.js" defer></script>
+    <!-- ---------------------------- -->
+    <script src="scripts/cliptide.js" defer></script>
     <!-- ---------------------------- -->
     <script src="scripts/modal.js"></script>
     <script src="scripts/theme.js" defer></script>

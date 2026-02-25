@@ -49,6 +49,14 @@ DEFAULT_CONFIG_UPDATES = {
     "channel": "stable"  # stable / dev
 }
 
+DEFAULT_CONFIG_CLIPTIDE = {
+    "sync_enabled": "False",
+    "api_url": "production",  # production / dev
+    "auth_token": "",
+    "user_email": "",
+    "last_sync": ""
+}
+
 def load_config():
     config = configparser.ConfigParser()
     
@@ -84,6 +92,11 @@ def update_config(config):
         print("Конфиг не актуальный")
         create_default_config()
         restart_app()
+    
+    # Проверяем наличие секции ClipTide и добавляем если нет
+    if not config.has_section('ClipTide'):
+        config["ClipTide"] = DEFAULT_CONFIG_CLIPTIDE
+        save_config(config)
 
 def create_default_config():
     config = configparser.ConfigParser()
@@ -95,6 +108,7 @@ def create_default_config():
     config["Notifications"] = DEFAULT_CONFIG_NOTIFICATIONS
     config["Folders"] = DEFAULT_CONFIG_FOLDERS
     config["Updates"] = DEFAULT_CONFIG_UPDATES
+    config["ClipTide"] = DEFAULT_CONFIG_CLIPTIDE
     save_config(config)
     return config
 

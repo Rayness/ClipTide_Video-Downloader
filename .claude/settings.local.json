@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"D:/Programming/YouTube Download\" && python -m py_compile app/core/context.py app/core/core.py app/main.py app/modules/downloader/downloader.py app/utils/config/config.py app/modules/cliptide_api/__init__.py app/modules/cliptide_api/client.py 2>&1)",
+      "Bash(grep:*)"
+    ]
+  }
+}

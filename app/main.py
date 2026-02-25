@@ -65,7 +65,10 @@ def startApp():
     
     ctx.proxy_url = ctx.config.get("Proxy", "url", fallback="")
     ctx.proxy_enabled = ctx.config.get("Proxy", "enabled", fallback="False")
-    
+
+    # Инициализация ClipTide API
+    ctx.init_cliptide_api()
+
     ctx.download_queue = load_queue_from_file()
     ctx.notifications = load_notifications()
     

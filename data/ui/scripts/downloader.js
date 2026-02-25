@@ -121,7 +121,7 @@ window.addVideoToList = function(videoData) {
                 <i class="fa-solid fa-chevron-down"></i>
             </button>
             <div class="queue-item-info">
-                <div class="queue-thumb-wrapper"><img src="${thumb}" alt="thumb"></div>
+                <div class="queue-thumb-wrapper"><img src="${thumb}" alt="thumb" referrerpolicy="no-referrer"></div>
                 <div class="video-info">
                     <div class="video_queue_text" title="${videoData.title}">${videoData.title}</div>
                     <div class="queue-meta-badges">

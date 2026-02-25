@@ -109,7 +109,7 @@ class PublicWebViewApi:
         self._api.settings.switch_download_folder()
     
     def switch_update_setting(self, key, value):
-        self._api.settings.swith_update_setting(key, value)
+        self._api.settings.switch_update_setting(key, value)
     
     def switch_update_channel(self, channel):
         """Сохранение канала обновлений"""
@@ -212,6 +212,135 @@ class PublicWebViewApi:
     def open_path(self, path):
         from app.modules.settings.settings import open_folder
         open_folder(path)
+
+    # === ClipTide API методы ===
+
+    def cliptide_login(self, email: str, password: str):
+        """Вход в аккаунт ClipTide"""
+        import threading
+        from app.modules.cliptide_api import ClipTideAPIClient, ClipTideAuthError
+
+        def _login():
+            try:
+                api_url = self._api.ctx.config.get("ClipTide", "api_url", fallback="production")
+                use_prod = api_url != "dev"
+                client = ClipTideAPIClient(use_production=use_prod)
+
+                user_data = client.login(email, password)
+
+                # Сохраняем токен в конфиг
+                self._api.ctx.save_cliptide_auth(email, user_data.get('token', ''))
+                self._api.ctx.init_cliptide_api()
+
+                # Уведомляем UI об успехе
+                import json
+                self._api.ctx.js_exec(f'onClipTideAuthSuccess({json.dumps(user_data)})')
+
+            except ClipTideAuthError as e:
+                safe_msg = str(e).replace('"', '\\"')
+                self._api.ctx.js_exec(f'onClipTideAuthError("{safe_msg}")')
+            except Exception as e:
+                safe_msg = str(e).replace('"', '\\"')
+                self._api.ctx.js_exec(f'onClipTideAuthError("{safe_msg}")')
+
+        threading.Thread(target=_login, daemon=True).start()
+
+    def cliptide_register(self, username: str, email: str, password: str):
+        """Регистрация в ClipTide"""
+        import threading
+        from app.modules.cliptide_api import ClipTideAPIClient, ClipTideAuthError
+
+        def _register():
+            try:
+                api_url = self._api.ctx.config.get("ClipTide", "api_url", fallback="production")
+                use_prod = api_url != "dev"
+                client = ClipTideAPIClient(use_production=use_prod)
+
+                user_data = client.register(username, email, password)
+
+                # Автоматический вход после регистрации
+                client.login(email, password)
+                self._api.ctx.save_cliptide_auth(email, user_data.get('token', ''))
+                self._api.ctx.init_cliptide_api()
+
+                import json
+                self._api.ctx.js_exec(f'onClipTideAuthSuccess({json.dumps(user_data)})')
+
+            except ClipTideAuthError as e:
+                safe_msg = str(e).replace('"', '\\"')
+                self._api.ctx.js_exec(f'onClipTideAuthError("{safe_msg}")')
+            except Exception as e:
+                safe_msg = str(e).replace('"', '\\"')
+                self._api.ctx.js_exec(f'onClipTideAuthError("{safe_msg}")')
+
+        threading.Thread(target=_register, daemon=True).start()
+
+    def cliptide_logout(self):
+        """Выход из аккаунта ClipTide"""
+        self._api.ctx.clear_cliptide_auth()
+        self._api.ctx.js_exec('onClipTideLogout()')
+
+    def cliptide_get_status(self):
+        """Получить статус авторизации ClipTide"""
+        import json
+        is_auth = self._api.ctx.is_cliptide_authenticated()
+        email = self._api.ctx.config.get("ClipTide", "user_email", fallback="")
+        sync_enabled = self._api.ctx.config.get("ClipTide", "sync_enabled", fallback="False")
+        last_sync = self._api.ctx.cliptide_last_sync
+
+        status = {
+            "authenticated": is_auth,
+            "email": email,
+            "sync_enabled": sync_enabled == "True",
+            "last_sync": last_sync.isoformat() if last_sync else None
+        }
+        self._api.ctx.js_exec(f'onClipTideStatus({json.dumps(status)})')
+
+    def cliptide_set_sync_enabled(self, enabled: bool):
+        """Включить/выключить синхронизацию"""
+        self._api.ctx.config.set("ClipTide", "sync_enabled", "True" if enabled else "False")
+        from app.utils.config.config import save_config
+        save_config(self._api.ctx.config)
+        self._api.ctx.init_cliptide_api()
+
+        import json
+        last_sync = self._api.ctx.cliptide_last_sync
+        status = {
+            "authenticated": self._api.ctx.is_cliptide_authenticated(),
+            "email": self._api.ctx.config.get("ClipTide", "user_email", fallback=""),
+            "sync_enabled": enabled,
+            "last_sync": last_sync.isoformat() if last_sync else None
+        }
+        self._api.ctx.js_exec(f'onClipTideStatus({json.dumps(status)})')
+
+    def cliptide_sync_now(self):
+        """Принудительная синхронизация всех загрузок"""
+        import threading
+
+        def _sync():
+            self._api.ctx.js_exec('onClipTideSyncStart()')
+
+            from app.utils.notifications.notifications import load_notifications
+            notifications = load_notifications()
+
+            downloads = []
+            for notif in notifications:
+                if notif.get("source") == "downloader":
+                    payload = notif.get("payload", {})
+                    downloads.append({
+                        "url": payload.get("url", ""),
+                        "title": notif.get("message", payload.get("title", "")),
+                        "format": payload.get("format", "mp4"),
+                        "createdAt": notif.get("timestamp", "")
+                    })
+
+            count = self._api.ctx.sync_cliptide_downloads(downloads)
+
+            import json
+            last_sync = self._api.ctx.cliptide_last_sync
+            self._api.ctx.js_exec(f'onClipTideSyncComplete({json.dumps({"count": count, "last_sync": last_sync.isoformat() if last_sync else None})})')
+
+        threading.Thread(target=_sync, daemon=True).start()
         
     def add_playlist_videos(self, videos_list, fmt, res):
         """
