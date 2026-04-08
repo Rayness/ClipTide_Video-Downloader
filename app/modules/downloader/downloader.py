@@ -99,43 +99,6 @@ class Downloader:
         except Exception as e:
             self.log(f"Error opening folder: {e}", "error", "OPEN_FOLDER_ERR")
 
-    def _sync_to_cliptide(self, task):
-        """
-        Синхронизировать завершённую загрузку с ClipTide API.
-        Работает асинхронно, не блокирует основной поток.
-        """
-        if not self.ctx.cliptide_sync_enabled or not self.ctx.cliptide_api:
-            return
-
-        import threading
-
-        def _do_sync():
-            try:
-                from datetime import datetime
-
-                download_data = {
-                    "url": task.get("url", ""),
-                    "title": task.get("title", ""),
-                    "format": task.get("format", "mp4"),
-                    "source": "cliptide",
-                    "createdAt": datetime.utcnow().isoformat() + "Z"
-                }
-
-                # Добавляем одну загрузку
-                success = self.ctx.cliptide_api.add_single_download(download_data)
-
-                if success:
-                    self.log("Synced with ClipTide", "info")
-                    # Сохраняем время последней синхронизации
-                    self.ctx.save_cliptide_last_sync(datetime.utcnow())
-                else:
-                    self.log("ClipTide sync failed", "warn")
-
-            except Exception as e:
-                self.log(f"ClipTide sync error: {e}", "error")
-
-        # Запускаем в отдельном потоке, чтобы не блокировать загрузку
-        threading.Thread(target=_do_sync, daemon=True).start()
 
     # Вспомогательные методы форматирования
     def _format_size(self, bytes_val):
@@ -555,9 +518,6 @@ class Downloader:
                 # === ФИНАЛ ===
                 self.log(f"{t_done}: {title}", "success")
                 self._js_exec(f'updateItemProgress("{task_id}", 100, "{t_done}", "")')
-
-                # Синхронизация с ClipTide
-                self._sync_to_cliptide(task)
 
                 # Удаление из очереди
                 self.ctx.download_queue = [v for v in self.ctx.download_queue if v["id"] != task_id]

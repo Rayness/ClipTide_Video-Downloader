@@ -10,8 +10,7 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    height: 100%;
-    min-height: 0;
+    min-height: 0; /* Критично: убрали height:100%, flex сам займёт оставшееся место */
     overflow: hidden; /* Чтобы скролл был внутри списка */
     position: relative;
     z-index: 1;
@@ -234,6 +233,56 @@
 
 
 
+
+/* --- КНОПКИ ПАНЕЛИ ЗАГРУЗЧИКА --- */
+.dl-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+.dl-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    border-radius: var(--border-radius-sm);
+}
+
+.dl-ctrl-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.dl-ctrl-start {
+    color: var(--accent-color);
+}
+
+.dl-ctrl-start:hover {
+    background: var(--accent-color-transparent);
+    color: var(--accent-color);
+}
+
+.dl-ctrl-stop {
+    color: #f44336;
+}
+
+.dl-ctrl-stop:not(:disabled):hover {
+    background: rgba(244, 67, 54, 0.15);
+    color: #f44336;
+}
+
+.dl-ctrl-stop:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
 
 /* --- SKELETON LOADING (Прелоадер добавления) --- */
 

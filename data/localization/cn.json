@@ -208,7 +208,28 @@
         },
         "video_add": "视频已添加",
         "video_error": "添加视频出错",
-        "video_adding": "正在添加视频"
+        "video_adding": "正在添加视频",
+        "val_original": "原始",
+        "val_low": "低",
+        "val_high": "高",
+        "lbl_size": "大小：",
+        "empty_title": "没有待转换的文件",
+        "empty_hint": "点击「添加文件」或将文件拖放到这里",
+        "detail_res": "分辨率",
+        "detail_codec": "编解码器",
+        "detail_bitrate": "码率",
+        "detail_fps": "FPS",
+        "detail_audio": "音频",
+        "no_metadata": "元数据不可用",
+        "doc_note": "通过外部模块进行转换",
+        "apply_all_toast": "设置已应用",
+        "type_video": "视频",
+        "type_audio": "音频",
+        "type_image": "图像",
+        "type_doc": "文档",
+        "file_count_1": "个文件",
+        "file_count_234": "个文件",
+        "file_count_many": "个文件"
     },
     "history": {
         "date_label": "下载日期：",
@@ -231,6 +252,7 @@
         "confirm_delete_module": "删除此模块？",
         "confirm_delete_theme": "删除此主题？",
         "cannot_delete_default_theme": "无法删除默认主题",
-        "load_hint": "点击“刷新”以加载目录"
+        “load_hint”: “点击”刷新”以加载目录”,
+        “tab_unavailable”: “暂时不可用”
     }
 }

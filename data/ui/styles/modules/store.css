@@ -145,6 +145,15 @@
     color: #ccc;
 }
 
+.store-tab--disabled {
+    opacity: 0.4;
+    cursor: not-allowed !important;
+}
+
+.store-tab--disabled:hover {
+    color: #888;
+}
+
 .store-tab.active {
     color: var(--accent-color);
 }

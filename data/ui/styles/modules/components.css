@@ -72,8 +72,9 @@
 }
 
 .primary-btn:disabled {
-    background: #cccccc;
+    opacity: 0.4;
     cursor: not-allowed;
+    transform: none;
 }
 
 .icon-btn {

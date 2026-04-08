@@ -207,7 +207,8 @@
         "confirm_delete_module": "Delete this module?",
         "confirm_delete_theme": "Delete this theme?",
         "cannot_delete_default_theme": "Cannot delete default theme",
-        "load_hint": "Press \"Refresh\" to load the catalog"
+        "load_hint": "Press \"Refresh\" to load the catalog",
+        "tab_unavailable": "Temporarily unavailable"
     },
     "converter": {
         "add_files_btn": "Add files",
@@ -243,7 +244,28 @@
         },
         "video_add": "Video has been added",
         "video_error": "Error adding video",
-        "video_adding": "Adding video"
+        "video_adding": "Adding video",
+        "val_original": "Original",
+        "val_low": "Low",
+        "val_high": "High",
+        "lbl_size": "Size:",
+        "empty_title": "No files to convert",
+        "empty_hint": "Click «Add files» or drag files here",
+        "detail_res": "Resolution",
+        "detail_codec": "Codec",
+        "detail_bitrate": "Bitrate",
+        "detail_fps": "FPS",
+        "detail_audio": "Audio",
+        "no_metadata": "Metadata unavailable",
+        "doc_note": "Conversion via external module",
+        "apply_all_toast": "Settings applied",
+        "type_video": "Video",
+        "type_audio": "Audio",
+        "type_image": "Image",
+        "type_doc": "Document",
+        "file_count_1": "file",
+        "file_count_234": "files",
+        "file_count_many": "files"
     },
     "history": {
         "date_label": "Date loaded:",

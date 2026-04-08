@@ -32,6 +32,14 @@ document.getElementById("stopBtn").addEventListener('click', function() {
     window.pywebview.api.stopDownload();
 })
 
+function updateQueueActionVisibility() {
+    const hasItems = document.querySelectorAll('#queue .queue-item, #queue .queue-item-skeleton').length > 0;
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    if (startBtn) startBtn.style.display = hasItems ? '' : 'none';
+    if (stopBtn) stopBtn.style.display = hasItems ? '' : 'none';
+}
+
 // Блокировка разрешений для аудио
 document.getElementById('format').addEventListener('change', ()=> {
     const element = document.getElementById('format');
@@ -85,6 +93,7 @@ window.createLoadingItem = function(tempId) {
         </div>
     `;
     queueList.prepend(li);
+    updateQueueActionVisibility();
 }
 
 window.removeLoadingItem = function(tempId) {
@@ -154,7 +163,8 @@ window.addVideoToList = function(videoData) {
     `;
 
     queueList.insertBefore(listItem, queueList.firstChild);
-    
+    updateQueueActionVisibility();
+
     if (videoData.status === 'downloading') {
         toggleQueueButtons(videoData.id, true);
     }
@@ -279,12 +289,14 @@ window.loadQueue = function(queue) {
         }
         window.addVideoToList(vData);
     });
+    updateQueueActionVisibility();
 };
 
 window.removeVideoFromQueue = function(taskId) {
     const item = document.getElementById(`item-${taskId}`);
     if(item) item.remove();
     window.pywebview.api.removeVideoFromQueue(taskId);
+    updateQueueActionVisibility();
 }
 
 // Плейлисты

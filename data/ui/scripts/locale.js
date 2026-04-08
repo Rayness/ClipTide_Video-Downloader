@@ -163,6 +163,8 @@ window.updateTranslations = function(translations) {
     
     const vidUrl = document.getElementById('videoUrl');
     if(vidUrl) vidUrl.placeholder = translations.video_URL || 'URL...';
+
+    safeSetText('txt-add-btn', translations.add_to_queue);
     
     // --- МАГАЗИН ---
     if (translations.store) {
@@ -172,6 +174,13 @@ window.updateTranslations = function(translations) {
         safeSetText('store-loading-themes-hint', translations.store.load_hint);
         const btnRefresh = document.getElementById('btn-refresh-store');
         if (btnRefresh) btnRefresh.title = translations.store.btn_refresh;
+        if (translations.store.tab_unavailable) {
+            const unavailableText = translations.store.tab_unavailable;
+            ['tab-store-modules', 'tab-store-themes'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.title = unavailableText;
+            });
+        }
     }
     
     // Конвертер
@@ -206,8 +215,11 @@ window.updateTranslations = function(translations) {
         
         safeSetText('txt-cv-img-low', translations.converter.val_low);
         safeSetText('txt-cv-img-high', translations.converter.val_high);
-        
-    } 
+
+        safeSetText('cv-empty-title', translations.converter.empty_title);
+        safeSetText('cv-empty-hint', translations.converter.empty_hint);
+        safeSetText('cv-doc-note-text', translations.converter.doc_note);
+    }
     
     
     // История (Модальное окно)

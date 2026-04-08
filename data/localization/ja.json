@@ -208,7 +208,28 @@
         },
         "video_add": "動画が追加されました",
         "video_error": "動画追加エラー",
-        "video_adding": "動画を追加中"
+        "video_adding": "動画を追加中",
+        "val_original": "オリジナル",
+        "val_low": "低",
+        "val_high": "高",
+        "lbl_size": "サイズ:",
+        "empty_title": "変換するファイルがありません",
+        "empty_hint": "「ファイルを追加」をクリックするかファイルをドラッグしてください",
+        "detail_res": "解像度",
+        "detail_codec": "コーデック",
+        "detail_bitrate": "ビットレート",
+        "detail_fps": "FPS",
+        "detail_audio": "オーディオ",
+        "no_metadata": "メタデータは利用できません",
+        "doc_note": "外部モジュールによる変換",
+        "apply_all_toast": "設定が適用されました",
+        "type_video": "動画",
+        "type_audio": "音声",
+        "type_image": "画像",
+        "type_doc": "書類",
+        "file_count_1": "ファイル",
+        "file_count_234": "ファイル",
+        "file_count_many": "ファイル"
     },
     "history": {
         "date_label": "ダウンロード日:",
@@ -231,6 +252,7 @@
         "confirm_delete_module": "このモジュールを削除しますか？",
         "confirm_delete_theme": "このテーマを削除しますか？",
         "cannot_delete_default_theme": "標準テーマは削除できません",
-        "load_hint": "「更新」を押してカタログを読み込みます"
+        "load_hint": "「更新」を押してカタログを読み込みます",
+        "tab_unavailable": "一時的に利用不可"
     }
 }

@@ -48,68 +48,142 @@ document.getElementById('dropZoneConv').addEventListener('click', () => {
     window.pywebview.api.converter_add_files();
 });
 
+window.createConverterSkeleton = function(tempId, filename) {
+    const list = document.getElementById('converter-queue');
+    const empty = document.getElementById('conv-empty-state');
+    if (empty) empty.style.display = 'none';
+
+    const li = document.createElement('li');
+    li.id = `conv-skeleton-${tempId}`;
+    li.className = 'conv-item conv-skeleton';
+    li.innerHTML = `
+        <div class="conv-item-top">
+            <div class="skel-box skel-expand"></div>
+            <div class="skel-box skel-thumb"></div>
+            <div class="conv-info">
+                <div class="skel-line skel-name"></div>
+                <div class="skel-line skel-meta"></div>
+            </div>
+            <div class="skel-box skel-status"></div>
+        </div>
+    `;
+    list.appendChild(li);
+    updateFileCount();
+};
+
+window.removeConverterSkeleton = function(tempId) {
+    const el = document.getElementById(`conv-skeleton-${tempId}`);
+    if (el) el.remove();
+    updateFileCount();
+    const remaining = document.querySelectorAll('.conv-item').length;
+    const empty = document.getElementById('conv-empty-state');
+    if (empty && remaining === 0) empty.style.display = 'flex';
+};
+
+const TYPE_META = {
+    video:    { icon: 'fa-film',        key: 'type_video',  cls: 'type-video' },
+    audio:    { icon: 'fa-music',       key: 'type_audio',  cls: 'type-audio' },
+    image:    { icon: 'fa-image',       key: 'type_image',  cls: 'type-image' },
+    document: { icon: 'fa-file-lines',  key: 'type_doc',    cls: 'type-doc'   },
+    unknown:  { icon: 'fa-file',        key: null,          cls: 'type-doc'   }
+};
+
+function updateFileCount() {
+    const count = document.querySelectorAll('.conv-item').length;
+    const badge = document.getElementById('conv-file-count');
+    if (!badge) return;
+    if (count === 0) { badge.textContent = ''; return; }
+    const c = window.i18n?.converter || {};
+    let word;
+    if (count === 1) word = c.file_count_1 || 'file';
+    else if (count >= 2 && count <= 4) word = c.file_count_234 || c.file_count_many || 'files';
+    else word = c.file_count_many || 'files';
+    badge.textContent = `${count} ${word}`;
+}
+
 window.addConverterItem = function(item) {
     const type = getFileType(item.filename);
     window.convSettingsMap[item.id] = getDefaultSettings(type);
 
-    const t = window.i18n.converter || {};
+    const t = window.i18n?.converter || {};
+    const metaDef = TYPE_META[type] || TYPE_META.unknown;
+    const meta = { ...metaDef, label: metaDef.key ? (t[metaDef.key] || metaDef.key) : '?' };
 
     const list = document.getElementById('converter-queue');
+
+    // Заменяем скелетон, если он есть
+    if (item.temp_id) {
+        const skeleton = document.getElementById(`conv-skeleton-${item.temp_id}`);
+        if (skeleton) skeleton.remove();
+    }
+
+    // Убрать пустое состояние при первом файле
+    const empty = document.getElementById('conv-empty-state');
+    if (empty) empty.style.display = 'none';
+
     const li = document.createElement('li');
     li.className = 'conv-item';
     li.id = `conv-item-${item.id}`;
-    
+
     li.onclick = function(e) {
         if (e.target.closest('button')) return;
         selectConverterItem(item.id);
     };
 
-    let thumbSrc = item.thumbnail || "src/default_thumbnail.png";
-    const durationStr = formatDuration(item.duration);
-    const d = item.details || { resolution: '?', codec: '?', bitrate: 0, fps: 0, audio: '?' };
-    const txtQueued = t.status_queued || 'Queued';
+    const thumbSrc = item.thumbnail || "src/default_thumbnail.png";
+    const durationStr = item.duration ? formatDuration(item.duration) : '—';
+    const d = item.details || {};
+    const res = d.resolution && d.resolution !== '?' ? d.resolution : null;
+    const codec = d.codec && d.codec !== '?' ? d.codec : null;
+    const bitrate = d.bitrate ? d.bitrate + ' kbps' : null;
+    const fps = d.fps ? d.fps + ' fps' : null;
+    const audio = d.audio && d.audio !== '?' ? d.audio : null;
+    const txtQueued = t.status_queued || 'В очереди';
+
+    const ext = item.filename.split('.').pop().toUpperCase();
 
     li.innerHTML = `
         <div class="conv-item-top">
-            <!-- Кнопка раскрытия -->
-            <button class="btn-q-expand" onclick="toggleConvDetails('${item.id}')" title="Детали">
+            <button class="btn-q-expand" onclick="toggleConvDetails('${item.id}')" title="Подробнее">
                 <i class="fa-solid fa-chevron-down"></i>
             </button>
 
-            <!-- Превью -->
-            <img src="${thumbSrc}" class="conv-thumb">
-            
-            <!-- Инфо -->
+            <div class="conv-thumb-wrap">
+                <img src="${thumbSrc}" class="conv-thumb" onerror="this.src='src/default_thumbnail.png'">
+                <span class="conv-ext-badge">${ext}</span>
+            </div>
+
             <div class="conv-info">
                 <div class="conv-filename" title="${item.filename}">${item.filename}</div>
                 <div class="conv-meta">
-                    <span><i class="fa-regular fa-clock"></i> ${durationStr}</span>
-                    <!-- Можно добавить размер файла, если есть -->
+                    ${item.duration ? `<span><i class="fa-regular fa-clock"></i> ${durationStr}</span>` : ''}
+                    ${res ? `<span><i class="fa-solid fa-display"></i> ${res}</span>` : ''}
+                    <span class="conv-type-badge ${meta.cls}"><i class="fa-solid ${meta.icon}"></i> ${meta.label}</span>
                 </div>
             </div>
-            
-            <!-- Статус -->
-            <div class="conv-status" id="conv-status-${item.id}">${txtQueued}</div>
-            
-            <!-- Удаление -->
-            <button class="icon-btn small" style="width: 2rem; height: 2rem; color: #666;" onclick="removeConverterItem('${item.id}')" title="Убрать">
+
+            <div class="conv-status queued" id="conv-status-${item.id}">${txtQueued}</div>
+
+            <button class="conv-remove-btn" onclick="removeConverterItem('${item.id}')" title="Убрать">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
-        <!-- Скрытые детали -->
         <div class="conv-details">
-            <div class="detail-row"><span class="detail-label">Res:</span> <span>${d.resolution}</span></div>
-            <div class="detail-row"><span class="detail-label">Codec:</span> <span>${d.codec}</span></div>
-            <!-- ... остальные детали ... -->
+            ${res     ? `<div class="detail-row"><span class="detail-label"><i class="fa-solid fa-expand"></i> ${t.detail_res || 'Resolution'}</span><span>${res}</span></div>` : ''}
+            ${codec   ? `<div class="detail-row"><span class="detail-label"><i class="fa-solid fa-microchip"></i> ${t.detail_codec || 'Codec'}</span><span>${codec}</span></div>` : ''}
+            ${bitrate ? `<div class="detail-row"><span class="detail-label"><i class="fa-solid fa-gauge-high"></i> ${t.detail_bitrate || 'Bitrate'}</span><span>${bitrate}</span></div>` : ''}
+            ${fps     ? `<div class="detail-row"><span class="detail-label"><i class="fa-solid fa-film"></i> ${t.detail_fps || 'FPS'}</span><span>${fps}</span></div>` : ''}
+            ${audio   ? `<div class="detail-row"><span class="detail-label"><i class="fa-solid fa-volume-high"></i> ${t.detail_audio || 'Audio'}</span><span>${audio}</span></div>` : ''}
+            ${!res && !codec && !bitrate && !fps && !audio ? `<div class="detail-row" style="color:#666;">${t.no_metadata || 'Metadata unavailable'}</div>` : ''}
         </div>
 
-        <!-- Прогресс -->
         <div class="conv-progress-bg">
             <div class="conv-progress-fill" id="conv-prog-${item.id}"></div>
         </div>
     `;
     list.appendChild(li);
+    updateFileCount();
 }
 
 function selectConverterItem(id) {
@@ -272,7 +346,7 @@ document.getElementById('btn-apply-all').addEventListener('click', () => {
             window.convSettingsMap[key] = { ...currentSettings };
         }
     }
-    alert("Настройки применены");
+    alert(window.i18n?.converter?.apply_all_toast || "Settings applied");
 });
 
 document.getElementById('cv-quality').addEventListener('input', (e) => {
@@ -348,13 +422,17 @@ document.getElementById('btn-convert-start').addEventListener('click', () => {
 // Удаление
 window.removeConverterItem = function(taskId) {
     const el = document.getElementById(`conv-item-${taskId}`);
-    if(el) el.remove();
+    if (el) el.remove();
     delete window.convSettingsMap[taskId];
     if (selectedConvId === taskId) {
         selectedConvId = null;
         updateSidebarUI(null);
     }
     window.pywebview.api.converter_remove_item(taskId);
+    updateFileCount();
+    const remaining = document.querySelectorAll('.conv-item').length;
+    const empty = document.getElementById('conv-empty-state');
+    if (empty && remaining === 0) empty.style.display = 'flex';
 }
 
 window.toggleConvDetails = function(taskId) {
@@ -365,8 +443,22 @@ window.toggleConvDetails = function(taskId) {
 window.updateConvStatus = function(taskId, text, percent) {
     const statusEl = document.getElementById(`conv-status-${taskId}`);
     const progEl = document.getElementById(`conv-prog-${taskId}`);
-    if(statusEl) statusEl.innerText = text;
-    if(progEl) progEl.style.width = `${percent}%`;
+    const item = document.getElementById(`conv-item-${taskId}`);
+    if (statusEl) {
+        statusEl.innerText = text;
+        statusEl.className = 'conv-status';
+        if (percent >= 100) {
+            statusEl.classList.add('done');
+            if (item) item.classList.add('done');
+        } else if (percent > 0) {
+            statusEl.classList.add('converting');
+        } else if (text.toLowerCase().includes('ошибк') || text.toLowerCase().includes('error')) {
+            statusEl.classList.add('error');
+        } else {
+            statusEl.classList.add('queued');
+        }
+    }
+    if (progEl) progEl.style.width = `${percent}%`;
 }
 
 document.getElementById('btn-convert-stop').addEventListener('click', () => {

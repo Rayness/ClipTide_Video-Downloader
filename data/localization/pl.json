@@ -208,7 +208,28 @@
         },
         "video_add": "Wideo zostało dodane",
         "video_error": "Błąd dodawania wideo",
-        "video_adding": "Dodawanie wideo"
+        "video_adding": "Dodawanie wideo",
+        "val_original": "Oryginalny",
+        "val_low": "Niska",
+        "val_high": "Wysoka",
+        "lbl_size": "Rozmiar:",
+        "empty_title": "Brak plików do konwersji",
+        "empty_hint": "Kliknij «Dodaj pliki» lub przeciągnij pliki tutaj",
+        "detail_res": "Rozdzielczość",
+        "detail_codec": "Kodek",
+        "detail_bitrate": "Bitrate",
+        "detail_fps": "FPS",
+        "detail_audio": "Audio",
+        "no_metadata": "Metadane niedostępne",
+        "doc_note": "Konwersja przez moduł zewnętrzny",
+        "apply_all_toast": "Ustawienia zastosowane",
+        "type_video": "Wideo",
+        "type_audio": "Audio",
+        "type_image": "Obraz",
+        "type_doc": "Dokument",
+        "file_count_1": "plik",
+        "file_count_234": "pliki",
+        "file_count_many": "plików"
     },
     "history": {
         "date_label": "Data pobrania:",
@@ -231,6 +252,7 @@
         "confirm_delete_module": "Usunac ten modul?",
         "confirm_delete_theme": "Usunac ten motyw?",
         "cannot_delete_default_theme": "Nie mozna usunac domyslnego motywu",
-        "load_hint": "Nacisnij \"Odswiez\", aby zaladowac katalog"
+        "load_hint": "Nacisnij \"Odswiez\", aby zaladowac katalog",
+        "tab_unavailable": "Tymczasowo niedostępne"
     }
 }

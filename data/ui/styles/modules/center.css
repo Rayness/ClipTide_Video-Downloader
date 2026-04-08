@@ -77,7 +77,7 @@
 /* Общий класс для вкладок */
 .content {
     flex: 1;
-    height: 100%;
+    min-height: 0; /* Критично: позволяет flex-shrink работать корректно */
     overflow: hidden; /* Скролл управляется внутри модулей */
     display: none;
     padding: 0; /* Паддинги задаются внутри конкретных вкладок */
@@ -115,7 +115,7 @@
     z-index: 100;
 }
 
-.down-panel.collapsed { height: 28px; }
+.down-panel.collapsed { height: 30px; }
 .down-panel.expanded { height: 180px; }
 
 .panel-handle {

@@ -23,11 +23,6 @@ class AppContext:
         self.proxy_url = ""
         self.proxy_enabled = "False"
 
-        # ClipTide API
-        self.cliptide_api = None
-        self.cliptide_sync_enabled = False
-        self.cliptide_last_sync = None
-
         self.module_manager = None
 
     def set_window(self, window):
@@ -59,80 +54,3 @@ class AppContext:
         else:
             print(f"WARNING: Окно не установлено, пропускаем JS: {code[:50]}...")
 
-    # === ClipTide API методы ===
-
-    def init_cliptide_api(self):
-        """Инициализация ClipTide API клиента из конфигурации"""
-        from app.modules.cliptide_api import ClipTideAPIClient
-
-        sync_enabled = self.config.get("ClipTide", "sync_enabled", fallback="False") == "True"
-        api_url = self.config.get("ClipTide", "api_url", fallback="production")
-        auth_token = self.config.get("ClipTide", "auth_token", fallback="")
-        last_sync_str = self.config.get("ClipTide", "last_sync", fallback="")
-
-        self.cliptide_sync_enabled = sync_enabled
-
-        if auth_token:
-            use_prod = api_url != "dev"
-            self.cliptide_api = ClipTideAPIClient(use_production=use_prod)
-            self.cliptide_api.token = auth_token
-
-            if last_sync_str:
-                try:
-                    from datetime import datetime
-                    self.cliptide_last_sync = datetime.fromisoformat(last_sync_str.replace('Z', '+00:00'))
-                except (ValueError, AttributeError):
-                    self.cliptide_last_sync = None
-        else:
-            self.cliptide_api = None
-            self.cliptide_last_sync = None
-
-    def save_cliptide_auth(self, email: str, token: str):
-        """Сохранить данные авторизации ClipTide"""
-        self.config.set("ClipTide", "auth_token", token)
-        self.config.set("ClipTide", "user_email", email)
-        save_config(self.config)
-
-    def clear_cliptide_auth(self):
-        """Очистить данные авторизации ClipTide"""
-        self.config.set("ClipTide", "auth_token", "")
-        self.config.set("ClipTide", "user_email", "")
-        self.config.set("ClipTide", "last_sync", "")
-        self.config.set("ClipTide", "sync_enabled", "False")
-        save_config(self.config)
-        self.cliptide_api = None
-        self.cliptide_sync_enabled = False
-        self.cliptide_last_sync = None
-
-    def save_cliptide_last_sync(self, sync_time):
-        """Сохранить время последней синхронизации"""
-        if sync_time:
-            self.config.set("ClipTide", "last_sync", sync_time.isoformat())
-            save_config(self.config)
-            self.cliptide_last_sync = sync_time
-
-    def is_cliptide_authenticated(self) -> bool:
-        """Проверить авторизацию в ClipTide"""
-        return self.cliptide_api is not None and self.cliptide_api.is_authenticated()
-
-    def sync_cliptide_downloads(self, downloads: list) -> int:
-        """
-        Синхронизировать загрузки с ClipTide.
-
-        Args:
-            downloads: Список загрузок для синхронизации
-
-        Returns:
-            Количество успешно синхронизированных загрузок
-        """
-        if not self.cliptide_sync_enabled or not self.cliptide_api:
-            return 0
-
-        try:
-            count = self.cliptide_api.sync_downloads(downloads)
-            from datetime import datetime
-            self.save_cliptide_last_sync(datetime.utcnow())
-            return count
-        except Exception as e:
-            print(f"ClipTide sync error: {e}")
-            return 0

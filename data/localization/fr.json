@@ -208,7 +208,28 @@
         },
         "video_add": "La vidéo a été ajoutée",
         "video_error": "Erreur lors de l'ajout de la vidéo",
-        "video_adding": "Ajout de la vidéo"
+        "video_adding": "Ajout de la vidéo",
+        "val_original": "Original",
+        "val_low": "Basse",
+        "val_high": "Haute",
+        "lbl_size": "Taille :",
+        "empty_title": "Aucun fichier à convertir",
+        "empty_hint": "Cliquez sur «Ajouter des fichiers» ou déposez des fichiers ici",
+        "detail_res": "Résolution",
+        "detail_codec": "Codec",
+        "detail_bitrate": "Débit",
+        "detail_fps": "FPS",
+        "detail_audio": "Audio",
+        "no_metadata": "Métadonnées indisponibles",
+        "doc_note": "Conversion via module externe",
+        "apply_all_toast": "Paramètres appliqués",
+        "type_video": "Vidéo",
+        "type_audio": "Audio",
+        "type_image": "Image",
+        "type_doc": "Document",
+        "file_count_1": "fichier",
+        "file_count_234": "fichiers",
+        "file_count_many": "fichiers"
     },
     "history": {
         "date_label": "Date de téléchargement :",
@@ -231,6 +252,7 @@
         "confirm_delete_module": "Supprimer ce module ?",
         "confirm_delete_theme": "Supprimer ce theme ?",
         "cannot_delete_default_theme": "Impossible de supprimer le theme par defaut",
-        "load_hint": "Appuyez sur \"Rafraichir\" pour charger le catalogue"
+        "load_hint": "Appuyez sur \"Rafraichir\" pour charger le catalogue",
+        "tab_unavailable": "Temporairement indisponible"
     }
 }

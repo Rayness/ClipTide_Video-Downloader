@@ -46,15 +46,18 @@ class Converter:
         if not file_paths:
             return
 
-        self._js_exec('showSpinner()')
-        
         # Обрабатываем файлы в потоке, чтобы не вешать UI при генерации превью
         def _process_add():
             for path in file_paths:
+                task_id = str(uuid.uuid4())
+                filename = os.path.basename(path)
                 try:
-                    task_id = str(uuid.uuid4())
-                    filename = os.path.basename(path)
                     ext = filename.split('.')[-1].lower()
+
+                    # Показываем скелетон сразу, до тяжёлой обработки
+                    safe_filename = json.dumps(filename)
+                    self._js_exec(f'createConverterSkeleton("{task_id}", {safe_filename})')
+                    self.log(f"Обработка: {filename}", "info")
                     
                     thumb = None
                     error = None
@@ -134,17 +137,17 @@ class Converter:
                     }
                     
                     self.queue.append(item)
-                    
-                    # Отправляем в JS
+
+                    # Отправляем в JS (temp_id совпадает с task_id, чтобы заменить скелетон)
+                    item["temp_id"] = task_id
                     json_item = json.dumps(item)
                     self._js_exec(f'addConverterItem({json_item})')
-                    
-                    self.log(f"Добавлен: {filename}", "info")
-                    
+
+                    self.log(f"Добавлен: {filename}", "success")
+
                 except Exception as e:
-                    self.log(f"Критическая ошибка добавления {path}: {e}", "error", "ADD_FILE_ERROR")
-            
-            self._js_exec('hideSpinner()')
+                    self._js_exec(f'removeConverterSkeleton("{task_id}")')
+                    self.log(f"Ошибка добавления {filename}: {e}", "error", "ADD_FILE_ERROR")
 
         threading.Thread(target=_process_add, daemon=True).start()
 

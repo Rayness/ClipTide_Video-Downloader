@@ -75,23 +75,13 @@ if (btnRefreshStore) {
         
         if (activeSection && activeSection.id === 'store-themes') {
             loadThemesData();
-        } else {
-            loadModulesData();
         }
     });
 }
 
 // Клик по кнопке "Магазин" в левом меню (ID="coming-soon")
+// Автозагрузка отключена (нет доступа к серверу)
 const btnOpenStore = document.getElementById('coming-soon');
-if (btnOpenStore) {
-    btnOpenStore.addEventListener('click', () => {
-        // Проверяем, пусто ли в модулях. Если да — грузим.
-        const list = document.getElementById('modules-list');
-        if (list && !list.querySelector('.store-card')) {
-            loadModulesData();
-        }
-    });
-}
 
 
 // --- 4. РЕНДЕР МОДУЛЕЙ (Вызывается из Python) ---

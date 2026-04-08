@@ -207,7 +207,8 @@
         "confirm_delete_module": "Удалить этот модуль?",
         "confirm_delete_theme": "Удалить эту тему?",
         "cannot_delete_default_theme": "Нельзя удалить стандартную тему",
-        "load_hint": "Нажмите \"Обновить\" для загрузки каталога"
+        "load_hint": "Нажмите \"Обновить\" для загрузки каталога",
+        "tab_unavailable": "Временно недоступно"
     },
     "converter": {
         "add_files_btn": "Добавить файлы",
@@ -243,7 +244,28 @@
         },
         "video_add": "Видео было добавлено",
         "video_error": "Ошибка добавления видео",
-        "video_adding": "Добавление видео"
+        "video_adding": "Добавление видео",
+        "val_original": "Оригинал",
+        "val_low": "Низкое",
+        "val_high": "Высокое",
+        "lbl_size": "Размер:",
+        "empty_title": "Нет файлов для конвертации",
+        "empty_hint": "Нажмите «Добавить файлы» или перетащите файлы сюда",
+        "detail_res": "Разрешение",
+        "detail_codec": "Кодек",
+        "detail_bitrate": "Битрейт",
+        "detail_fps": "FPS",
+        "detail_audio": "Аудио",
+        "no_metadata": "Метаданные недоступны",
+        "doc_note": "Конвертация через внешний модуль",
+        "apply_all_toast": "Настройки применены",
+        "type_video": "Видео",
+        "type_audio": "Аудио",
+        "type_image": "Изображение",
+        "type_doc": "Документ",
+        "file_count_1": "файл",
+        "file_count_234": "файла",
+        "file_count_many": "файлов"
     },
     "history": {
         "date_label": "Дата загрузки:",

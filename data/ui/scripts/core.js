@@ -40,33 +40,32 @@ window.addLog = function(message, level = 'info', code = null) {
     const logContainer = document.getElementById("app-logs");
     if (!logContainer) return;
 
-    // 1. Проверяем, прижат ли скролл к низу (с допуском 50px)
-    // Если разница между полной высотой и текущей прокруткой меньше высоты окна + 50px
-    const isAtBottom = (logContainer.scrollHeight - logContainer.scrollTop) <= (logContainer.clientHeight + 50);
+    // 1. Проверяем, прижат ли скролл к низу (с допуском 50px).
+    //    Когда панель свёрнута, clientHeight = 0 — считаем это "у дна".
+    const panelExpanded = document.getElementById('log-panel')?.classList.contains('expanded');
+    const isAtBottom = !panelExpanded ||
+        (logContainer.scrollHeight - logContainer.scrollTop) <= (logContainer.clientHeight + 50);
 
     const entry = document.createElement("div");
     entry.className = `log-entry ${level}`;
-    
+
     if (code) {
         entry.setAttribute('data-code', code);
         entry.title = `Код: ${code}`;
     }
-    
+
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    
+
     entry.innerHTML = `<span class="log-time">${timeStr}</span><span class="log-msg">${message}</span>`;
-    
+
     // 2. Вставляем элемент
     logContainer.appendChild(entry);
-    
-    // 3. Если пользователь был внизу (следил за логом) - скроллим к новому элементу
+
+    // 3. Скроллим ТОЛЬКО сам контейнер (не scrollIntoView — он может прокрутить viewport).
     if (isAtBottom) {
-        // setTimeout дает браузеру время отрисовать высоту элемента
         setTimeout(() => {
-            entry.scrollIntoView({ behavior: "smooth", block: "end" });
-            // Или жесткий вариант, если smooth глючит:
-            // logContainer.scrollTop = logContainer.scrollHeight;
+            logContainer.scrollTop = logContainer.scrollHeight;
         }, 10);
     }
 }

@@ -93,11 +93,6 @@
                             <i class="fa-solid fa-circle-info"></i> <span id="nav-about">О программе</span> <!-- ID -->
                         </button>
 
-                        <div class="sett-separator"></div>
-
-                        <button class="sett-btn" data-target="sect-cliptide">
-                            <i class="fa-solid fa-cloud"></i> <span id="nav-cliptide">ClipTide</span>
-                        </button>
                     </div>
                 </div>
 
@@ -353,71 +348,6 @@
                             </div>
                         </div>
 
-                        <!-- 7. ClipTide Account -->
-                        <div id="sect-cliptide" class="sett-section">
-                            <h2 id="cliptide-title">ClipTide Аккаунт</h2>
-
-                            <!-- Блок авторизации (показывается если не авторизован) -->
-                            <div id="cliptide-auth-block" class="sett-card">
-                                <p style="color: #888; margin-bottom: 1rem;">Войдите в аккаунт ClipTide для синхронизации истории загрузок</p>
-                                
-                                <div class="sett-group">
-                                    <label>Email</label>
-                                    <input type="email" id="cliptide-email" class="input-folder" placeholder="user@example.com">
-                                </div>
-                                
-                                <div class="sett-group">
-                                    <label>Пароль</label>
-                                    <input type="password" id="cliptide-password" class="input-folder" placeholder="••••••••">
-                                </div>
-
-                                <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-                                    <button class="primary-btn" id="btn-cliptide-login" style="flex: 1;">
-                                        <i class="fa-solid fa-sign-in-alt"></i> Войти
-                                    </button>
-                                    <button class="btn" id="btn-cliptide-register" style="flex: 1;">
-                                        <i class="fa-solid fa-user-plus"></i> Регистрация
-                                    </button>
-                                </div>
-
-                                <div id="cliptide-auth-status" style="margin-top: 1rem; font-size: 0.9rem;"></div>
-                            </div>
-
-                            <!-- Блок профиля (показывается если авторизован) -->
-                            <div id="cliptide-profile-block" class="sett-card" style="display: none;">
-                                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                                    <div class="cliptide-avatar" style="width: 50px; height: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.2rem;" id="cliptide-avatar-initial">U</div>
-                                    <div>
-                                        <p style="font-weight: 600;" id="cliptide-user-email">user@example.com</p>
-                                        <p style="font-size: 0.8rem; color: #888;">ClipTide Account</p>
-                                    </div>
-                                </div>
-
-                                <div class="sett-group">
-                                    <label>Синхронизация загрузок</label>
-                                    <div class="row-switch" style="margin: 0.5rem 0;">
-                                        <label class="switch">
-                                            <input type="checkbox" id="cliptide-sync-toggle">
-                                            <span class="slider"></span>
-                                        </label>
-                                        <span>Автоматически отправлять историю загрузок на сайт</span>
-                                    </div>
-                                </div>
-
-                                <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
-                                    <button class="primary-btn" id="btn-cliptide-sync-now">
-                                        <i class="fa-solid fa-rotate"></i> Синхронизировать сейчас
-                                    </button>
-                                    <button class="btn" id="btn-cliptide-logout" style="background-color: var(--danger-color);">
-                                        <i class="fa-solid fa-sign-out-alt"></i> Выйти
-                                    </button>
-                                </div>
-
-                                <p id="cliptide-last-sync-label" style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 1rem; display: none;"></p>
-                                <div id="cliptide-sync-status" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
 
@@ -590,13 +520,17 @@
                                     <option value="2160">4K (2160p)</option>
                                     <!-- <option value="4320">8K (4320p)</option> -->
                                 </select>
-                                <div class="action-buttons flex-conteiner-row" style="gap: 0.5rem;">
-                                    <button class="primary-btn fade-in" id="addBtn"><i class="fa-solid fa-plus"></i></button>
-                                    <button class="primary-btn fade-in" id="startBtn"><i class="fa-solid fa-play"></i></button>
-                                    <!-- <button><i class="fa-solid fa-pause"></i></button> -->
-                                    <button class="primary-btn fade-in" id="stopBtn"><i class="fa-solid fa-stop"></i></button>
-                                    <!-- <button class="primary-btn fade-in" id="startBtn">Начать загрузку</button> -->
-                                    <!-- <button class="primary-btn fade-in" disabled id="stopBtn">STOP</button> -->
+                                <div class="dl-action-bar fade-in">
+                                    <button class="primary-btn dl-add-btn" id="addBtn">
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span id="txt-add-btn">В очередь</span>
+                                    </button>
+                                    <button class="icon-btn dl-ctrl-btn dl-ctrl-start" id="startBtn" style="display:none" title="Начать загрузку">
+                                        <i class="fa-solid fa-play"></i>
+                                    </button>
+                                    <button class="icon-btn dl-ctrl-btn dl-ctrl-stop" id="stopBtn" style="display:none" disabled title="Остановить">
+                                        <i class="fa-solid fa-stop"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -651,16 +585,16 @@
                             <div class="store-header-row" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 1rem;">
                                 <div class="store-tabs">
                                     <!-- data-target указывает на ID блока, который нужно показать -->
-                                    <button class="store-tab active" id="tab-store-modules" data-target="store-modules">Модули</button>
-                                    <button class="store-tab" id="tab-store-themes" data-target="store-themes">Темы</button>
+                                    <button class="store-tab store-tab--disabled" id="tab-store-modules" data-target="store-modules" disabled title="Временно недоступно">Модули</button>
+                                    <button class="store-tab store-tab--disabled" id="tab-store-themes" data-target="store-themes" disabled title="Временно недоступно">Темы</button>
                                 </div>
                                 <button class="icon-btn small" id="btn-refresh-store" title="Обновить список">
                                     <i class="fa-solid fa-rotate-right"></i>
                                 </button>
                             </div>
 
-                            <!-- СЕКЦИЯ 1: МОДУЛИ (Активна по умолчанию) -->
-                            <div class="store-section active" id="store-modules">
+                            <!-- СЕКЦИЯ 1: МОДУЛИ (Временно отключена) -->
+                            <div class="store-section" id="store-modules" style="display: none;">
                                 <div class="store-grid" id="modules-list">
                                     <div id="store-loading-modules" style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
                                         <i class="fa-solid fa-spinner fa-spin"></i> Загрузка каталога...
@@ -668,7 +602,7 @@
                                 </div>
                             </div>
 
-                            <!-- СЕКЦИЯ 2: ТЕМЫ (Скрыта по умолчанию) -->
+                            <!-- СЕКЦИЯ 2: ТЕМЫ (Временно отключена) -->
                             <div class="store-section" id="store-themes">
                                 <div class="store-grid" id="themes-list">
                                     <div id="store-loading-themes-hint" style="grid-column: 1/-1; text-align: center; color: #666; margin-top: 2rem;">
@@ -683,13 +617,21 @@
                         <div class="converter-layout">
                             <!-- Левая часть: Список файлов и DropZone -->
                             <div class="converter-main">
-                                <div class="drop-zone-small" id="dropZoneConv">
-                                    <i class="fa-solid fa-plus"></i>
-                                    <span id="txt-conv-add">Добавить файлы</span> <!-- ID -->
+                                <div class="conv-top-bar">
+                                    <div class="drop-zone-small" id="dropZoneConv">
+                                        <i class="fa-solid fa-folder-open"></i>
+                                        <span id="txt-conv-add">Добавить файлы</span>
+                                    </div>
+                                    <span class="conv-file-count" id="conv-file-count"></span>
                                 </div>
-                                
+
                                 <ul id="converter-queue" class="converter-list">
-                                    <!-- Сюда будут добавляться файлы -->
+                                    <!-- Пустое состояние -->
+                                    <li id="conv-empty-state" class="conv-empty-state">
+                                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                                        <p id="cv-empty-title">Нет файлов для конвертации</p>
+                                        <span id="cv-empty-hint">Нажмите «Добавить файлы» или перетащите файлы сюда</span>
+                                    </li>
                                 </ul>
                             </div>
 
@@ -702,9 +644,9 @@
                                         <i class="fa-solid fa-copy"></i>
                                     </button>
                                 </div>
-                                <div id="settings-video">  
+                                <div id="settings-video">
                                     <div class="setting-item">
-                                        <label id="lbl-cv-fmt">Формат:</label>
+                                        <label id="lbl-cv-fmt"><i class="fa-solid fa-file-video"></i> Формат</label>
                                         <select id="cv-format" class="select-control js-custom-select">
                                             <option value="mp4">MP4 (Video)</option>
                                             <option value="avi">AVI (Video)</option>
@@ -718,7 +660,7 @@
                                     </div>
 
                                     <div class="setting-item">
-                                        <label id="lbl-cv-codec">Кодек:</label>
+                                        <label id="lbl-cv-codec"><i class="fa-solid fa-microchip"></i> Кодек</label>
                                         <select id="cv-codec" class="select-control js-custom-select">
                                             <option value="libx264">H.264 (Стандарт)</option>
                                             <option value="libx265">H.265 (HEVC)</option>
@@ -727,33 +669,32 @@
                                     </div>
 
                                     <div class="setting-item">
-                                        <label id="lbl-cv-qual">Качество (CRF):</label>
+                                        <label id="lbl-cv-qual"><i class="fa-solid fa-sliders"></i> Качество (CRF)</label>
                                         <input type="range" id="cv-quality" min="18" max="35" value="23" step="1">
                                         <div class="range-value">
                                             <span id="txt-cv-better">Лучше</span>
-                                            <span id="cv-quality-val">23</span>
+                                            <span class="range-val-badge" id="cv-quality-val">23</span>
                                             <span id="txt-cv-worse">Хуже</span>
                                         </div>
                                     </div>
 
                                     <div class="setting-item">
-                                        <label id="lbl-cv-res">Разрешение:</label> 
+                                        <label id="lbl-cv-res"><i class="fa-solid fa-expand"></i> Разрешение</label>
                                         <select id="cv-res" class="select-control js-custom-select">
                                             <option value="original" id="cv-res-orig">Оригинал</option>
-                                            <!-- <option value="8K">4320p</option> -->
-                                            <option value="4K">2160p</option>
-                                            <option value="2K">1440p</option>
-                                            <option value="1080">1080p</option>
-                                            <option value="720">720p</option>
-                                            <option value="480">480p</option>
+                                            <option value="4K">2160p (4K)</option>
+                                            <option value="2K">1440p (2K)</option>
+                                            <option value="1080">1080p (FullHD)</option>
+                                            <option value="720">720p (HD)</option>
+                                            <option value="480">480p (SD)</option>
                                         </select>
                                     </div>
                                 </div>
 
-                                <!-- === НАСТРОЙКИ ИЗОБРАЖЕНИЙ (Новые) === -->
+                                <!-- === НАСТРОЙКИ ИЗОБРАЖЕНИЙ === -->
                                 <div id="settings-image" style="display: none;">
                                     <div class="setting-item">
-                                        <label id="lbl-cv-img-fmt">Формат:</label>
+                                        <label id="lbl-cv-img-fmt"><i class="fa-solid fa-image"></i> Формат</label>
                                         <select id="cv-img-format" class="select-control js-custom-select">
                                             <option value="jpg">JPG (JPEG)</option>
                                             <option value="png">PNG</option>
@@ -765,17 +706,17 @@
                                     </div>
 
                                     <div class="setting-item">
-                                        <label id="lbl-cv-img-qual">Качество:</label>
+                                        <label id="lbl-cv-img-qual"><i class="fa-solid fa-sliders"></i> Качество</label>
                                         <input type="range" id="cv-img-quality" min="10" max="100" value="90" step="5">
                                         <div class="range-value">
                                             <span id="txt-cv-img-low">Низкое</span>
-                                            <span id="cv-img-quality-val">90%</span>
-                                            <span id="txt-cv-img-high">Выс.</span>
+                                            <span class="range-val-badge" id="cv-img-quality-val">90%</span>
+                                            <span id="txt-cv-img-high">Высокое</span>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="setting-item">
-                                        <label id="lbl-cv-img-size">Размер:</label>
+                                        <label id="lbl-cv-img-size"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> Размер</label>
                                         <select id="cv-img-resize" class="select-control js-custom-select">
                                             <option value="original" id="opt-cv-img-orig">Оригинал</option>
                                             <option value="50%">50%</option>
@@ -786,9 +727,10 @@
                                     </div>
                                 </div>
 
+                                <!-- === НАСТРОЙКИ ДОКУМЕНТОВ === -->
                                 <div id="settings-document" style="display: none;">
                                     <div class="setting-item">
-                                        <label>Формат:</label>
+                                        <label><i class="fa-solid fa-file-lines"></i> Формат</label>
                                         <select id="cv-doc-format" class="select-control js-custom-select">
                                             <option value="pdf">PDF (Portable Document)</option>
                                             <option value="html">HTML (Web Page)</option>
@@ -797,12 +739,9 @@
                                             <option value="odt">ODT (OpenDocument)</option>
                                         </select>
                                     </div>
-                                    
-                                    <!-- Можно добавить доп. опции в будущем -->
-                                    <div class="setting-item" style="margin-top: 10px;">
-                                        <p style="font-size: 0.75rem; color: #777;">
-                                            Конвертация выполняется через внешний модуль.
-                                        </p>
+
+                                    <div class="setting-item">
+                                        <p class="cv-doc-note"><i class="fa-solid fa-circle-info"></i> <span id="cv-doc-note-text">Конвертация через внешний модуль</span></p>
                                     </div>
                                 </div>
 
@@ -810,7 +749,7 @@
                                     <button class="primary-btn" id="btn-convert-start">
                                         <i class="fa-solid fa-rotate"></i> <span id="txt-btn-conv">Конвертировать</span>
                                     </button>
-                                    <button class="primary-btn" id="btn-convert-stop" disabled>
+                                    <button class="primary-btn conv-stop-btn" id="btn-convert-stop" disabled>
                                         <i class="fa-solid fa-stop"></i> <span id="txt-btn-stop">Стоп</span>
                                     </button>
                                 </div>
@@ -845,7 +784,7 @@
                     <div class="panel-handle" id="toggle-logs-btn">
                         <div class="handle-left">
                             <i class="fa-solid fa-terminal"></i>
-                            <span>Лог событий</span>
+                            <span id="event-log-title">Лог событий</span>
                         </div>
                         <div class="handle-right">
                             <i class="fa-solid fa-chevron-up" id="log-arrow"></i>
@@ -870,8 +809,6 @@
     <script src="scripts/converter.js" defer></script>
     <script src="scripts/settings.js" defer></script>
     <script src="scripts/store.js" defer></script>
-    <!-- ---------------------------- -->
-    <script src="scripts/cliptide.js" defer></script>
     <!-- ---------------------------- -->
     <script src="scripts/modal.js"></script>
     <script src="scripts/theme.js" defer></script>
