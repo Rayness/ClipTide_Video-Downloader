@@ -204,18 +204,31 @@ class Downloader:
                     tbr = info.get('tbr', 0)
                     uploader = info.get('uploader', 'Unknown')
 
+                    # Определяем доступные кодеки из списка форматов
+                    available_codecs = []
+                    for f in info.get('formats', []):
+                        vc = (f.get('vcodec') or '').lower()
+                        if vc.startswith('av01') and 'av1' not in available_codecs:
+                            available_codecs.append('av1')
+                        if (vc.startswith('hev1') or vc.startswith('hvc1')) and 'h265' not in available_codecs:
+                            available_codecs.append('h265')
+                        if vc.startswith('avc1') and 'h264' not in available_codecs:
+                            available_codecs.append('h264')
+
                 t_fmt = self.get_trans('status', 'in_format', 'format')
                 t_res = self.get_trans('status', 'in_resolution', 'res')
-                
+
                 video_data = {
                     "id": task_id,
                     "url": video_url,
                     "title": title,
                     "format": selected_format,
                     "resolution": selectedResolution,
+                    "codec": "auto",
+                    "available_codecs": available_codecs,
                     "thumbnail": thumbnail,
                     "status": "queued",
-                    "fmt_label": t_fmt, 
+                    "fmt_label": t_fmt,
                     "res_label": t_res,
                     "temp_id": temp_id,
                     "meta": {
@@ -245,12 +258,13 @@ class Downloader:
 
         threading.Thread(target=_analyze, daemon=True).start()
 
-    def update_item_settings(self, task_id, new_fmt, new_res):
+    def update_item_settings(self, task_id, new_fmt, new_res, new_codec="auto"):
         found = False
         for item in self.ctx.download_queue:
             if item["id"] == task_id:
                 item["format"] = new_fmt
                 item["resolution"] = new_res
+                item["codec"] = new_codec
                 # Если была ошибка, даем шанс перезапустить
                 if item["status"] == "error":
                     item["status"] = "queued"
@@ -445,9 +459,16 @@ class Downloader:
                 # Финальный контейнер (может измениться на mkv)
                 final_container = user_container
 
-                # Строка выбора видео (с учетом разрешения)
+                # Строка выбора видео (с учетом разрешения и кодека)
                 res = task["resolution"]
-                video_sel = f'bestvideo[height<={res}]'
+                codec = task.get("codec", "auto")
+                codec_filters = {
+                    "av1":  "[vcodec^=av01]",
+                    "h265": "[vcodec^=hev1]",
+                    "h264": "[vcodec^=avc1]",
+                }
+                codec_filter = codec_filters.get(codec, "")
+                video_sel = f'bestvideo{codec_filter}[height<={res}]'
 
                 # 1. Сценарий: Скачать ВСЕ аудиодорожки
                 if audio_pref == "all_tracks":

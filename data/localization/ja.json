@@ -246,6 +246,10 @@
         "title": "イベントログ",
         "app_ready": "アプリケーションの準備完了"
     },
+    "downloader": {
+        "codec_auto": "自動",
+        "codec_unavailable": "利用不可"
+    },
     "store": {
         "no_description": "説明はありません",
         "unknown_author": "不明",

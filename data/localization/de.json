@@ -246,6 +246,10 @@
         "title": "Ereignisprotokoll",
         "app_ready": "Anwendung ist bereit"
     },
+    "downloader": {
+        "codec_auto": "Auto",
+        "codec_unavailable": "Nicht verfügbar"
+    },
     "store": {
         "no_description": "Keine Beschreibung",
         "unknown_author": "Unbekannt",

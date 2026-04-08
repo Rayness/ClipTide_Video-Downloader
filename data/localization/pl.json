@@ -246,6 +246,10 @@
         "title": "Dziennik zdarzeń",
         "app_ready": "Aplikacja gotowa do pracy"
     },
+    "downloader": {
+        "codec_auto": "Auto",
+        "codec_unavailable": "Niedostępny"
+    },
     "store": {
         "no_description": "Brak opisu",
         "unknown_author": "Nieznany",

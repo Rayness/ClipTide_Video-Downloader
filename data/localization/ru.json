@@ -186,7 +186,9 @@
         "status_waiting": "Ожидание...",
         "status_paused": "Пауза",
         "status_done": "Готово",
-        "status_error": "Ошибка"
+        "status_error": "Ошибка",
+        "codec_auto": "Авто",
+        "codec_unavailable": "Недоступно"
     },
     "store": {
         "title": "Магазин дополнений",

@@ -246,6 +246,10 @@
         "title": "Registro eventi",
         "app_ready": "Applicazione pronta"
     },
+    "downloader": {
+        "codec_auto": "Auto",
+        "codec_unavailable": "Non disponibile"
+    },
     "store": {
         "no_description": "Nessuna descrizione",
         "unknown_author": "Sconosciuto",

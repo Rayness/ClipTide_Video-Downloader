@@ -166,6 +166,20 @@ window.updateTranslations = function(translations) {
 
     safeSetText('txt-add-btn', translations.add_to_queue);
     
+    // --- ЗАГРУЗЧИК (кодек) ---
+    if (translations.downloader) {
+        const codecAuto = translations.downloader.codec_auto;
+        const codecUnavailable = translations.downloader.codec_unavailable;
+        if (codecAuto || codecUnavailable) {
+            document.querySelectorAll('select[id^="codec-"]').forEach(sel => {
+                sel.querySelectorAll('option').forEach(opt => {
+                    if (opt.value === 'auto' && codecAuto) opt.textContent = codecAuto;
+                    if (opt.disabled && codecUnavailable) opt.title = codecUnavailable;
+                });
+            });
+        }
+    }
+
     // --- МАГАЗИН ---
     if (translations.store) {
         safeSetText('tab-store-modules', translations.store.tab_modules);

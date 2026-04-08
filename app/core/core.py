@@ -77,8 +77,8 @@ class PublicWebViewApi:
         # Передаем temp_id дальше в downloader
         self._api.downloader.addVideoToQueue(url, fmt, res, temp_id)
         
-    def update_video_settings(self, task_id, fmt, res):
-        self._api.downloader.update_item_settings(task_id, fmt, res)
+    def update_video_settings(self, task_id, fmt, res, codec="auto"):
+        self._api.downloader.update_item_settings(task_id, fmt, res, codec)
 
     def startDownload(self):
         self._api.downloader.startDownload()

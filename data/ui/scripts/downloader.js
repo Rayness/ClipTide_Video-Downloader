@@ -121,6 +121,7 @@ window.addVideoToList = function(videoData) {
 
     const fmtSelect = generateFormatSelect(videoData.id, currentFmt);
     const resSelect = generateResolutionSelect(videoData.id, currentRes, isAudio);
+    const codecSelect = generateCodecSelect(videoData.id, videoData.codec || 'auto', videoData.available_codecs || []);
     const t = window.i18n.downloader || {};
     const txtWait = t.status_waiting || 'Waiting...';
 
@@ -134,7 +135,7 @@ window.addVideoToList = function(videoData) {
                 <div class="video-info">
                     <div class="video_queue_text" title="${videoData.title}">${videoData.title}</div>
                     <div class="queue-meta-badges">
-                        ${fmtSelect} ${resSelect}
+                        ${fmtSelect} ${resSelect} ${codecSelect}
                         <div class="meta-badge" title="Длительность"><i class="fa-regular fa-clock"></i> ${meta.duration}</div>
                         <div class="meta-badge" title="Размер"><i class="fa-solid fa-weight-hanging"></i> ${meta.size}</div>
                     </div>
@@ -218,6 +219,26 @@ function generateFormatSelect(id, selected) {
     return `<select class="queue-select" id="fmt-${id}" onchange="onQueueSettingsChange('${id}')">${options}</select>`;
 }
 
+function generateCodecSelect(id, selected, availableCodecs) {
+    const t = window.i18n?.downloader || {};
+    const unavailableText = t.codec_unavailable || 'Unavailable';
+    const codecs = [
+        { val: 'auto',  label: t.codec_auto || 'Auto' },
+        { val: 'av1',   label: 'AV1' },
+        { val: 'h265',  label: 'H.265' },
+        { val: 'h264',  label: 'H.264' },
+    ];
+    let options = '';
+    codecs.forEach(c => {
+        const isSel = c.val === selected ? 'selected' : '';
+        const unavailable = c.val !== 'auto' && !availableCodecs.includes(c.val);
+        const disAttr = unavailable ? 'disabled' : '';
+        const titleAttr = unavailable ? `title="${unavailableText}"` : '';
+        options += `<option value="${c.val}" ${isSel} ${disAttr} ${titleAttr}>${c.label}</option>`;
+    });
+    return `<select class="queue-select" id="codec-${id}" onchange="onQueueSettingsChange('${id}')">${options}</select>`;
+}
+
 function generateResolutionSelect(id, selected, disabled) {
     const resolutions = [
         {val: '2160', label: '4K'}, {val: '1440', label: '2K'},
@@ -234,17 +255,20 @@ function generateResolutionSelect(id, selected, disabled) {
 }
 
 window.onQueueSettingsChange = function(taskId) {
-    const fmtEl = document.getElementById(`fmt-${taskId}`);
-    const resEl = document.getElementById(`res-${taskId}`);
+    const fmtEl   = document.getElementById(`fmt-${taskId}`);
+    const resEl   = document.getElementById(`res-${taskId}`);
+    const codecEl = document.getElementById(`codec-${taskId}`);
     if (!fmtEl || !resEl) return;
 
-    const newFmt = fmtEl.value;
-    const newRes = resEl.value;
+    const newFmt   = fmtEl.value;
+    const newRes   = resEl.value;
+    const newCodec = codecEl ? codecEl.value : 'auto';
 
-    if (['mp3', 'aac', 'm4a'].includes(newFmt)) resEl.disabled = true;
-    else resEl.disabled = false;
+    const isAudio = ['mp3', 'aac', 'm4a'].includes(newFmt);
+    resEl.disabled = isAudio;
+    if (codecEl) codecEl.disabled = isAudio;
 
-    window.pywebview.api.update_video_settings(taskId, newFmt, newRes);
+    window.pywebview.api.update_video_settings(taskId, newFmt, newRes, newCodec);
 }
 
 // Обновление прогресса

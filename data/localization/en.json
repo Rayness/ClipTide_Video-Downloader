@@ -186,7 +186,9 @@
         "status_waiting": "Waiting...",
         "status_paused": "Paused",
         "status_done": "Done",
-        "status_error": "Error"
+        "status_error": "Error",
+        "codec_auto": "Auto",
+        "codec_unavailable": "Unavailable"
     },
     "store": {
         "title": "Add-ons Store",

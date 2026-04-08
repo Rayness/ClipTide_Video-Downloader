@@ -246,6 +246,10 @@
         "title": "Journal des événements",
         "app_ready": "L'application est prête"
     },
+    "downloader": {
+        "codec_auto": "Auto",
+        "codec_unavailable": "Indisponible"
+    },
     "store": {
         "no_description": "Pas de description",
         "unknown_author": "Inconnu",

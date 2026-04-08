@@ -246,6 +246,10 @@
         "title": "Лог подій",
         "app_ready": "Програма готова до роботи"
     },
+    "downloader": {
+        "codec_auto": "Авто",
+        "codec_unavailable": "Недоступно"
+    },
     "store": {
         "no_description": "Немає опису",
         "unknown_author": "Невідомий",

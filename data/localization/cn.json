@@ -246,6 +246,10 @@
         "title": "事件日志",
         "app_ready": "应用程序已准备就绪"
     },
+    "downloader": {
+        "codec_auto": "自动",
+        "codec_unavailable": "不可用"
+    },
     "store": {
         "no_description": "暂无描述",
         "unknown_author": "未知",
