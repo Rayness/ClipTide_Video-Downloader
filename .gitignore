@@ -3,7 +3,7 @@
 config.ini
 /scripts/__pycache__
 src
-/duild
+/build
 /dist
 YT-Downloader.spec
 update.exe.spec
