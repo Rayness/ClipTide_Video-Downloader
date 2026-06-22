@@ -44,6 +44,34 @@
     background: var(--accent-color);
 }
 
+/* Группа «заголовок + бейдж» (слева), чтобы они держались вместе */
+.conteiner .name .name-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+/* Бейдж Beta — показывается только на нужной вкладке (класс .show из core.js) */
+.beta-badge {
+    display: none;
+    align-items: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+    border-radius: var(--border-radius-sm);
+    padding: 3px 6px;
+    user-select: none;
+}
+
+.beta-badge.show {
+    display: inline-flex;
+}
+
 .conteiner .name .utils {
     display: flex;
     gap: 1rem;

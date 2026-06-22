@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 block.classList.add('active');
                 if(name) name.textContent = block.getAttribute('data-status');
             }
+
+            // Бейдж "Beta" показываем только на вкладке Редактора (data-tab="4")
+            const betaBadge = document.getElementById('beta-badge');
+            if (betaBadge) betaBadge.classList.toggle('show', tabId === '4');
         });
     });
     
@@ -87,7 +91,10 @@ if (notifiBtn) {
         
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.content').forEach(block => block.classList.remove('active'));
-        
+
+        // Скрываем бейдж Beta — мы уходим с вкладки Редактора
+        document.getElementById('beta-badge')?.classList.remove('show');
+
         const block = document.getElementById('12');
         if (block) {
             block.classList.add('active');
