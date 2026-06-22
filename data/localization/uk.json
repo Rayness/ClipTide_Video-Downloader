@@ -51,7 +51,8 @@
         "queue": "Черга",
         "setting": "Налаштування",
         "profile": "Профіль",
-        "notifications": "Сповіщення"
+        "notifications": "Сповіщення",
+        "editor": "Редактор"
     },
     "settings": {
         "title": "Налаштування",
@@ -142,6 +143,7 @@
             "nav_download": "Завантаження",
             "nav_convert": "Конвертація",
             "nav_proxy": "Проксі",
+            "nav_editor": "Redaktor",
             "nav_version": "Версія",
             "nav_about": "Про програму",
             "hdr_appearance": "Зовнішній вигляд і мова",
@@ -160,6 +162,22 @@
             "title": "Відображення",
             "window_size": "Розмір вікна",
             "ui_scale": "Масштаб інтерфейсу"
+        },
+        "editor": {
+            "nav": "Redaktor",
+            "title": "Nalashtuvannya redaktora",
+            "hdr_folders": "Папки",
+            "hdr_export": "Експорт",
+            "open_folder": "Vidkryvaty papku pislya eksportu",
+            "lbl_format": "Format",
+            "lbl_codec": "Kodek",
+            "lbl_preset": "Preset shvydkosti",
+            "lbl_crf_prefix": "Yakist (CRF:",
+            "opt_codec_copy": "Copy (bez perekoduvannya)",
+            "btn_open_file": "Відкрити файл",
+            "empty_hint": "Відкрийте відеофайл для редагування",
+            "crf_min": "0 (краще)",
+            "crf_max": "51 (гірше)"
         }
     },
     "notifications": {

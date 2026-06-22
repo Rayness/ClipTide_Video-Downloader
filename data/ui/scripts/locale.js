@@ -34,6 +34,7 @@ window.updateTranslations = function(translations) {
         safeSetText('nav-download', sui.nav_download);
         safeSetText('nav-convert', sui.nav_convert);
         safeSetText('nav-proxy', sui.nav_proxy);
+        safeSetText('nav-editor', sui.nav_editor);
         safeSetText('nav-version', sui.nav_version);
         safeSetText('nav-about', sui.nav_about);
 
@@ -150,6 +151,49 @@ window.updateTranslations = function(translations) {
     if (s.about) {
         safeSetText('about-title', s.about.title);
         safeSetText('about-date', s.about.date);
+    }
+
+    // Редактор
+    if (s.editor) {
+        safeSetText('hdr-editor', s.editor.title);
+        safeSetText('hdr-editor-folders', s.editor.hdr_folders);
+        safeSetText('hdr-editor-export', s.editor.hdr_export);
+        safeSetText('lbl-editor-open-folder', s.editor.open_folder);
+        safeSetText('lbl-editor-format', s.editor.lbl_format);
+        safeSetText('lbl-editor-codec', s.editor.lbl_codec);
+        safeSetText('lbl-editor-preset', s.editor.lbl_preset);
+        safeSetText('lbl-editor-crf-min', s.editor.crf_min);
+        safeSetText('lbl-editor-crf-max', s.editor.crf_max);
+        safeSetText('editor-open-btn-text', s.editor.btn_open_file);
+        safeSetText('editor-empty-hint', s.editor.empty_hint);
+
+        // CRF — метка с динамическим числом внутри span
+        const crfLabelEl = document.getElementById('lbl-editor-crf');
+        if (crfLabelEl && s.editor.lbl_crf_prefix) {
+            const crfVal = document.getElementById('editor-crf-val');
+            const val = crfVal ? crfVal.textContent : '18';
+            crfLabelEl.innerHTML = s.editor.lbl_crf_prefix + ' <span id="editor-crf-val">' + val + '</span>)';
+        }
+
+        // Опция Copy в select кодека
+        const codecSel = document.getElementById('editor-export-codec');
+        if (codecSel && s.editor.opt_codec_copy) {
+            const copyOpt = codecSel.querySelector('option[value="copy"]');
+            if (copyOpt) copyOpt.textContent = s.editor.opt_codec_copy;
+        }
+
+    }
+
+    // Название вкладки редактора (data-status используется core.js)
+    if (translations.sections && translations.sections.editor) {
+        const editorTab = document.getElementById('4');
+        if (editorTab) {
+            editorTab.setAttribute('data-status', translations.sections.editor);
+            if (editorTab.classList.contains('active')) {
+                const nameEl = document.getElementById('name');
+                if (nameEl) nameEl.textContent = translations.sections.editor;
+            }
+        }
     }
 
     // Донат

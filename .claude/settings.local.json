@@ -2,7 +2,18 @@
   "permissions": {
     "allow": [
       "Bash(cd \"D:/Programming/YouTube Download\" && python -m py_compile app/core/context.py app/core/core.py app/main.py app/modules/downloader/downloader.py app/utils/config/config.py app/modules/cliptide_api/__init__.py app/modules/cliptide_api/client.py 2>&1)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(python -m pip show yt-dlp)",
+      "Bash(python -m pip index versions yt-dlp)",
+      "Bash(pip show *)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(pip --version)",
+      "Bash(python -c \"import yt_dlp; print\\(yt_dlp.version.__version__\\)\")",
+      "Bash(venv/Scripts/pip list *)",
+      "Bash(venv/Scripts/python -c \"import webview; help\\(webview.create_window\\)\")",
+      "Bash(python -c \"import webview; import inspect; src = inspect.getsource\\(webview.window\\); print\\(src[:3000]\\)\")",
+      "Bash(python -c \"print\\('ok'\\)\")",
+      "Bash(py -c \"print\\('ok'\\)\")"
     ]
   }
 }

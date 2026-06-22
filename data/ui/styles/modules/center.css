@@ -8,6 +8,7 @@
     background: transparent;
     position: relative;
     overflow: hidden;
+    -webkit-app-region: no-drag; /* pywebview 6.x: отключаем глобальный drag в контенте */
 }
 
 /* --- ВЕРХНЯЯ ШАПКА (Header) --- */
@@ -18,27 +19,29 @@
     height: 3.5rem;
     min-height: 3.5rem;
     padding: 0 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
     background: var(--bg-color); /* Фон нужен, чтобы контент не просвечивал при скролле */
     z-index: 20; /* Поверх контента */
 }
 
 .conteiner .name h3 {
     margin: 0;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1.05rem;
+    font-weight: 600;
     color: var(--text-color);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.2px;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
+/* Строгая акцентная риска вместо игривого «#» */
 .conteiner .name h3::before {
-    content: '#';
-    color: #555;
-    font-weight: 400;
-    font-size: 1.3rem;
+    content: '';
+    width: 3px;
+    height: 1.05rem;
+    border-radius: 2px;
+    background: var(--accent-color);
 }
 
 .conteiner .name .utils {
@@ -106,7 +109,7 @@
     display: flex;
     flex-direction: column; /* Элементы друг под другом */
     background: var(--dark-bg);
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--border-color);
     transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     
     /* ВАЖНО: */

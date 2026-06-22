@@ -76,7 +76,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #1e1e28; /* Цвет фона твоего приложения */
+    background-color: var(--bg-color); /* Цвет фона приложения */
     z-index: 99999; /* Поверх всего */
     display: flex;
     justify-content: center;

@@ -6,6 +6,7 @@ from ctypes import windll
 
 from app.modules.downloader.downloader import Downloader
 from app.modules.converter.converter import Converter
+from app.modules.editor.editor import Editor
 from app.modules.settings.settings import SettingsManager, open_folder
 from app.utils.const import THEME_DIR, TRANSLATIONS_DIR
 
@@ -14,6 +15,7 @@ class WebViewApi:
         self.ctx = context
         self.downloader = Downloader(context)
         self.converter = Converter(context)
+        self.editor = Editor(context)
         self.settings = SettingsManager(context)
 
     def set_window(self, window):
@@ -233,6 +235,9 @@ class PublicWebViewApi:
         
     def switch_audio_setting(self, key, value):
         self._api.settings.switch_audio_setting(key, value)
+
+    def switch_editor_setting(self, key, value):
+        self._api.settings.switch_editor_setting(key, value)
         
     def store_fetch_data(self):
         """Запросить обновление списка модулей"""
@@ -258,3 +263,16 @@ class PublicWebViewApi:
     def store_delete_theme(self, theme_id):
         if self._api.ctx.module_manager:
             self._api.ctx.module_manager.delete_theme(theme_id)
+
+    # --- Editor ---
+    def editor_open_file(self):
+        self._api.editor.open_file()
+
+    def editor_get_frame(self, file_path, timestamp_sec):
+        return self._api.editor.get_frame(file_path, timestamp_sec)
+
+    def editor_trim_video(self, file_path, segments, mode, output_dir):
+        self._api.editor.trim_video(file_path, segments, mode, output_dir)
+
+    def editor_stop_trim(self):
+        self._api.editor.stop_trim()

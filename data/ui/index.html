@@ -80,6 +80,9 @@
                         <button class="sett-btn" data-target="sect-convert">
                             <i class="fa-solid fa-arrows-rotate"></i> <span id="nav-convert">Конвертация</span> <!-- ID -->
                         </button>
+                        <button class="sett-btn" data-target="sect-editor">
+                            <i class="fa-solid fa-film"></i> <span id="nav-editor">Редактор</span>
+                        </button>
                         <button class="sett-btn" data-target="sect-proxy">
                             <i class="fa-solid fa-network-wired"></i> <span id="nav-proxy">Прокси</span> <!-- ID -->
                         </button>
@@ -254,7 +257,63 @@
                             </div>
                         </div>
 
-                        <!-- 4. Proxy -->
+                        <!-- 4. Editor -->
+                        <div id="sect-editor" class="sett-section">
+                            <h2 id="hdr-editor">Настройки редактора</h2>
+
+                            <div class="sett-card">
+                                <h4 id="hdr-editor-folders">Папки</h4>
+                                <div class="row-switch">
+                                    <label class="switch"><input type="checkbox" id="switch_openEditorFolder"><span class="slider"></span></label>
+                                    <span id="lbl-editor-open-folder">Открывать папку после экспорта</span>
+                                </div>
+                            </div>
+
+                            <div class="sett-card">
+                                <h4 id="hdr-editor-export">Экспорт</h4>
+
+                                <div class="sett-group" style="margin-bottom: 0.75rem;">
+                                    <label id="lbl-editor-format">Формат</label>
+                                    <select id="editor-export-format" class="select-control js-custom-select" style="width: 140px;">
+                                        <option value="mp4">MP4</option>
+                                        <option value="mkv">MKV</option>
+                                    </select>
+                                </div>
+
+                                <div class="sett-group" style="margin-bottom: 0.75rem;">
+                                    <label id="lbl-editor-codec">Кодек</label>
+                                    <select id="editor-export-codec" class="select-control js-custom-select" style="width: 140px;">
+                                        <option value="h264">H.264 (libx264)</option>
+                                        <option value="h265">H.265 (libx265)</option>
+                                        <option value="copy">Copy (без перекодирования)</option>
+                                    </select>
+                                </div>
+
+                                <div id="editor-codec-options">
+                                    <div class="sett-group" style="margin-bottom: 0.75rem;">
+                                        <label id="lbl-editor-preset">Пресет скорости</label>
+                                        <select id="editor-export-preset" class="select-control js-custom-select" style="width: 140px;">
+                                            <option value="ultrafast">Ultrafast</option>
+                                            <option value="faster">Faster</option>
+                                            <option value="fast">Fast</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="slow">Slow</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="sett-group">
+                                        <label id="lbl-editor-crf">Качество (CRF: <span id="editor-crf-val">18</span>)</label>
+                                        <input type="range" id="editor-export-crf" min="0" max="51" value="18"
+                                               style="width: 100%; accent-color: var(--accent-color, #cba6f7);">
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-secondary,#888); margin-top: 2px;">
+                                            <span id="lbl-editor-crf-min">0 (лучше)</span><span id="lbl-editor-crf-max">51 (хуже)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Proxy -->
                         <div id="sect-proxy" class="sett-section">
                             <h2 id="proxy-title">Прокси-сервер</h2>
                             
@@ -462,6 +521,10 @@
                     <div class="tab-btn" data-tab="2" id="converter" title="Конвертер">
                         <i class="fa-solid fa-arrow-right-arrow-left"></i>
                     </div>
+                    <!-- Редактор -->
+                    <div class="tab-btn" data-tab="4" id="editor-tab" title="Редактор">
+                        <i class="fa-solid fa-scissors"></i>
+                    </div>
                     <!-- Магазин (бывший coming-soon) -->
                     <div class="tab-btn" data-tab="3" id="coming-soon" title="Магазин">
                         <i class="fa-solid fa-shapes"></i> <!-- Или fa-store -->
@@ -610,6 +673,112 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- EDITOR TAB -->
+                    <div class="content" id="4" data-status="Editor">
+                        <div class="editor-layout">
+
+                            <!-- Верхняя панель: инфо о файле -->
+                            <div class="editor-topbar">
+                                <button class="primary-btn" id="editor-open-btn">
+                                    <i class="fa-solid fa-folder-open"></i>
+                                    <span id="editor-open-btn-text">Открыть файл</span>
+                                </button>
+                                <div class="editor-file-info" id="editor-file-info" style="display:none">
+                                    <span class="editor-filename" id="editor-filename"></span>
+                                    <span class="editor-meta" id="editor-meta"></span>
+                                </div>
+                            </div>
+
+                            <!-- Основная область (скрыта до открытия файла) -->
+                            <div class="editor-main" id="editor-main" style="display:none">
+
+                                <!-- Превью + транспорт -->
+                                <div class="editor-preview-wrap">
+                                    <video class="editor-video" id="editor-video" preload="auto"></video>
+                                    <div class="editor-time-badge" id="editor-time-badge">0:00.0</div>
+                                </div>
+                                <div class="editor-transport" id="editor-transport">
+                                    <button class="transport-btn" id="editor-skip-back-btn" title="−5 сек">
+                                        <i class="fa-solid fa-backward-step"></i>
+                                    </button>
+                                    <button class="transport-btn" id="editor-play-btn" title="Воспроизвести / Пауза">
+                                        <i class="fa-solid fa-play" id="editor-play-icon"></i>
+                                    </button>
+                                    <button class="transport-btn" id="editor-skip-fwd-btn" title="+5 сек">
+                                        <i class="fa-solid fa-forward-step"></i>
+                                    </button>
+                                    <div class="transport-time">
+                                        <span id="editor-current-time">0:00.0</span>
+                                        <span class="transport-sep"> / </span>
+                                        <span id="editor-total-time">–:–</span>
+                                    </div>
+                                    <div class="transport-volume">
+                                        <button class="transport-btn" id="editor-mute-btn" title="Звук">
+                                            <i class="fa-solid fa-volume-high" id="editor-volume-icon"></i>
+                                        </button>
+                                        <input class="volume-slider" id="editor-volume-slider" type="range" min="0" max="1" step="0.05" value="1">
+                                    </div>
+                                </div>
+
+                                <!-- Таймлайн -->
+                                <div class="editor-timeline-wrap">
+                                    <div class="editor-timeline" id="editor-timeline">
+                                        <!-- Сегменты рендерятся через JS -->
+                                        <div class="editor-playhead" id="editor-playhead"></div>
+                                    </div>
+                                    <div class="editor-timeline-ruler" id="editor-timeline-ruler"></div>
+                                </div>
+
+                                <!-- Кнопка добавить сегмент -->
+                                <div class="editor-controls">
+                                    <button class="secondary-btn" id="editor-add-seg-btn">
+                                        <i class="fa-solid fa-plus"></i> Добавить сегмент
+                                    </button>
+                                    <span class="editor-hint">Перетащите границы сегмента для точной настройки</span>
+                                </div>
+
+                                <!-- Список сегментов -->
+                                <div class="editor-segments" id="editor-segments">
+                                    <!-- Сегменты добавляются через JS -->
+                                </div>
+
+                                <!-- Экспорт -->
+                                <div class="editor-export-bar">
+                                    <div class="editor-export-mode">
+                                        <label class="radio-label">
+                                            <input type="radio" name="editor-mode" value="separate" checked> Отдельные файлы
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="editor-mode" value="merge"> Склеить в один
+                                        </label>
+                                    </div>
+                                    <button class="primary-btn" id="editor-export-btn">
+                                        <i class="fa-solid fa-file-export"></i> Экспорт
+                                    </button>
+                                    <button class="icon-btn" id="editor-stop-btn" style="display:none" title="Остановить">
+                                        <i class="fa-solid fa-stop"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Прогресс -->
+                                <div class="editor-progress-wrap" id="editor-progress-wrap" style="display:none">
+                                    <div class="editor-progress-bar">
+                                        <div class="editor-progress-fill" id="editor-progress-fill"></div>
+                                    </div>
+                                    <span class="editor-progress-label" id="editor-progress-label"></span>
+                                </div>
+
+                            </div>
+
+                            <!-- Пустое состояние -->
+                            <div class="editor-empty" id="editor-empty">
+                                <i class="fa-solid fa-film"></i>
+                                <p id="editor-empty-hint">Откройте видеофайл для редактирования</p>
+                            </div>
+
                         </div>
                     </div>
 
@@ -817,5 +986,6 @@
     <script src="scripts/locale.js"></script>
     <script src="scripts/version.js"></script>
     <script src="scripts/utils.js"></script>
+    <script src="scripts/editor.js" defer></script>
 </body>
 </html>

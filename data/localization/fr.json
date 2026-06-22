@@ -51,7 +51,8 @@
         "queue": "File d'attente",
         "setting": "Paramètres",
         "profile": "Profil",
-        "notifications": "Notifications"
+        "notifications": "Notifications",
+        "editor": "Editeur"
     },
     "settings": {
         "title": "Paramètres",
@@ -142,6 +143,7 @@
             "nav_download": "Téléchargement",
             "nav_convert": "Conversion",
             "nav_proxy": "Proxy",
+            "nav_editor": "Editeur",
             "nav_version": "Version",
             "nav_about": "À propos",
             "hdr_appearance": "Apparence et langue",
@@ -160,6 +162,22 @@
             "title": "Affichage",
             "window_size": "Taille de fenetre",
             "ui_scale": "Echelle de l'interface"
+        },
+        "editor": {
+            "nav": "Editeur",
+            "title": "Parametres de l'editeur",
+            "hdr_folders": "Dossiers",
+            "hdr_export": "Export",
+            "open_folder": "Ouvrir le dossier apres l'export",
+            "lbl_format": "Format",
+            "lbl_codec": "Codec",
+            "lbl_preset": "Preset de vitesse",
+            "lbl_crf_prefix": "Qualite (CRF:",
+            "opt_codec_copy": "Copy (sans re-encodage)",
+            "btn_open_file": "Ouvrir un fichier",
+            "empty_hint": "Ouvrez un fichier vidéo pour commencer",
+            "crf_min": "0 (meilleur)",
+            "crf_max": "51 (pire)"
         }
     },
     "notifications": {

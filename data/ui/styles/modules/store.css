@@ -21,21 +21,19 @@
 /* Карточка модуля */
 .module-card {
     background: var(--card-bg);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius-md);
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: border-color var(--transition);
     position: relative;
     overflow: hidden;
 }
 
 .module-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--border-strong);
 }
 
 .mod-header {

@@ -51,7 +51,8 @@
         "queue": "キュー",
         "setting": "設定",
         "profile": "プロフィール",
-        "notifications": "通知"
+        "notifications": "通知",
+        "editor": "エディター"
     },
     "settings": {
         "title": "設定",
@@ -142,6 +143,7 @@
             "nav_download": "ダウンロード",
             "nav_convert": "変換",
             "nav_proxy": "プロキシ",
+            "nav_editor": "エディター",
             "nav_version": "バージョン",
             "nav_about": "アプリ情報",
             "hdr_appearance": "外観と言語",
@@ -160,6 +162,22 @@
             "title": "表示",
             "window_size": "ウィンドウサイズ",
             "ui_scale": "インターフェースの拡大率"
+        },
+        "editor": {
+            "nav": "エディター",
+            "title": "エディター設定",
+            "hdr_folders": "フォルダ",
+            "hdr_export": "エクスポート",
+            "open_folder": "エクスポート後にフォルダを開く",
+            "lbl_format": "フォーマット",
+            "lbl_codec": "コーデック",
+            "lbl_preset": "スピードプリセット",
+            "lbl_crf_prefix": "品質 (CRF:",
+            "opt_codec_copy": "Copy（再エンコードなし）",
+            "btn_open_file": "ファイルを開く",
+            "empty_hint": "動画ファイルを開いて編集を始めましょう",
+            "crf_min": "0 (高品質)",
+            "crf_max": "51 (低品質)"
         }
     },
     "notifications": {

@@ -6,7 +6,10 @@ import sys
 import os
 import subprocess
 import requests
+import urllib3
 from pathlib import Path
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 from app.utils.const import GITHUB_REPO, HEADERS, VERSION_FILE, MODAL_CONTENT
 
@@ -48,10 +51,13 @@ def ffmpegreg():
 
 def get_latest_version():
     api_url = f"https://api.github.com/repos/{GITHUB_REPO}/releases/latest"
-    response = requests.get(api_url, headers=HEADERS)
-    if response.status_code == 200:
-        return response.json().get("tag_name", "0.0.0")
-    print(response)
+    try:
+        response = requests.get(api_url, headers=HEADERS, timeout=10, verify=False)
+        if response.status_code == 200:
+            return response.json().get("tag_name", "0.0.0")
+        print(response)
+    except Exception as e:
+        print(f"[WARN] Failed to check for updates: {e}")
     return "0.0.0"
 
 def get_local_version():

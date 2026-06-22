@@ -77,8 +77,14 @@ def startApp():
     modal_content = load_modal_content()
     
     # Флаги настроек (можно читать напрямую из ctx.config в модулях, но для кэша ок)
-    dl_open = ctx.config.get("Folders", "dl", fallback="True")
-    cv_open = ctx.config.get("Folders", "cv", fallback="True")
+    dl_open     = ctx.config.get("Folders", "dl",     fallback="True")
+    cv_open     = ctx.config.get("Folders", "cv",     fallback="True")
+    editor_open = ctx.config.get("Folders", "editor", fallback="True")
+
+    editor_codec  = ctx.config.get("Editor", "codec",  fallback="h264")
+    editor_preset = ctx.config.get("Editor", "preset", fallback="fast")
+    editor_crf    = ctx.config.get("Editor", "crf",    fallback="18")
+    editor_format = ctx.config.get("Editor", "format", fallback="mp4")
     notif_dl = ctx.config.get("Notifications", "downloads", fallback="True")
     notif_cv = ctx.config.get("Notifications", "conversion", fallback="True")
 
@@ -97,6 +103,7 @@ def startApp():
         
         resizable=True,
         frameless=True,
+        easy_drag=False,
         text_select=True,
         
         min_size=(800, 600)
@@ -134,13 +141,14 @@ def startApp():
             f'setLanguage("{ctx.language}")',
             f'loadNotifications({json.dumps(ctx.notifications)})',
             f'loadproxy("{ctx.proxy_url}", {json.dumps(ctx.proxy_enabled)})',
-            f'loadopenfolders({json.dumps(dl_open)}, {json.dumps(cv_open)})',
+            f'loadopenfolders({json.dumps(dl_open)}, {json.dumps(cv_open)}, {json.dumps(editor_open)})',
             f'load_settingsNotificatios("{notif_dl}","{notif_cv}")',
             f'loadTheme("{ctx.theme}", "{ctx.style}", {themes})',
             f'get_version("{version}")',
             f'loadData({json.dumps(modal_content)})',
             f'loadDisplaySettings("{window_size}", "{ui_scale}")',
-            f'loadUpdateSettings("{update_channel}")'
+            f'loadUpdateSettings("{update_channel}")',
+            f'loadEditorSettings("{editor_codec}", "{editor_preset}", "{editor_crf}", "{editor_format}", {json.dumps(editor_open)})',
         ]
         
         for cmd in cmds:

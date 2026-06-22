@@ -7,11 +7,12 @@
     width: 4.5rem;
     height: 100%;
     background: var(--dark-bg);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid var(--border-color);
     padding: 1rem 0;
     box-sizing: border-box;
     z-index: 50;
-    flex-shrink: 0; /* Чтобы не сжималась */
+    flex-shrink: 0;
+    -webkit-app-region: no-drag; /* pywebview 6.x: боковая панель не должна тащить окно */
 }
 
 .left-panel .utils,
@@ -24,31 +25,30 @@
 
 /* Кнопки навигации */
 .tab-btn, .side-btn-settings {
-    width: 3rem;
-    height: 3rem;
+    width: 2.75rem;
+    height: 2.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: var(--border-radius-md);
     cursor: pointer;
     background: transparent;
-    color: #888; /* Цвет иконок по умолчанию */
-    transition: all 0.2s ease;
+    color: var(--text-secondary); /* Цвет иконок по умолчанию */
+    transition: background var(--transition), color var(--transition);
     position: relative;
-    font-size: 1.4rem; /* Размер иконки */
+    font-size: 1.25rem; /* Размер иконки */
 }
 
 /* Hover эффект */
 .tab-btn:hover, .side-btn-settings:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--card-bg);
     color: var(--text-color);
 }
 
-/* Активное состояние */
+/* Активное состояние — плоская акцентная заливка без свечения */
 .tab-btn.active {
     background: var(--accent-color);
-    color: white; /* Белая иконка на цветном фоне */
-    box-shadow: 0 4px 15px var(--accent-color-transparent);
+    color: #fff;
 }
 
 /* Специфика для светлой темы (если нужно) */

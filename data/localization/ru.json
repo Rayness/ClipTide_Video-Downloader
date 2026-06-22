@@ -51,7 +51,8 @@
         "queue": "Очередь",
         "setting": "Настройки",
         "profile": "Профиль",
-        "notifications": "Уведомления"
+        "notifications": "Уведомления",
+        "editor": "Редактор"
     },
     "settings": {
         "title": "Настройки",
@@ -60,6 +61,7 @@
             "nav_download": "Загрузка",
             "nav_convert": "Конвертация",
             "nav_proxy": "Прокси",
+            "nav_editor": "Редактор",
             "nav_version": "Версия",
             "nav_about": "О программе",
             "hdr_appearance": "Внешний вид и Язык",
@@ -160,6 +162,22 @@
             "title": "О приложении",
             "version": "Версия:",
             "date": "Дата выхода:"
+        },
+        "editor": {
+            "nav": "Редактор",
+            "title": "Настройки редактора",
+            "hdr_folders": "Папки",
+            "hdr_export": "Экспорт",
+            "open_folder": "Открывать папку после экспорта",
+            "lbl_format": "Формат",
+            "lbl_codec": "Кодек",
+            "lbl_preset": "Пресет скорости",
+            "lbl_crf_prefix": "Качество (CRF:",
+            "opt_codec_copy": "Copy (без перекодирования)",
+            "btn_open_file": "Открыть файл",
+            "empty_hint": "Откройте видеофайл для редактирования",
+            "crf_min": "0 (лучше)",
+            "crf_max": "51 (хуже)"
         }
     },
     "notifications": {

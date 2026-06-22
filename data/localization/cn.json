@@ -51,7 +51,8 @@
         "queue": "队列",
         "setting": "设置",
         "profile": "个人资料",
-        "notifications": "通知"
+        "notifications": "通知",
+        "editor": "编辑器"
     },
     "settings": {
         "title": "设置",
@@ -142,6 +143,7 @@
             "nav_download": "下载",
             "nav_convert": "转换",
             "nav_proxy": "代理",
+            "nav_editor": "编辑器",
             "nav_version": "版本",
             "nav_about": "关于",
             "hdr_appearance": "外观和语言",
@@ -160,6 +162,22 @@
             "title": "显示",
             "window_size": "窗口大小",
             "ui_scale": "界面缩放"
+        },
+        "editor": {
+            "nav": "编辑器",
+            "title": "编辑器设置",
+            "hdr_folders": "文件夹",
+            "hdr_export": "导出",
+            "open_folder": "导出后打开文件夹",
+            "lbl_format": "格式",
+            "lbl_codec": "编解码器",
+            "lbl_preset": "速度预设",
+            "lbl_crf_prefix": "质量 (CRF:",
+            "opt_codec_copy": "Copy（无重新编码）",
+            "btn_open_file": "打开文件",
+            "empty_hint": "打开视频文件以开始编辑",
+            "crf_min": "0 (更好)",
+            "crf_max": "51 (更差)"
         }
     },
     "notifications": {
@@ -256,7 +274,7 @@
         "confirm_delete_module": "删除此模块？",
         "confirm_delete_theme": "删除此主题？",
         "cannot_delete_default_theme": "无法删除默认主题",
-        “load_hint”: “点击”刷新”以加载目录”,
-        “tab_unavailable”: “暂时不可用”
+        "load_hint": "点击「刷新」以加载目录",
+        "tab_unavailable": "暂时不可用"
     }
 }

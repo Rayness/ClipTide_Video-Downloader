@@ -5,6 +5,9 @@ import subprocess
 import platform
 import threading
 import requests
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from app.utils.const import download_dir, UPDATER, THEME_DIR, MANIFEST_URL, VERSION_FILE
 from app.utils.locale.translations import load_translations
 from app.utils.network import check_proxy_connection
@@ -45,6 +48,9 @@ class SettingsManager:
 
     def switch_audio_setting(self, key, value):
         self.ctx.update_config_value("Audio", key, value)
+
+    def switch_editor_setting(self, key, value):
+        self.ctx.update_config_value("Editor", key, value)
 
     def switch_theme(self, theme):
         self.ctx.theme = theme
@@ -92,7 +98,7 @@ class SettingsManager:
                 response = requests.get(MANIFEST_URL, headers={
                     "User-Agent": "ClipTide-App",
                     "Accept": "application/json"
-                }, timeout=10)
+                }, timeout=10, verify=False)
 
                 if response.status_code == 200:
                     data = response.json()

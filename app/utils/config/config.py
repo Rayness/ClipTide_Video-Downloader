@@ -29,8 +29,9 @@ DEFAULT_CONFIG_NOTIFICATIONS = {
 }
 
 DEFAULT_CONFIG_FOLDERS = {
-    "dl" : "True",
-    "cv" : "True"
+    "dl"     : "True",
+    "cv"     : "True",
+    "editor" : "True"
 }
 
 DEFAULT_CONFIG_SUBS = {
@@ -47,6 +48,13 @@ DEFAULT_CONFIG_AUDIO = {
 DEFAULT_CONFIG_UPDATES = {
     "auto_update": "False",
     "channel": "stable"  # stable / dev
+}
+
+DEFAULT_CONFIG_EDITOR = {
+    "codec":  "h264",   # h264 | h265 | copy
+    "preset": "fast",   # ultrafast | faster | fast | medium | slow
+    "crf":    "18",     # 0-51
+    "format": "mp4",    # mp4 | mkv
 }
 
 def load_config():
@@ -95,6 +103,7 @@ def create_default_config():
     config["Notifications"] = DEFAULT_CONFIG_NOTIFICATIONS
     config["Folders"] = DEFAULT_CONFIG_FOLDERS
     config["Updates"] = DEFAULT_CONFIG_UPDATES
+    config["Editor"] = DEFAULT_CONFIG_EDITOR
     save_config(config)
     return config
 

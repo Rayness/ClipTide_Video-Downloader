@@ -51,7 +51,8 @@
         "queue": "Kolejka",
         "setting": "Ustawienia",
         "profile": "Profil",
-        "notifications": "Powiadomienia"
+        "notifications": "Powiadomienia",
+        "editor": "Edytor"
     },
     "settings": {
         "title": "Ustawienia",
@@ -142,6 +143,7 @@
             "nav_download": "Pobieranie",
             "nav_convert": "Konwersja",
             "nav_proxy": "Proxy",
+            "nav_editor": "Edytor",
             "nav_version": "Wersja",
             "nav_about": "O programie",
             "hdr_appearance": "Wygląd i język",
@@ -160,6 +162,22 @@
             "title": "Wyswietlanie",
             "window_size": "Rozmiar okna",
             "ui_scale": "Skala interfejsu"
+        },
+        "editor": {
+            "nav": "Edytor",
+            "title": "Ustawienia edytora",
+            "hdr_folders": "Foldery",
+            "hdr_export": "Eksport",
+            "open_folder": "Otworz folder po eksporcie",
+            "lbl_format": "Format",
+            "lbl_codec": "Koder",
+            "lbl_preset": "Preset predkosci",
+            "lbl_crf_prefix": "Jakosc (CRF:",
+            "opt_codec_copy": "Copy (bez re-kodowania)",
+            "btn_open_file": "Otwórz plik",
+            "empty_hint": "Otwórz plik wideo aby edytować",
+            "crf_min": "0 (lepiej)",
+            "crf_max": "51 (gorzej)"
         }
     },
     "notifications": {

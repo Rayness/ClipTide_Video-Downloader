@@ -21,21 +21,19 @@ document.getElementById('switch_openConverterFolder').addEventListener('change',
     }
 });
 
-window.loadopenfolders = function(enabled_dl, enabled_cv){
-    const checkbox_dl = document.getElementById('switch_openDownloadFolder');
-    const checkbox_cv = document.getElementById('switch_openConverterFolder');
+document.getElementById('switch_openEditorFolder').addEventListener('change', function () {
+    const val = this.checked ? "True" : "False";
+    window.pywebview.api.switch_open_folder_dl("editor", val);
+});
 
-    if (enabled_dl == "True") {
-        checkbox_dl.checked = true
-    } else {
-        checkbox_dl.checked = false
-    };
+window.loadopenfolders = function(enabled_dl, enabled_cv, enabled_editor){
+    const checkbox_dl     = document.getElementById('switch_openDownloadFolder');
+    const checkbox_cv     = document.getElementById('switch_openConverterFolder');
+    const checkbox_editor = document.getElementById('switch_openEditorFolder');
 
-    if (enabled_cv == "True") {
-        checkbox_cv.checked = true
-    } else {
-        checkbox_cv.checked = false
-    }
+    if (checkbox_dl)     checkbox_dl.checked     = (enabled_dl     == "True");
+    if (checkbox_cv)     checkbox_cv.checked     = (enabled_cv     == "True");
+    if (checkbox_editor) checkbox_editor.checked = (enabled_editor == "True");
 }
 
 window.removePreloader = function() {
@@ -280,3 +278,67 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.style.zoom = savedScale;
     }
 })();
+
+// === Настройки редактора ===
+
+window.loadEditorSettings = function(codec, preset, crf, format, openFolder) {
+    const codecSel   = document.getElementById('editor-export-codec');
+    const presetSel  = document.getElementById('editor-export-preset');
+    const crfSlider  = document.getElementById('editor-export-crf');
+    const crfVal     = document.getElementById('editor-crf-val');
+    const formatSel  = document.getElementById('editor-export-format');
+    const openFolderCb = document.getElementById('switch_openEditorFolder');
+
+    if (codecSel)  codecSel.value  = codec;
+    if (presetSel) presetSel.value = preset;
+    if (crfSlider) { crfSlider.value = crf; if (crfVal) crfVal.textContent = crf; }
+    if (formatSel) formatSel.value = format;
+    if (openFolderCb) openFolderCb.checked = (openFolder === "True" || openFolder === true);
+
+    _editorUpdateCodecOptions(codec);
+    if (typeof refreshCustomSelectOptions === 'function') refreshCustomSelectOptions();
+};
+
+function _editorUpdateCodecOptions(codec) {
+    const opts = document.getElementById('editor-codec-options');
+    if (opts) opts.style.display = (codec === 'copy') ? 'none' : '';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const codecSel  = document.getElementById('editor-export-codec');
+    const presetSel = document.getElementById('editor-export-preset');
+    const crfSlider = document.getElementById('editor-export-crf');
+    const formatSel = document.getElementById('editor-export-format');
+    const openFolderCb = document.getElementById('switch_openEditorFolder');
+
+    if (codecSel) {
+        codecSel.addEventListener('change', function() {
+            window.pywebview.api.switch_editor_setting('codec', this.value);
+            _editorUpdateCodecOptions(this.value);
+        });
+    }
+    if (presetSel) {
+        presetSel.addEventListener('change', function() {
+            window.pywebview.api.switch_editor_setting('preset', this.value);
+        });
+    }
+    if (crfSlider) {
+        crfSlider.addEventListener('input', function() {
+            const val = document.getElementById('editor-crf-val');
+            if (val) val.textContent = this.value;
+        });
+        crfSlider.addEventListener('change', function() {
+            window.pywebview.api.switch_editor_setting('crf', this.value);
+        });
+    }
+    if (formatSel) {
+        formatSel.addEventListener('change', function() {
+            window.pywebview.api.switch_editor_setting('format', this.value);
+        });
+    }
+    if (openFolderCb) {
+        openFolderCb.addEventListener('change', function() {
+            window.pywebview.api.switch_open_folder_dl('editor', this.checked ? 'True' : 'False');
+        });
+    }
+});
