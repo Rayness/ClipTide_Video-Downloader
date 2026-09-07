@@ -4,9 +4,13 @@
 import os
 import json
 
+from app.utils.paths import resource_path
+
 def get_themes():
-    themes_path = os.path.join(os.getcwd(), './data/ui/themes')
+    themes_path = resource_path('data/ui/themes')
     themes = []
+    if not os.path.isdir(themes_path):
+        return themes
     for theme_name in os.listdir(themes_path):
         theme_dir = os.path.join(themes_path, theme_name)
         config_path = os.path.join(theme_dir, 'config.json')

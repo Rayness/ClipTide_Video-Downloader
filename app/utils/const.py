@@ -2,12 +2,16 @@
 # This program is free software under GPLv3. See LICENSE for details.
 
 import os
-from pathlib import Path
 
-appdata_local = os.path.join(os.environ['LOCALAPPDATA'], 'ClipTide')
-os.makedirs(appdata_local, exist_ok=True)
+from app.utils.paths import (
+    USER_DATA_DIR,
+    DEFAULT_DOWNLOAD_DIR,
+    resource_path,
+)
 
-download_dir = Path.home() / 'Downloads' / 'ClipTide'
+appdata_local = str(USER_DATA_DIR)
+
+download_dir = DEFAULT_DOWNLOAD_DIR
 os.makedirs(download_dir, exist_ok=True)
 
 NOTIFICATION_FILE = os.path.join(appdata_local, "notifications.json")
@@ -20,11 +24,11 @@ COOKIES_FILE = os.path.join(appdata_local, "cookies.txt")
 
 UPDATER = "update.exe"
 
-VERSION_FILE = "./data/version.txt"
+VERSION_FILE = resource_path("data/version.txt")
 
 GITHUB_REPO = "Rayness/YT-Downloader"
 
-MODAL_CONTENT = os.path.abspath("./data/ui/src/text")
+MODAL_CONTENT = resource_path("data/ui/src/text")
 
 HEADERS = {
     "User-Agent": "Updater-App",
@@ -33,10 +37,9 @@ HEADERS = {
 
 MANIFEST_URL = "https://raw.githubusercontent.com/Rayness/ClipTide_Video-Downloader/refs/heads/main/updates.json"
 # Путь к папке с переводами
-TRANSLATIONS_DIR = os.path.abspath("./data/localization")
+TRANSLATIONS_DIR = resource_path("data/localization")
 
-# THEME_DIR = os.path.abspath("./data/ui/themes")
 THEME_DIR = os.path.join(appdata_local, "themes")
 
 # HTML-контент для отображения в окне
-html_file_path = os.path.abspath("./data/ui/index.html")
+html_file_path = resource_path("data/ui/index.html")

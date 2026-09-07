@@ -28,19 +28,30 @@ APP_EXECUTABLE = "ClipTide.exe"
 HEADERS = {"User-Agent": "Updater-App", "Accept": "application/vnd.github.v3+json"}
 
 MANIFEST_URL = "https://raw.githubusercontent.com/Rayness/ClipTide_Video-Downloader/refs/heads/main/updates.json"
-CONFIG_PATH = os.path.join(os.environ["LOCALAPPDATA"], "ClipTide", "config.ini")
 
 # Пути
-CURRENT_DIR = os.getcwd()
-TARGET_DIR = os.path.join(os.environ["LOCALAPPDATA"], "Programs", "ClipTide")
+if getattr(sys, 'frozen', False):
+    EXE_DIR = os.path.dirname(os.path.abspath(sys.executable))
+    BASE_DIR = sys._MEIPASS
+else:
+    EXE_DIR = os.getcwd()
+    BASE_DIR = os.getcwd()
+
+CURRENT_DIR = EXE_DIR
+
+# Portable-режим: маркерный файл рядом с exe, обновление ставится в ту же папку
+IS_PORTABLE = os.path.exists(os.path.join(EXE_DIR, "portable.txt"))
+
+if IS_PORTABLE:
+    TARGET_DIR = EXE_DIR
+    CONFIG_PATH = os.path.join(EXE_DIR, "userdata", "config.ini")
+else:
+    TARGET_DIR = os.path.join(os.environ["LOCALAPPDATA"], "Programs", "ClipTide")
+    CONFIG_PATH = os.path.join(os.environ["LOCALAPPDATA"], "ClipTide", "config.ini")
+
 TEMP_BASE = os.path.join(os.environ["LOCALAPPDATA"], "Temp", "ClipTideUpdater")
 DOWNLOAD_DIR = os.path.join(TEMP_BASE, "download")
 EXTRACT_DIR = os.path.join(TEMP_BASE, "extract")
-# Путь к HTML (предполагаем, что он лежит рядом, если запускаем как скрипт, или в _MEIPASS)
-if getattr(sys, 'frozen', False):
-    BASE_DIR = sys._MEIPASS
-else:
-    BASE_DIR = os.getcwd()
 HTML_PATH = os.path.join(BASE_DIR, "data", "ui", "updater.html")
 
 class UpdaterAPI:
@@ -102,12 +113,17 @@ class UpdaterAPI:
     # --- ЛОГИКА ---
 
     def get_local_version(self):
-        v_path = os.path.join(CURRENT_DIR, "data", "version.txt")
-        if os.path.exists(v_path):
-            try:
-                with open(v_path, "r") as file:
-                    return file.read().strip()
-            except: pass
+        # Старая раскладка: data/ рядом с exe; новая (onedir): data/ внутри _internal
+        candidates = [
+            os.path.join(CURRENT_DIR, "data", "version.txt"),
+            os.path.join(CURRENT_DIR, "_internal", "data", "version.txt"),
+        ]
+        for v_path in candidates:
+            if os.path.exists(v_path):
+                try:
+                    with open(v_path, "r") as file:
+                        return file.read().strip()
+                except: pass
         return "0.0.0"
 
     def check_for_updates(self):
@@ -239,7 +255,7 @@ class UpdaterAPI:
                     dst_file = os.path.join(dest_dir, file)
 
                     # Проверка: если файл занят (это мы сами), сохраняем как .new
-                    if file.lower() == "updater.exe":
+                    if file.lower() in ("update.exe", "updater.exe"):
                         dst_file = dst_file + ".new"
                         self.log(f"Отложенное обновление: {file}")
 
@@ -286,6 +302,8 @@ class UpdaterAPI:
         time.sleep(1)
 
     def _create_shortcut(self):
+        if IS_PORTABLE:
+            return
         desktop = os.path.join(os.environ['USERPROFILE'], 'Desktop')
         shortcut_path = os.path.join(desktop, "ClipTide.lnk")
         target = os.path.join(TARGET_DIR, APP_EXECUTABLE)
@@ -302,11 +320,21 @@ class UpdaterAPI:
             if os.path.exists(old_exe): os.remove(old_exe)
             old_data = os.path.join(CURRENT_DIR, "data")
             if os.path.exists(old_data): shutil.rmtree(old_data)
+            old_internal = os.path.join(CURRENT_DIR, "_internal")
+            if os.path.exists(old_internal): shutil.rmtree(old_internal)
         except: pass
 
 def main():
+    # Апдейтер тоже работает на pywebview — без WebView2 он не запустится
+    try:
+        from app.utils.webview2 import ensure_webview2
+        if not ensure_webview2("ClipTide Updater"):
+            sys.exit(1)
+    except ImportError:
+        pass
+
     api = UpdaterAPI()
-    
+
     window = webview.create_window(
         "ClipTide Updater",
         url=HTML_PATH,
