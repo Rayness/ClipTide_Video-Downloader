@@ -2,12 +2,17 @@
 # This program is free software under GPLv3. See LICENSE for details.
 
 import json
+
+from app.core.ui_channel import UIChannel
 from app.utils.config.config import save_config
 
 class AppContext:
     def __init__(self):
         self.window = None
         self.config = None
+        # Канал «логика -> интерфейс». Подменяется целиком при смене UI-слоя,
+        # поэтому модули не знают, что под ними pywebview.
+        self.ui = UIChannel()
         self.translations = {}
         self.notifications = []
         self.download_queue = []
@@ -26,7 +31,6 @@ class AppContext:
         self.module_manager = None
 
     def set_window(self, window):
-        print(f"DEBUG: Window установлено в контекст: {window}") # Добавили отладку
         self.window = window
 
     def update_config_value(self, section, key, value):

@@ -23,3 +23,6 @@ utils/__pycache__
 /_bmad-output
 /.claude
 .agents
+# Временные каталоги пробной сборки (ClipTide.spec с --distpath/--workpath)
+/dist_new
+/build_new

@@ -1,13 +1,12 @@
 # app/modules/settings/settings.py
 
 import json
+import os
 import subprocess
 import platform
 import threading
-import requests
-import urllib3
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from app.utils.network import get_session
 from app.utils.const import download_dir, UPDATER, THEME_DIR, MANIFEST_URL, VERSION_FILE
 from app.utils.locale.translations import load_translations
 from app.utils.network import check_proxy_connection
@@ -28,7 +27,9 @@ class SettingsManager:
 
     def launch_update(self):
         try:
-            subprocess.run(["powershell", "Start-Process", UPDATER, "-Verb", "runAs"], shell=True)
+            from app.utils.paths import APP_DIR
+            updater_path = os.path.join(str(APP_DIR), UPDATER)
+            subprocess.Popen([updater_path], cwd=str(APP_DIR))
         except Exception as e:
             print(f"Ошибка при запуске апдейтера: {str(e)}")
 
@@ -95,10 +96,10 @@ class SettingsManager:
                     with open(VERSION_FILE, "r") as f:
                         local = f.read().strip()
 
-                response = requests.get(MANIFEST_URL, headers={
+                response = get_session().get(MANIFEST_URL, headers={
                     "User-Agent": "ClipTide-App",
                     "Accept": "application/json"
-                }, timeout=10, verify=False)
+                }, timeout=10)
 
                 if response.status_code == 200:
                     data = response.json()

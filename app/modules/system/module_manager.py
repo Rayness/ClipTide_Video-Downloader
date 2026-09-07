@@ -5,7 +5,7 @@ import os
 import json
 import shutil
 import subprocess
-import requests
+from app.utils.network import get_session
 import zipfile
 import threading
 import time
@@ -87,7 +87,7 @@ class ModuleManager:
             # 1. Пробуем скачать из интернета
             try:
                 print("Fetching modules catalog...")
-                response = requests.get(MODULES_CATALOG_URL, timeout=5)
+                response = get_session().get(MODULES_CATALOG_URL, timeout=5)
                 if response.status_code == 200:
                     catalog = response.json()
                     # Сохраняем в кэш
@@ -159,7 +159,7 @@ class ModuleManager:
             
             try:
                 print(f"Downloading {module_id}...")
-                response = requests.get(url, stream=True, allow_redirects=True)
+                response = get_session().get(url, stream=True, allow_redirects=True, timeout=30)
                 if response.status_code != 200: raise Exception(f"HTTP {response.status_code}")
 
                 total_size = int(response.headers.get('content-length', 0))
@@ -217,7 +217,7 @@ class ModuleManager:
     def fetch_themes_catalog(self):
         def worker():
             try:
-                response = requests.get(THEMES_CATALOG_URL, timeout=10)
+                response = get_session().get(THEMES_CATALOG_URL, timeout=10)
                 available_themes = []
                 if response.status_code == 200:
                     available_themes = response.json()
@@ -339,7 +339,7 @@ class ModuleManager:
         def worker():
             try:
                 # Качаем JSON
-                response = requests.get(THEMES_CATALOG_URL, timeout=10)
+                response = get_session().get(THEMES_CATALOG_URL, timeout=10)
                 
                 if response.status_code == 200:
                     available_themes = response.json()
@@ -370,7 +370,7 @@ class ModuleManager:
                 zip_path = os.path.join(appdata_local, "temp_theme.zip")
                 
                 # Скачивание
-                response = requests.get(download_url, stream=True, timeout=30)
+                response = get_session().get(download_url, stream=True, timeout=30)
                 total_size = int(response.headers.get('content-length', 0))
                 downloaded = 0
                 

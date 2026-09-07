@@ -9,11 +9,17 @@ import base64
 import tempfile
 import uuid
 import socket as _socket_mod
+import time
 
 import bottle as _bottle
 from webview.http import ThreadedAdapter as _ThreadedAdapter
 
+from app.utils import media
 from app.utils.converter_utils import print_video_info, get_thumbnail_base64
+
+# Минимальный интервал между обновлениями прогресса в интерфейсе.
+# Раньше evaluate_js вызывался на каждую строку stderr ffmpeg.
+_PROGRESS_INTERVAL_SEC = 0.25
 
 
 class _VideoBottleServer:
@@ -149,7 +155,9 @@ class Editor:
                 "-vcodec", "mjpeg",
                 "pipe:1"
             ]
-            result = subprocess.run(cmd, capture_output=True, timeout=5)
+            # media.run подставляет абсолютный путь к ffmpeg и CREATE_NO_WINDOW:
+            # без этого на каждой перемотке таймлайна моргала чёрная консоль.
+            result = media.run(cmd, capture_output=True, timeout=5)
             if result.returncode == 0 and result.stdout:
                 img_b64 = base64.b64encode(result.stdout).decode("utf-8")
                 return f"data:image/jpeg;base64,{img_b64}"
@@ -222,7 +230,7 @@ class Editor:
                             out_file
                         ]
                         self._js_exec('editorTrimProgress(90, "Склейка сегментов...")')
-                        self.current_process = subprocess.Popen(
+                        self.current_process = media.popen(
                             concat_cmd,
                             stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL
@@ -255,7 +263,6 @@ class Editor:
 
     def _encode_segment(self, file_path, start, end, out_file, idx, total):
         """Кадро-точная обрезка одного сегмента с реальным прогрессом из FFmpeg."""
-        import re
         duration = end - start
         label = f"Сегмент {idx + 1} из {total}"
         pct_base = int(idx / total * 85)
@@ -280,7 +287,10 @@ class Editor:
             video_args = ["-c:v", vcodec, "-preset", preset, "-crf", crf, "-c:a", "aac", "-b:a", "192k"]
 
         cmd = [
-            "ffmpeg", "-y",
+            "ffmpeg", "-hide_banner", "-nostdin", "-y",
+            "-v", "error",
+            # Машиночитаемый прогресс вместо регулярки по человеческому stderr
+            "-progress", "pipe:1", "-nostats",
             "-ss", str(start),
             "-i", file_path,
             "-t", str(duration),
@@ -291,28 +301,36 @@ class Editor:
         self._js_exec(f'editorTrimProgress({pct_base}, "{label}")')
         self.log(f"{label}: {start:.1f}s → {end:.1f}s", "info")
 
-        self.current_process = subprocess.Popen(
+        self.current_process = media.popen(
             cmd,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
 
-        # Читаем stderr построчно → парсим время FFmpeg для прогресса
-        stderr_lines = []
-        for raw in iter(self.current_process.stderr.readline, b''):
-            line = raw.decode("utf-8", errors="replace")
-            stderr_lines.append(line)
-            m = re.search(r'time=(\d+):(\d+):(\d+\.\d+)', line)
-            if m and duration > 0:
-                elapsed = int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3))
-                frac = min(elapsed / duration, 1.0)
-                pct = pct_base + int(frac * (pct_end - pct_base))
+        # Разбираем поток -progress: пары ключ=значение, время в микросекундах
+        last_pct = -1
+        last_emit = 0.0
+        for raw in iter(self.current_process.stdout.readline, b''):
+            line = raw.decode("utf-8", errors="replace").strip()
+            if not line.startswith("out_time_us=") and not line.startswith("out_time_ms="):
+                continue
+            if duration <= 0:
+                continue
+            try:
+                elapsed = float(line.split("=", 1)[1]) / 1_000_000
+            except ValueError:
+                continue
+            frac = min(elapsed / duration, 1.0)
+            pct = pct_base + int(frac * (pct_end - pct_base))
+            now = time.monotonic()
+            if pct != last_pct and now - last_emit >= _PROGRESS_INTERVAL_SEC:
+                last_pct, last_emit = pct, now
                 self._js_exec(f'editorTrimProgress({pct}, "{label}")')
 
         self.current_process.wait()
 
         if self.current_process.returncode != 0:
-            err = ''.join(stderr_lines)[-300:]
+            err = (self.current_process.stderr.read() or b'').decode("utf-8", "replace")[-300:]
             self.log(f"FFmpeg ошибка (сег. {idx+1}): {err}", "error")
 
         self._js_exec(f'editorTrimProgress({pct_end}, "{label} готов")')

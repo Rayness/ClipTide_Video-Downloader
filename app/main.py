@@ -4,16 +4,20 @@
 import os
 import sys
 import json
+import threading
 import webview
 import time
 from app.core.context import AppContext
 from app.core.core import PublicWebViewApi, WebViewApi
+from app.core.ui_channel import WebViewChannel
 from app.utils.config.config import load_config, update_config
 from app.utils.notifications.notifications import load_notifications
 from app.utils.ui.themes import get_themes
 from app.utils.locale.translations import load_translations
 from app.utils.utils import check_for_update, get_local_version, unicodefix, ffmpegreg, load_modal_content
 from app.utils.logs.logs import logs
+from app.utils.webview2 import ensure_webview2
+from app.utils.paths import WEBVIEW_PROFILE_DIR
 from app.utils.const import html_file_path
 from app.utils.queue.queue import load_queue_from_file
 from app.modules.system.module_manager import ModuleManager
@@ -28,27 +32,29 @@ def finalize_updater_update():
     if not getattr(sys, 'frozen', False):
         base_dir = os.path.abspath(".") # Для dev режима
 
-    updater_exe = os.path.join(base_dir, "updater.exe")
-    updater_new = os.path.join(base_dir, "updater.exe.new")
+    for updater_name in ("update.exe", "updater.exe"):
+        updater_exe = os.path.join(base_dir, updater_name)
+        updater_new = updater_exe + ".new"
 
-    if os.path.exists(updater_new):
-        print("Found new version of updater. Installing...")
-        try:
-            # Небольшая пауза на случай, если апдейтер закрывается прямо сейчас
-            # (хотя subprocess.Popen в апдейтере не блокирует, но перестрахуемся)
-            time.sleep(0.5) 
-            
-            if os.path.exists(updater_exe):
-                os.remove(updater_exe)
-            
-            os.rename(updater_new, updater_exe)
-            print("Updater successfully updated.")
-        except Exception as e:
-            print(f"Failed to update updater: {e}")
+        if os.path.exists(updater_new):
+            print("Found new version of updater. Installing...")
+            try:
+                # Небольшая пауза на случай, если апдейтер закрывается прямо сейчас
+                # (хотя subprocess.Popen в апдейтере не блокирует, но перестрахуемся)
+                time.sleep(0.5)
+
+                if os.path.exists(updater_exe):
+                    os.remove(updater_exe)
+
+                os.rename(updater_new, updater_exe)
+                print("Updater successfully updated.")
+            except Exception as e:
+                print(f"Failed to update updater: {e}")
 
 def startApp():
     # 1. Создаем контекст
     ctx = AppContext()
+    ctx.ui = WebViewChannel(ctx)
     
     # 2. Загружаем конфигурацию
     ctx.config = load_config()
@@ -72,7 +78,6 @@ def startApp():
     ctx.module_manager = ModuleManager(ctx)
     
     version = str(get_local_version()).lower()
-    update_status = str(check_for_update()).lower()
     themes = get_themes()
     modal_content = load_modal_content()
     
@@ -137,7 +142,6 @@ def startApp():
             f'loadAudioSettings("{audio_lang}")',
             f'updateTranslations({json.dumps(ctx.translations)})',
             f'window.loadQueue({json.dumps(ctx.download_queue)})',
-            f'updateApp({update_status}, {json.dumps(ctx.translations)})',
             f'setLanguage("{ctx.language}")',
             f'loadNotifications({json.dumps(ctx.notifications)})',
             f'loadproxy("{ctx.proxy_url}", {json.dumps(ctx.proxy_enabled)})',
@@ -155,16 +159,35 @@ def startApp():
             window.evaluate_js(cmd)
         
         print("Initialization complete. Removing preloader.")
-        
-        time.sleep(0.5) 
-        
         window.evaluate_js('window.removePreloader()')
 
+        # Проверка обновлений — сетевой запрос, поэтому уводим её с пути запуска.
+        # Раньше она выполнялась синхронно ДО создания окна: при недоступном
+        # GitHub пользователь смотрел на пустой экран все 10 секунд таймаута.
+        def check_updates_async():
+            try:
+                has_update = str(check_for_update()).lower()
+                window.evaluate_js(
+                    f'updateApp({has_update}, {json.dumps(ctx.translations)})'
+                )
+            except Exception as e:
+                print(f"[WARN] Проверка обновлений не удалась: {e}")
+
+        threading.Thread(target=check_updates_async, daemon=True).start()
+
     window.events.loaded += on_loaded
-    webview.start(debug=False)
+    # private_mode=False + storage_path: cookies и localStorage сохраняются между
+    # запусками; в portable-режиме профиль лежит внутри папки программы
+    webview.start(
+        debug=False,
+        private_mode=False,
+        storage_path=str(WEBVIEW_PROFILE_DIR),
+    )
 
 def main():
     unicodefix()
+    if not ensure_webview2():
+        sys.exit(1)
     finalize_updater_update()
     ffmpegreg()
     logs()
