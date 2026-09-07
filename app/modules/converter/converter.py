@@ -114,7 +114,7 @@ class Converter:
         return channel
 
     def log(self, message: str, level: str = "info", code: str = "") -> None:
-        self.ui.log(message, level, code)
+        self.ui.log(message, level, code, "converter")
 
     # ------------------------------------------------------------------
     # Добавление файлов

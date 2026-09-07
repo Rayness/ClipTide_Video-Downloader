@@ -4,46 +4,51 @@
 """
 Канал «логика -> интерфейс».
 
-Модули (загрузчик, конвертер, редактор) больше не собирают строки JavaScript
-руками. Они зовут именованные методы канала, а конкретная реализация решает,
-как это показать. Сейчас реализация одна — WebViewChannel; когда интерфейс
-переедет на Qt, добавится QtChannel, и логику трогать не придётся.
+Модули (загрузчик, конвертер, редактор, настройки) не трогают виджеты
+напрямую. Они зовут именованные методы канала, а конкретная реализация
+решает, как это показать:
 
-Побочно чинится давняя ошибка экранирования. Раньше писали так:
+    UIChannel   — база, ничего не делает (headless, тесты, CLI)
+    QtChannel   — нативный интерфейс (app/ui/channel.py)
 
-    safe = message.replace('"', '\\\\"').replace("'", "\\\\'")
-    window.evaluate_js(f'addLog("{safe}")')
-
-Такой «эскейпинг» ломается на любом windows-пути: в строке C:\\Users\\new
-последовательности \\U и \\n JavaScript трактует как escape-последовательности,
-и сообщение либо искажается, либо валит парсер. Здесь каждый аргумент
-проходит через json.dumps, который даёт валидный JS-литерал всегда.
+Такое разделение и позволило заменить интерфейс целиком, не переписывая
+логику: раньше модули собирали строки JavaScript и звали evaluate_js.
 """
 
 from __future__ import annotations
 
-import json
 from typing import Any
 
 
 class UIChannel:
     """Базовый канал. Ничего не делает — удобно для тестов и headless-режима."""
 
-    # --- общее ---------------------------------------------------------
-    def log(self, message: str, level: str = "info", code: str = "") -> None:
+    # ------------------------------------------------------------------
+    # Общее
+    # ------------------------------------------------------------------
+    def log(self, message: str, level: str = "info", code: str = "",
+            source: str = "") -> None:
+        """source — какой модуль пишет: downloader / converter / editor / settings.
+        Нужен, чтобы журнал каждого экрана показывал только своё."""
         pass
 
     def status(self, text: str) -> None:
+        pass
+
+    def alert(self, text: str, title: str = "ClipTide", level: str = "info") -> None:
+        """Модальное сообщение пользователю."""
         pass
 
     def call(self, fn: str, *args: Any) -> None:
         """Escape hatch: вызвать произвольную функцию интерфейса."""
         pass
 
-    # --- диалоги -------------------------------------------------------
-    # Выбор файлов — задача интерфейса, а не логики. Раньше конвертер
-    # импортировал webview напрямую и звал window.create_file_dialog, из-за
-    # чего был намертво привязан к конкретному UI-движку.
+    # ------------------------------------------------------------------
+    # Диалоги
+    # ------------------------------------------------------------------
+    # Выбор файлов — задача интерфейса, а не логики. Раньше конвертер и
+    # настройки импортировали webview напрямую и звали create_file_dialog,
+    # из-за чего были намертво привязаны к конкретному UI-движку.
     def pick_files(self, title: str, filters: list[tuple[str, str]],
                    multiple: bool = True) -> list[str]:
         """filters: [(описание, 'mp4;mkv;avi'), ...]. Возвращает список путей."""
@@ -52,7 +57,31 @@ class UIChannel:
     def pick_folder(self, title: str, start: str = "") -> str | None:
         return None
 
-    # --- конвертер -----------------------------------------------------
+    # ------------------------------------------------------------------
+    # Загрузчик
+    # ------------------------------------------------------------------
+    def downloader_item_added(self, item: dict) -> None:
+        pass
+
+    def downloader_item_removed(self, task_id: str) -> None:
+        pass
+
+    def downloader_progress(self, task_id: str, percent: float,
+                            speed: str = "", eta: str = "") -> None:
+        pass
+
+    def downloader_placeholder_removed(self, temp_id: str) -> None:
+        pass
+
+    def downloader_playlist_found(self, playlist: dict) -> None:
+        pass
+
+    def downloader_finished(self) -> None:
+        pass
+
+    # ------------------------------------------------------------------
+    # Конвертер
+    # ------------------------------------------------------------------
     def converter_skeleton(self, task_id: str, filename: str) -> None:
         pass
 
@@ -68,91 +97,54 @@ class UIChannel:
     def converter_finished(self) -> None:
         pass
 
-    # --- уведомления ---------------------------------------------------
-    def notifications_reloaded(self, notifications: list) -> None:
+    # ------------------------------------------------------------------
+    # Редактор
+    # ------------------------------------------------------------------
+    def editor_file_loaded(self, data: dict) -> None:
         pass
 
+    def editor_trim_started(self) -> None:
+        pass
 
-class WebViewChannel(UIChannel):
-    """Реализация поверх pywebview: вызовы транслируются в evaluate_js."""
+    def editor_trim_progress(self, percent: int, label: str = "") -> None:
+        pass
 
-    def __init__(self, context):
-        self.ctx = context
+    def editor_trim_done(self, mode: str, folder: str) -> None:
+        pass
 
-    # -- низкий уровень --------------------------------------------------
-    def _eval(self, fn: str, *args: Any) -> None:
-        window = getattr(self.ctx, "window", None)
-        if window is None:
-            print(f"[UI] окно ещё не создано, пропускаем {fn}()")
-            return
-        payload = ", ".join(json.dumps(a, ensure_ascii=False) for a in args)
-        try:
-            window.evaluate_js(f"{fn}({payload})")
-        except Exception as e:  # окно могли закрыть прямо во время вызова
-            print(f"[UI] {fn}() не выполнен: {e}")
+    def editor_trim_error(self, message: str = "") -> None:
+        pass
 
-    # -- общее -----------------------------------------------------------
-    def log(self, message: str, level: str = "info", code: str = "") -> None:
-        print(f"[{level.upper()}] {message}")
-        self._eval("addLog", message, level, code)
+    def editor_trim_stopped(self) -> None:
+        pass
 
-    def status(self, text: str) -> None:
-        window = getattr(self.ctx, "window", None)
-        if window is None:
-            return
-        literal = json.dumps(text, ensure_ascii=False)
-        try:
-            window.evaluate_js(
-                f'var _s=document.getElementById("status"); if(_s) _s.innerText={literal};'
-            )
-        except Exception as e:
-            print(f"[UI] status() не выполнен: {e}")
+    # ------------------------------------------------------------------
+    # Настройки
+    # ------------------------------------------------------------------
+    def language_changed(self, language: str, translations: dict) -> None:
+        pass
 
-    def call(self, fn: str, *args: Any) -> None:
-        self._eval(fn, *args)
+    def download_folder_changed(self, path: str) -> None:
+        pass
 
-    # -- диалоги ---------------------------------------------------------
-    def pick_files(self, title: str, filters: list[tuple[str, str]],
-                   multiple: bool = True) -> list[str]:
-        import webview
+    def converter_folder_changed(self, path: str) -> None:
+        pass
 
-        window = getattr(self.ctx, "window", None)
-        if window is None:
-            return []
-        types = tuple(
-            f"{label} ({';'.join('*.' + e for e in exts.split(';'))})"
-            for label, exts in filters
-        )
-        result = window.create_file_dialog(
-            webview.OPEN_DIALOG, allow_multiple=multiple, file_types=types
-        )
-        return list(result) if result else []
+    def theme_changed(self, theme: str, style: str) -> None:
+        pass
 
-    def pick_folder(self, title: str, start: str = "") -> str | None:
-        import webview
+    def themes_reloaded(self, themes: list) -> None:
+        pass
 
-        window = getattr(self.ctx, "window", None)
-        if window is None:
-            return None
-        result = window.create_file_dialog(webview.FOLDER_DIALOG, directory=start or "")
-        return result[0] if result else None
+    def proxy_check_result(self, state: str, message: str) -> None:
+        """state: loading | success | error"""
+        pass
 
-    # -- конвертер --------------------------------------------------------
-    def converter_skeleton(self, task_id: str, filename: str) -> None:
-        self._eval("createConverterSkeleton", task_id, filename)
+    def update_check_result(self, result: dict) -> None:
+        pass
 
-    def converter_skeleton_removed(self, task_id: str) -> None:
-        self._eval("removeConverterSkeleton", task_id)
-
-    def converter_item_added(self, item: dict) -> None:
-        self._eval("addConverterItem", item)
-
-    def converter_progress(self, task_id: str, text: str, percent: int) -> None:
-        self._eval("updateConvStatus", task_id, text, percent)
-
-    def converter_finished(self) -> None:
-        self._eval("conversionFinished")
-
-    # -- уведомления -------------------------------------------------------
+    # ------------------------------------------------------------------
+    # Уведомления
+    # ------------------------------------------------------------------
     def notifications_reloaded(self, notifications: list) -> None:
-        self._eval("loadNotifications", notifications)
+        pass

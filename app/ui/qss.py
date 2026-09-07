@@ -212,6 +212,11 @@ QPushButton[variant="danger"] {
     color: ${danger-color};
 }
 QPushButton[variant="danger"]:hover { background: ${danger-color}; color: #ffffff; }
+QPushButton[variant="danger"]:disabled {
+    background: transparent;
+    border-color: ${border-color};
+    color: ${text-secondary};
+}
 
 QPushButton[variant="ghost"] {
     background: transparent;
@@ -220,6 +225,7 @@ QPushButton[variant="ghost"] {
     padding: 0px ${space-2}px;
 }
 QPushButton[variant="ghost"]:hover { color: ${text-color}; background: ${card-bg}; }
+QPushButton[variant="ghost"]:disabled { color: ${border-strong}; background: transparent; }
 
 QPushButton[variant="icon"] {
     background: transparent;
@@ -232,6 +238,7 @@ QPushButton[variant="icon"] {
     color: ${text-secondary};
 }
 QPushButton[variant="icon"]:hover { background: ${input-bg}; color: ${text-color}; }
+QPushButton[variant="icon"]:disabled { background: transparent; }
 
 /* ====================================================================
    ПОЛЯ ВВОДА
@@ -493,6 +500,11 @@ QLabel[badge="error"] {
     border: 2px dashed ${border-strong};
     border-radius: ${radius-md}px;
     color: ${text-secondary};
+}
+/* Когда кадр загружен, пунктир не нужен — он спорит с картинкой */
+#DropZone[filled="true"] {
+    border: ${border-width}px solid ${border-color};
+    background: ${input-bg};
 }
 #DropZone[hover="true"] {
     border-color: ${accent-color};

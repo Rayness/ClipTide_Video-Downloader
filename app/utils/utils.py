@@ -1,30 +1,42 @@
 # Copyright (C) 2025 Rayness
 # This program is free software under GPLv3. See LICENSE for details.
 
-import json
 import sys
 import os
 import subprocess
 from pathlib import Path
 
-from app.utils.const import GITHUB_REPO, HEADERS, VERSION_FILE, MODAL_CONTENT
+from app.utils.const import GITHUB_REPO, HEADERS, VERSION_FILE
 from app.utils.network import get_session
 
 def unicodefix():
-    if sys.platform == "win32":
+    """
+    Переводит вывод в UTF-8, если вывод вообще есть.
+
+    В windowed-сборке PyInstaller sys.stdout и sys.stderr равны None.
+    Прежняя версия ловила AttributeError от .reconfigure(), но в обработчике
+    сразу обращалась к sys.stdout.buffer — и падала уже там, до создания
+    окна. Приложение не запускалось вовсе, показывая диалог PyInstaller
+    «Unhandled exception in script».
+    """
+    if sys.platform != "win32":
+        return
+
+    for name in ("stdout", "stderr"):
+        stream = getattr(sys, name, None)
+        if stream is None:
+            continue                      # windowed-сборка: выводить некуда
         try:
-            # Способ 1 (Python 3.7+)
-            sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-            sys.stderr.reconfigure(encoding='utf-8', errors='replace')
-        except AttributeError:
-            # Способ 2 (для старых версий Python)
-            import ctypes
-            kernel32 = ctypes.windll.kernel32
-            kernel32.SetConsoleOutputCP(65001)  # 65001 = UTF-8
-            # Альтернатива через io
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError, OSError):
+            # Поток есть, но перенастроить нельзя — заворачиваем вручную
+            buffer = getattr(stream, "buffer", None)
+            if buffer is None:
+                continue
             import io
-            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+            setattr(sys, name, io.TextIOWrapper(
+                buffer, encoding="utf-8", errors="replace"))
+
 
 def resource_path(relative_path):
     """ Возвращает корректный путь для доступа к ресурсам после упаковки PyInstaller """
@@ -80,17 +92,3 @@ def get_appdata_path(app_name: str, roaming: bool = False) -> Path:
     path = Path(appdata) / app_name
     path.mkdir(parents=True, exist_ok=True)
     return path
-
-def load_modal_content():
-    file_path = os.path.join(MODAL_CONTENT, "modals.json")
-    if os.path.exists(file_path):
-        try:
-            with open(file_path, "r", encoding="utf-8") as file:
-                print(file)
-                return json.load(file)
-        except Exception as e:
-            print(f"Ошибка при загрузке модального контента: {e}")
-    print("Не получилось загрузить JSON файлы")
-    return {}
-
-

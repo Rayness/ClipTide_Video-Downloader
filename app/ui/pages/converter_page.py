@@ -28,28 +28,31 @@ from PySide6.QtWidgets import (
 )
 
 from app.modules.converter.encoders import VIDEO_ENCODERS, available_encoders
+from ..i18n import t
 from ..widgets import icons
 
 THUMB_SIZE = QSize(96, 54)
 
-STATUS_TEXT = {
-    "queued": "В очереди",
-    "processing": "Конвертация",
-    "done": "Готово",
-    "error": "Ошибка",
-}
+def status_text(status: str) -> str:
+    """Подпись статуса берём из словаря переводов."""
+    return {
+        "queued":     t("converter.status_queued", "В очереди"),
+        "processing": t("converter.status_processing", "Конвертация"),
+        "done":       t("converter.status_done", "Готово"),
+        "error":      t("converter.status_error", "Ошибка"),
+    }.get(status, status)
 
 VIDEO_CONTAINERS = [("MP4", "mp4"), ("MKV", "mkv"), ("MOV", "mov"), ("WEBM", "webm"), ("AVI", "avi")]
 AUDIO_CONTAINERS = [("MP3", "mp3"), ("AAC", "aac"), ("WAV", "wav"), ("FLAC", "flac"), ("OPUS", "opus")]
 IMAGE_CONTAINERS = [("JPG", "jpg"), ("PNG", "png"), ("WEBP", "webp"), ("BMP", "bmp"), ("ICO", "ico"), ("PDF", "pdf")]
 
 RESOLUTIONS = [
-    ("Оригинал", "original"), ("2160p (4K)", "4K"), ("1440p (2K)", "2K"),
+    (t("converter.val_original", "Оригинал"), "original"), ("2160p (4K)", "4K"), ("1440p (2K)", "2K"),
     ("1080p", "1080"), ("720p", "720"), ("480p", "480"), ("360p", "360"),
 ]
 
 IMAGE_RESIZES = [
-    ("Оригинал", "original"), ("50%", "50%"), ("25%", "25%"),
+    (t("converter.val_original", "Оригинал"), "original"), ("50%", "50%"), ("25%", "25%"),
     ("Не больше 1920px", "1920"), ("Не больше 1080px", "1080"),
 ]
 
@@ -128,7 +131,7 @@ class TaskCard(QFrame):
         self.name.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         top.addWidget(self.name, 1)
 
-        self.badge = QLabel(STATUS_TEXT.get(item.get("status", "queued"), ""))
+        self.badge = QLabel(status_text(item.get("status", "queued")))
         self.badge.setProperty("badge", item.get("status", "queued"))
         top.addWidget(self.badge, 0, Qt.AlignRight)
         center.addLayout(top)
@@ -188,7 +191,7 @@ class TaskCard(QFrame):
     def set_status(self, status: str) -> None:
         self.item["status"] = status
         self.progress.setVisible(status != "queued")
-        self.badge.setText(STATUS_TEXT.get(status, status))
+        self.badge.setText(status_text(status))
         self.badge.setProperty("badge", status)
         self.progress.setProperty("state", status if status in ("done", "error") else "")
         for widget in (self.badge, self.progress):
@@ -258,23 +261,23 @@ class ConverterPage(QWidget):
         column.setSpacing(12)
 
         header = QHBoxLayout()
-        title = QLabel("Конвертер")
+        title = QLabel(t("sections.converter", "Конвертер"))
         title.setProperty("heading", "1")
         header.addWidget(title)
         header.addStretch(1)
 
-        self.btn_add = QPushButton("  Добавить файлы")
+        self.btn_add = QPushButton(t("converter.add_files_btn", "  Добавить файлы"))
         self.btn_add.setCursor(Qt.PointingHandCursor)
         self.btn_add.clicked.connect(self.converter.openFile)
         header.addWidget(self.btn_add)
 
-        self.btn_start = QPushButton("  Начать")
+        self.btn_start = QPushButton(t("converter.btn_convert", "  Начать"))
         self.btn_start.setProperty("variant", "primary")
         self.btn_start.setCursor(Qt.PointingHandCursor)
         self.btn_start.clicked.connect(self._on_start)
         header.addWidget(self.btn_start)
 
-        self.btn_stop = QPushButton("  Стоп")
+        self.btn_stop = QPushButton(t("converter.btn_stop", "  Стоп"))
         self.btn_stop.setProperty("variant", "danger")
         self.btn_stop.setCursor(Qt.PointingHandCursor)
         self.btn_stop.setEnabled(False)
@@ -329,7 +332,7 @@ class ConverterPage(QWidget):
         layout.setContentsMargins(16, 12, 16, 16)
         layout.setSpacing(12)
 
-        heading = QLabel("Параметры вывода")
+        heading = QLabel(t("converter.convertion_settings", "Параметры вывода"))
         heading.setProperty("heading", "2")
         layout.addWidget(heading)
 
@@ -372,7 +375,7 @@ class ConverterPage(QWidget):
         grid.setVerticalSpacing(10)
         grid.setHorizontalSpacing(10)
 
-        grid.addWidget(self._label("Формат"), 0, 0)
+        grid.addWidget(self._label(t("converter.lbl_format", "Формат")), 0, 0)
         self.cmb_format = QComboBox()
         for label, value in VIDEO_CONTAINERS:
             self.cmb_format.addItem(f"{label} · видео", value)
@@ -382,12 +385,12 @@ class ConverterPage(QWidget):
         self.cmb_format.currentIndexChanged.connect(self._sync_controls)
         grid.addWidget(self.cmb_format, 0, 1)
 
-        grid.addWidget(self._label("Кодек"), 1, 0)
+        grid.addWidget(self._label(t("converter.lbl_codec", "Кодек")), 1, 0)
         self.cmb_codec = QComboBox()
         self._fill_codecs()
         grid.addWidget(self.cmb_codec, 1, 1)
 
-        grid.addWidget(self._label("Разрешение"), 2, 0)
+        grid.addWidget(self._label(t("converter.lbl_resolution", "Разрешение")), 2, 0)
         self.cmb_resolution = QComboBox()
         for label, value in RESOLUTIONS:
             self.cmb_resolution.addItem(label, value)
@@ -396,7 +399,7 @@ class ConverterPage(QWidget):
         layout.addLayout(grid)
 
         row = QHBoxLayout()
-        self.lbl_quality = QLabel("Качество (CRF)")
+        self.lbl_quality = QLabel(t("converter.lbl_quality", "Качество (CRF)"))
         self.lbl_quality.setProperty("muted", "true")
         row.addWidget(self.lbl_quality)
         row.addStretch(1)
@@ -411,9 +414,9 @@ class ConverterPage(QWidget):
         layout.addWidget(self.sld_quality)
 
         scale = QHBoxLayout()
-        better = QLabel("Лучше")
+        better = QLabel(t("converter.val_better", "Лучше"))
         better.setProperty("muted", "true")
-        smaller = QLabel("Меньше")
+        smaller = QLabel(t("converter.val_worse", "Меньше"))
         smaller.setProperty("muted", "true")
         scale.addWidget(better)
         scale.addStretch(1)
@@ -433,13 +436,13 @@ class ConverterPage(QWidget):
         grid.setVerticalSpacing(10)
         grid.setHorizontalSpacing(10)
 
-        grid.addWidget(self._label("Формат"), 0, 0)
+        grid.addWidget(self._label(t("converter.lbl_format", "Формат")), 0, 0)
         self.cmb_img_format = QComboBox()
         for label, value in IMAGE_CONTAINERS:
             self.cmb_img_format.addItem(label, value)
         grid.addWidget(self.cmb_img_format, 0, 1)
 
-        grid.addWidget(self._label("Размер"), 1, 0)
+        grid.addWidget(self._label(t("converter.lbl_size", "Размер")), 1, 0)
         self.cmb_img_resize = QComboBox()
         for label, value in IMAGE_RESIZES:
             self.cmb_img_resize.addItem(label, value)
@@ -515,7 +518,7 @@ class ConverterPage(QWidget):
         self.cmb_resolution.setEnabled(not is_audio)
         self.sld_quality.setEnabled(not is_audio)
         self.lbl_quality.setText(
-            "Битрейт задаётся профилем" if is_audio else "Качество (CRF)"
+            "Битрейт задаётся профилем" if is_audio else t("converter.lbl_quality", "Качество (CRF)")
         )
 
         if getattr(self, "_hardware_found", False):
@@ -643,7 +646,11 @@ class ConverterPage(QWidget):
         self.btn_start.setEnabled(True)
         self.btn_stop.setEnabled(False)
 
-    def append_log(self, message: str, level: str = "info", code: str = "") -> None:
+    def append_log(self, message: str, level: str = "info", code: str = "",
+                   source: str = "") -> None:
+        # Только собственные сообщения — сигнал log общий на приложение
+        if source not in ("", "converter"):
+            return
         prefix = {"error": "✕", "success": "✓", "warn": "!"}.get(level, "·")
         self.log_view.appendPlainText(f"{prefix} {message}")
 

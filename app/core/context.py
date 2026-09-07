@@ -1,60 +1,54 @@
 # Copyright (C) 2025 Rayness
 # This program is free software under GPLv3. See LICENSE for details.
 
-import json
+"""
+Общее состояние приложения.
+
+Контекст держит конфигурацию, кэш часто используемых настроек и канал
+в интерфейс. Модули логики получают его в конструкторе и через него же
+разговаривают с интерфейсом — напрямую виджеты они не трогают.
+"""
+
+from __future__ import annotations
 
 from app.core.ui_channel import UIChannel
 from app.utils.config.config import save_config
 
+
 class AppContext:
     def __init__(self):
-        self.window = None
         self.config = None
-        # Канал «логика -> интерфейс». Подменяется целиком при смене UI-слоя,
-        # поэтому модули не знают, что под ними pywebview.
-        self.ui = UIChannel()
-        self.translations = {}
-        self.notifications = []
-        self.download_queue = []
 
-        # Кэшируем часто используемые пути и настройки для удобства
-        self.language = "en"
+        # Канал «логика -> интерфейс». Подменяется целиком при смене UI-слоя,
+        # поэтому модули не знают, что под ними именно Qt.
+        self.ui: UIChannel = UIChannel()
+
+        self.translations: dict = {}
+        self.notifications: list = []
+        self.download_queue: list = []
+
+        # Кэш часто используемых настроек
+        self.language = "ru"
         self.download_folder = ""
         self.converter_folder = ""
-        self.theme = "default"
+        self.theme = "cliptide"
         self.style = "default"
 
-        # Настройки прокси
         self.proxy_url = ""
         self.proxy_enabled = "False"
 
         self.module_manager = None
 
-    def set_window(self, window):
-        self.window = window
-
-    def update_config_value(self, section, key, value):
-        """Единый метод для сохранения настроек"""
+    # ------------------------------------------------------------------
+    def update_config_value(self, section: str, key: str, value) -> None:
+        """Единая точка сохранения настроек."""
         if not self.config.has_section(section):
             self.config.add_section(section)
         self.config.set(section, key, str(value))
         save_config(self.config)
 
-    def log_status(self, message_key, *args):
-        """Отправка статуса в UI (убираем дублирование кода в модулях)"""
-        """Безопасная отправка статуса"""
-        if self.window:
-            text = self.translations.get('status', {}).get(message_key, message_key)
-            full_text = f"{text}: {' '.join(map(str, args))}" if args else text
-            safe_text = full_text.replace('"', '\\"').replace("'", "\\'")
-            self.window.evaluate_js(f'document.getElementById("status").innerText = "{safe_text}"')
-        else:
-            print(f"WARNING: Окно не установлено, пропускаем статус: {message_key}")
-
-    def js_exec(self, code):
-        """Безопасный вызов JS"""
-        if self.window:
-            self.window.evaluate_js(code)
-        else:
-            print(f"WARNING: Окно не установлено, пропускаем JS: {code[:50]}...")
-
+    def log_status(self, message_key: str, *args) -> None:
+        """Строка состояния внизу окна."""
+        text = self.translations.get("status", {}).get(message_key, message_key)
+        full_text = f"{text}: {' '.join(map(str, args))}" if args else text
+        self.ui.status(full_text)

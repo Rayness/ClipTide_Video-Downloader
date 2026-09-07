@@ -1,49 +1,137 @@
-# app/modules/settings/settings.py
+# Copyright (C) 2025 Rayness
+# This program is free software under GPLv3. See LICENSE for details.
 
-import json
+"""
+Настройки приложения.
+
+Модуль не знает, какой интерфейс сверху: диалоги и обратная связь идут
+через UIChannel. Раньше здесь напрямую импортировался webview и собирались
+строки JavaScript.
+
+Заодно исправлено имя switch_update_setting — метод назывался
+`swith_update_setting`, а вызывался как `switch_update_setting`, то есть
+сохранение настроек обновлений падало с AttributeError.
+"""
+
+from __future__ import annotations
+
 import os
-import subprocess
 import platform
+import shutil
+import subprocess
 import threading
+import zipfile
 
-from app.utils.network import get_session
-from app.utils.const import download_dir, UPDATER, THEME_DIR, MANIFEST_URL, VERSION_FILE
+from app.core.ui_channel import UIChannel
+from app.utils.const import MANIFEST_URL, THEME_DIR, UPDATER, VERSION_FILE, download_dir
 from app.utils.locale.translations import load_translations
-from app.utils.network import check_proxy_connection
+from app.utils.network import check_proxy_connection, get_session
 
-# Эту функцию можно оставить здесь или вынести в utils.py
+
 def open_folder(folder_path):
+    """Открыть папку в системном файловом менеджере."""
     try:
+        path = str(folder_path)
         if platform.system() == "Windows":
-            subprocess.run(["explorer", folder_path])
+            os.startfile(path)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", path])
         else:
-            subprocess.run(['xdg-open', folder_path])
+            subprocess.Popen(["xdg-open", path])
     except Exception as e:
         print(f"Ошибка при открытии папки: {e}")
 
+
 class SettingsManager:
     def __init__(self, context):
-        self.ctx = context # Вся сила теперь здесь
+        self.ctx = context
 
+    @property
+    def ui(self) -> UIChannel:
+        return getattr(self.ctx, "ui", None) or UIChannel()
+
+    # ------------------------------------------------------------------
+    # Обновления
+    # ------------------------------------------------------------------
     def launch_update(self):
         try:
             from app.utils.paths import APP_DIR
             updater_path = os.path.join(str(APP_DIR), UPDATER)
             subprocess.Popen([updater_path], cwd=str(APP_DIR))
         except Exception as e:
-            print(f"Ошибка при запуске апдейтера: {str(e)}")
+            self.ui.log(f"Не удалось запустить апдейтер: {e}", "error")
 
+    def switch_update_setting(self, key, value):
+        self.ctx.update_config_value("Updates", key, value)
+
+    def switch_update_channel(self, channel):
+        self.ctx.update_config_value("Updates", "channel", channel)
+
+    def check_update_for_channel(self, channel):
+        """Проверяет обновление для канала (stable/dev) и отдаёт результат в UI."""
+        def _check():
+            try:
+                local = "0.0.0"
+                if os.path.exists(VERSION_FILE):
+                    with open(VERSION_FILE, "r", encoding="utf-8") as f:
+                        local = f.read().strip()
+
+                response = get_session().get(
+                    MANIFEST_URL,
+                    headers={"User-Agent": "ClipTide-App", "Accept": "application/json"},
+                    timeout=10,
+                )
+                if response.status_code != 200:
+                    self.ui.update_check_result(
+                        {"error": True, "message": f"HTTP {response.status_code}"}
+                    )
+                    return
+
+                data = response.json()
+                if channel not in data:
+                    self.ui.update_check_result(
+                        {"error": True, "message": "Канал не найден"}
+                    )
+                    return
+
+                channel_data = data[channel]
+                latest = channel_data.get("version", "0.0.0")
+                self.ui.update_check_result({
+                    "error": False,
+                    "has_update": latest != local,
+                    "latest_version": latest,
+                    "current_version": local,
+                    "description": channel_data.get("description", ""),
+                    "channel": channel,
+                })
+            except Exception as e:
+                self.ui.update_check_result({"error": True, "message": str(e)})
+
+        threading.Thread(target=_check, daemon=True).start()
+
+    # ------------------------------------------------------------------
+    # Язык и тема
+    # ------------------------------------------------------------------
     def switch_language(self, language):
         self.ctx.language = language
         self.ctx.translations = load_translations(language)
         self.ctx.update_config_value("Settings", "language", language)
-        
-        # Обновляем UI
-        # Предполагаем, что updateApp и updateTranslations делают одно и то же, упрощаем:
-        self.ctx.js_exec(f'window.updateTranslations({json.dumps(self.ctx.translations)})')
-        self.ctx.js_exec(f'setLanguage("{language}")')
+        self.ui.language_changed(language, self.ctx.translations)
         return self.ctx.translations
 
+    def switch_theme(self, theme):
+        self.ctx.theme = theme
+        self.ctx.update_config_value("Themes", "theme", theme)
+        self.ui.theme_changed(theme, self.ctx.style)
+
+    def switch_style(self, style):
+        self.ctx.style = style
+        self.ctx.update_config_value("Themes", "style", style)
+        self.ui.theme_changed(self.ctx.theme, style)
+
+    # ------------------------------------------------------------------
+    # Простые переключатели
+    # ------------------------------------------------------------------
     def switch_subs_setting(self, key, value):
         self.ctx.update_config_value("Subtitles", key, value)
 
@@ -53,83 +141,21 @@ class SettingsManager:
     def switch_editor_setting(self, key, value):
         self.ctx.update_config_value("Editor", key, value)
 
-    def switch_theme(self, theme):
-        self.ctx.theme = theme
-        self.ctx.update_config_value("Themes", "theme", theme)
+    def switch_notifi(self, n_type, enabled):
+        self.ctx.update_config_value("Notifications", n_type, enabled)
 
-    def switch_style(self, style):
-        self.ctx.style = style
-        self.ctx.update_config_value("Themes", "style", style)
+    def switch_open_folder_dl(self, f_type, enabled):
+        self.ctx.update_config_value("Folders", f_type, enabled)
 
     def switch_window_size(self, size):
-        """Изменение размера окна (например '1280x720')"""
-        try:
-            width, height = map(int, size.split('x'))
-            self.ctx.update_config_value("Display", "window_size", size)
-            if self.ctx.window:
-                self.ctx.window.resize(width, height)
-        except Exception as e:
-            print(f"Error changing window size: {e}")
+        self.ctx.update_config_value("Display", "window_size", size)
 
     def switch_ui_scale(self, scale):
-        """Изменение масштаба интерфейса (zoom)"""
         self.ctx.update_config_value("Display", "ui_scale", scale)
-        # Применяем zoom через CSS
-        self.ctx.js_exec(f'applyUIScale({scale})')
 
-    def swith_update_setting(self, key, value):
-        self.ctx.update_config_value("Updates", key, value)
-
-    def switch_update_channel(self, channel):
-        """Сохранение канала обновлений (stable/dev)"""
-        self.ctx.update_config_value("Updates", "channel", channel)
-
-    def check_update_for_channel(self, channel):
-        """Проверяет наличие обновления для конкретного канала через манифест, возвращает результат в UI"""
-        def _check():
-            try:
-                self.ctx.js_exec('onChannelCheckStart()')
-
-                import os
-                local = "0.0.0"
-                if os.path.exists(VERSION_FILE):
-                    with open(VERSION_FILE, "r") as f:
-                        local = f.read().strip()
-
-                response = get_session().get(MANIFEST_URL, headers={
-                    "User-Agent": "ClipTide-App",
-                    "Accept": "application/json"
-                }, timeout=10)
-
-                if response.status_code == 200:
-                    data = response.json()
-
-                    if channel not in data:
-                        self.ctx.js_exec(f'onChannelCheckResult({json.dumps({"error": True, "message": "Канал не найден"})})')
-                        return
-
-                    channel_data = data.get(channel, {})
-                    latest = channel_data.get("version", "0.0.0")
-                    description = channel_data.get("description", "")
-
-                    has_update = (latest != local)
-
-                    result = {
-                        "error": False,
-                        "has_update": has_update,
-                        "latest_version": latest,
-                        "current_version": local,
-                        "description": description,
-                        "channel": channel
-                    }
-                    self.ctx.js_exec(f'onChannelCheckResult({json.dumps(result)})')
-                else:
-                    self.ctx.js_exec(f'onChannelCheckResult({json.dumps({"error": True, "message": f"HTTP {response.status_code}"})})')
-            except Exception as e:
-                self.ctx.js_exec(f'onChannelCheckResult({json.dumps({"error": True, "message": str(e)})})')
-
-        threading.Thread(target=_check, daemon=True).start()
-
+    # ------------------------------------------------------------------
+    # Прокси
+    # ------------------------------------------------------------------
     def switch_proxy_url(self, proxy):
         self.ctx.proxy_url = proxy
         self.ctx.update_config_value("Proxy", "url", proxy)
@@ -138,132 +164,97 @@ class SettingsManager:
         self.ctx.proxy_enabled = enabled
         self.ctx.update_config_value("Proxy", "enabled", enabled)
 
-    def switch_notifi(self, n_type, enabled):
-        self.ctx.update_config_value("Notifications", n_type, enabled)
+    def test_user_proxy(self, proxy_url):
+        def _check():
+            self.ui.proxy_check_result("loading", "Проверка...")
+            success, message = check_proxy_connection(proxy_url)
+            self.ui.proxy_check_result("success" if success else "error", message)
 
-    def switch_open_folder_dl(self, f_type, enabled):
-        self.ctx.update_config_value("Folders", f_type, enabled)
+        threading.Thread(target=_check, daemon=True).start()
 
+    # ------------------------------------------------------------------
+    # Папки
+    # ------------------------------------------------------------------
     def switch_download_folder(self, folder_path=None):
-        raw_path = folder_path if folder_path else download_dir
-        path = str(raw_path)
+        path = str(folder_path if folder_path else download_dir)
         self.ctx.download_folder = path
         self.ctx.update_config_value("Settings", "folder_path", path)
-        self.ctx.js_exec(f'updateDownloadFolder({json.dumps(path)})')
+        self.ui.download_folder_changed(path)
 
     def switch_converter_folder(self, folder_path=None):
-        raw_path = folder_path if folder_path else download_dir
-        path = str(raw_path)
+        path = str(folder_path if folder_path else download_dir)
         self.ctx.converter_folder = path
         self.ctx.update_config_value("Settings", "converter_folder", path)
-        self.ctx.js_exec(f'updateConvertFolder({json.dumps(path)})')
+        self.ui.converter_folder_changed(path)
 
     def choose_folder(self):
-        import webview
-        folder_path = self.ctx.window.create_file_dialog(
-            webview.FOLDER_DIALOG,
-            allow_multiple=False
-        )
-        
-        # Метод возвращает кортеж или None
-        if folder_path and len(folder_path) > 0:
-            path = folder_path[0] # Берем первый путь
+        path = self.ui.pick_folder("Папка для загрузок", self.ctx.download_folder)
+        if path:
             self.switch_download_folder(path)
 
     def choose_converter_folder(self):
-        import webview
-        folder_path = self.ctx.window.create_file_dialog(
-            webview.FOLDER_DIALOG,
-            allow_multiple=False
-        )
-        
-        if folder_path and len(folder_path) > 0:
-            path = folder_path[0]
+        path = self.ui.pick_folder("Папка для конвертации", self.ctx.converter_folder)
+        if path:
             self.switch_converter_folder(path)
 
-    def test_user_proxy(self, proxy_url):
-        """Запускает проверку прокси в отдельном потоке"""
-        
-        # Колбэк, который выполнится в потоке
-        def run_check():
-            self.ctx.js_exec('setProxyCheckStatus("loading", "Проверка...")')
-            
-            success, message = check_proxy_connection(proxy_url)
-            
-            if success:
-                self.ctx.js_exec(f'setProxyCheckStatus("success", "{message}")')
-            else:
-                # Экранируем кавычки на всякий случай
-                safe_msg = message.replace('"', "'")
-                self.ctx.js_exec(f'setProxyCheckStatus("error", "{safe_msg}")')
-
-        threading.Thread(target=run_check, daemon=True).start()
-
+    # ------------------------------------------------------------------
+    # Импорт тем
+    # ------------------------------------------------------------------
     def import_theme_from_zip(self):
-        import os
-        import zipfile
-        import shutil
-        import webview
-        
-        # 1. Открываем диалог выбора файла
-        file_types = ("Zip Archives (*.zip)", "All files (*.*)")
-        result = self.ctx.window.create_file_dialog(
-            webview.OPEN_DIALOG,
-            allow_multiple=False,
-            file_types=file_types
+        paths = self.ui.pick_files(
+            "Выберите архив с темой",
+            [("ZIP-архивы", "zip"), ("Все файлы", "*")],
+            multiple=False,
         )
-        
-        if not result:
+        if not paths:
             return
 
-        zip_path = result[0]
-        
+        zip_path = paths[0]
         try:
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                # 2. Проверяем, есть ли там config.json
-                file_list = zip_ref.namelist()
-                
-                # Ищем config.json (он может быть в корне архива или в папке)
-                config_file = next((f for f in file_list if f.endswith('config.json')), None)
-                
-                if not config_file:
-                    self.ctx.js_exec('alert("Ошибка: В архиве нет config.json")')
+            with zipfile.ZipFile(zip_path, "r") as archive:
+                names = archive.namelist()
+                config_entry = next((n for n in names if n.endswith("config.json")), None)
+                if config_entry is None:
+                    self.ui.alert("В архиве нет config.json — это не тема ClipTide",
+                                  "Импорт темы", "error")
                     return
 
-                # Определяем имя папки темы
-                # Если config лежит в "MyTheme/config.json", берем "MyTheme"
-                # Если просто "config.json", берем имя архива
-                if '/' in config_file:
-                    theme_folder_name = config_file.split('/')[0]
+                if "/" in config_entry:
+                    theme_name = config_entry.split("/")[0]
                 else:
-                    theme_folder_name = os.path.splitext(os.path.basename(zip_path))[0]
+                    theme_name = os.path.splitext(os.path.basename(zip_path))[0]
 
-                target_dir = os.path.join(THEME_DIR, theme_folder_name)
-                
-                # 3. Распаковка
+                target_dir = os.path.join(THEME_DIR, theme_name)
                 if os.path.exists(target_dir):
-                    # Если тема уже есть - спрашиваем или удаляем (тут просто перезапишем)
                     shutil.rmtree(target_dir)
-                
-                os.makedirs(target_dir)
-                
-                # Извлекаем аккуратно
-                for member in file_list:
-                    # Защита от Zip Slip уязвимости (выход за пределы папки)
-                    if ".." in member or member.startswith("/") or member.startswith("\\"):
-                        continue
-                        
-                    # Если файлы в архиве лежат в папке, извлекаем содержимое папки в корень темы
-                    # Или просто извлекаем как есть, если структура правильная.
-                    # Для простоты: извлекаем всё в target_dir
-                    zip_ref.extract(member, THEME_DIR)
+                os.makedirs(target_dir, exist_ok=True)
 
-            # 4. Обновляем список тем в UI
-            from app.utils.ui.themes import get_themes
-            themes = get_themes()
-            self.ctx.js_exec(f'updateThemeList({json.dumps(themes)})')
-            self.ctx.js_exec('alert("Тема успешно импортирована!")')
+                # ZipFile.extract сам отбрасывает абсолютные пути и '..',
+                # поэтому выхода за пределы THEME_DIR быть не может
+                archive.extractall(THEME_DIR)
+
+            self.ui.themes_reloaded(self.list_themes())
+            self.ui.alert(f"Тема «{theme_name}» установлена", "Импорт темы", "info")
 
         except Exception as e:
-            print(f"Import error: {e}")
-            self.ctx.js_exec(f'alert("Ошибка импорта: {str(e)}")')
+            self.ui.alert(f"Ошибка импорта: {e}", "Импорт темы", "error")
+
+    @staticmethod
+    def list_themes() -> list:
+        from app.utils.ui.themes import get_themes
+        return get_themes()
+
+    def delete_theme(self, theme_id: str) -> bool:
+        """Удаляет установленную пользователем тему."""
+        target = os.path.join(THEME_DIR, theme_id)
+        if not os.path.isdir(target):
+            self.ui.alert("Эту тему нельзя удалить: она встроенная",
+                          "Темы", "error")
+            return False
+        try:
+            shutil.rmtree(target)
+        except OSError as e:
+            self.ui.alert(f"Не удалось удалить тему: {e}", "Темы", "error")
+            return False
+        self.ui.themes_reloaded(self.list_themes())
+        return True

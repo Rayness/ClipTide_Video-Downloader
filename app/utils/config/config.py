@@ -4,12 +4,12 @@
 import os
 import configparser
 from app.utils.const import download_dir, CONFIG_FILE
-from app.utils.utils import restart_app
 
 # Настройки по умолчанию
 DEFAULT_CONFIG_SETTINGS = {
     "language": "ru",
     "folder_path": f"{download_dir}",
+    "converter_folder": f"{download_dir}",
     "auto_update": "False",
 }
 
@@ -50,6 +50,11 @@ DEFAULT_CONFIG_UPDATES = {
     "channel": "stable"  # stable / dev
 }
 
+DEFAULT_CONFIG_DISPLAY = {
+    "window_size": "1200x780",
+    "ui_scale": "1",
+}
+
 DEFAULT_CONFIG_EDITOR = {
     "codec":  "h264",   # h264 | h265 | copy
     "preset": "fast",   # ultrafast | faster | fast | medium | slow
@@ -85,13 +90,44 @@ def load_config():
     # Если все попытки чтения провалились, создаем дефолтную конфиг
     return create_default_config()
 
+#: Все секции конфигурации и их значения по умолчанию
+DEFAULT_SECTIONS = {
+    "Settings":      DEFAULT_CONFIG_SETTINGS,
+    "Subtitles":     DEFAULT_CONFIG_SUBS,
+    "Audio":         DEFAULT_CONFIG_AUDIO,
+    "Proxy":         DEFAULT_CONFIG_PROXY,
+    "Themes":        DEFAULT_CONFIG_THEMES,
+    "Notifications": DEFAULT_CONFIG_NOTIFICATIONS,
+    "Folders":       DEFAULT_CONFIG_FOLDERS,
+    "Updates":       DEFAULT_CONFIG_UPDATES,
+    "Editor":        DEFAULT_CONFIG_EDITOR,
+    "Display":       DEFAULT_CONFIG_DISPLAY,
+}
+
+
 def update_config(config):
-    if config.has_section('Proxy'):
-        print("Конфиг актуальный", config)
-    else:
-        print("Конфиг не актуальный")
-        create_default_config()
-        restart_app()
+    """
+    Дополняет конфиг недостающими секциями и ключами.
+
+    Раньше отсутствие секции Proxy приводило к пересозданию конфига с нуля
+    и перезапуску приложения через restart_app(): пользователь молча терял
+    все настройки, а при неудачном стечении обстоятельств получал цикл
+    перезапусков. Теперь недостающее просто дописывается.
+    """
+    changed = False
+    for section, defaults in DEFAULT_SECTIONS.items():
+        if not config.has_section(section):
+            config.add_section(section)
+            changed = True
+        for key, value in defaults.items():
+            if not config.has_option(section, key):
+                config.set(section, key, str(value))
+                changed = True
+
+    if changed:
+        print("Конфигурация дополнена недостающими параметрами")
+        save_config(config)
+    return config
 
 def create_default_config():
     config = configparser.ConfigParser()
@@ -104,6 +140,7 @@ def create_default_config():
     config["Folders"] = DEFAULT_CONFIG_FOLDERS
     config["Updates"] = DEFAULT_CONFIG_UPDATES
     config["Editor"] = DEFAULT_CONFIG_EDITOR
+    config["Display"] = DEFAULT_CONFIG_DISPLAY
     save_config(config)
     return config
 

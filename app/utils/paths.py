@@ -43,13 +43,6 @@ else:
 
 LOGS_DIR = USER_DATA_DIR / 'Logs'
 
-# Профиль WebView2 (cookies, localStorage). В portable-режиме остаётся в папке программы.
-WEBVIEW_PROFILE_DIR = USER_DATA_DIR / 'WebViewProfile'
-
-# Опциональный WebView2 Fixed Version Runtime, лежащий рядом с exe.
-# Если папка существует — приложение не зависит от установленного в системе WebView2.
-FIXED_WEBVIEW2_DIR = APP_DIR / 'WebView2'
-
 os.makedirs(USER_DATA_DIR, exist_ok=True)
 
 

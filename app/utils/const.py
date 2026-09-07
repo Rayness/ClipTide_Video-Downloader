@@ -28,8 +28,6 @@ VERSION_FILE = resource_path("data/version.txt")
 
 GITHUB_REPO = "Rayness/YT-Downloader"
 
-MODAL_CONTENT = resource_path("data/ui/src/text")
-
 HEADERS = {
     "User-Agent": "Updater-App",
     "Accept": "application/vnd.github.v3+json"
@@ -41,5 +39,3 @@ TRANSLATIONS_DIR = resource_path("data/localization")
 
 THEME_DIR = os.path.join(appdata_local, "themes")
 
-# HTML-контент для отображения в окне
-html_file_path = resource_path("data/ui/index.html")

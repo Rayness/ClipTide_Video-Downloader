@@ -3,6 +3,9 @@
 #   ClipTide-<version>.zip          - installer/updater flavor (user data in AppData)
 #   ClipTide-Portable-<version>.zip - portable flavor (user data next to the exe)
 #
+# Интерфейс работает на Qt (PySide6), поэтому Edge WebView2 Runtime
+# на машине пользователя больше не требуется.
+#
 # Usage: powershell -ExecutionPolicy Bypass -File build.ps1
 
 $ErrorActionPreference = "Stop"

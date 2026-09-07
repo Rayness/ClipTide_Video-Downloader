@@ -17,10 +17,8 @@ pypdfium2==5.13.0          # рендер PDF; заменил PyMuPDF (37 МБ -
 # --- Система ---
 psutil==7.2.2
 
-# --- Интерфейс (Qt) ---
-PySide6-Essentials==6.11.2  # только QtCore/QtGui/QtWidgets и т.п., без WebEngine
-
-# --- Legacy UI (удаляется после завершения миграции на Qt) ---
-pywebview==6.2.1
-pythonnet==3.1.0
-bottle==0.13.4
+# --- Интерфейс ---
+# Только QtCore/QtGui/QtWidgets и т.п., без WebEngine.
+# Заменил pywebview + pythonnet + bottle: приложение больше не зависит
+# от установленного в системе Edge WebView2 Runtime.
+PySide6-Essentials==6.11.2
