@@ -14,6 +14,8 @@
   {'youtube': {'player_client': ['ios']}}, а следом, если найден QuickJS,
   присваивали {'ytdl_js': ['js']} — целиком, вместе с ключом youtube.
   Так как QuickJS есть всегда, настройка player_client не применялась.
+  Сам пин на iOS теперь снят: из-за SABR-only этот клиент отдаёт только
+  раскадровку, и любая загрузка падала с "Requested format is not available".
 * ИМЯ ФАЙЛА НЕ ЭКРАНИРОВАЛОСЬ. Заголовок подставлялся в outtmpl как есть,
   поэтому ролик с «/» или «:» в названии создавал подпапки или ломал путь.
   Теперь имя чистится, а расширение по-прежнему отдаётся yt-dlp.
@@ -191,8 +193,14 @@ class Downloader:
         """
         Базовые опции. extractor_args собирается ОДНИМ словарём: раньше
         второе присваивание стирало настройку player_client целиком.
+
+        player_client НЕ фиксируем. Пин на "ios" ломал скачивание: YouTube
+        включил SABR-only, и iOS-клиент перестал отдавать https-ссылки —
+        yt-dlp видел только раскадровку и падал с "Requested format is not
+        available". Набор клиентов по умолчанию обновляется вместе с yt-dlp,
+        поэтому выбор оставлен ему.
         """
-        extractor_args: dict[str, object] = {"youtube": {"player_client": ["ios"]}}
+        extractor_args: dict[str, object] = {}
 
         opts: dict = {
             "proxy": self.ctx.proxy_url if self.ctx.proxy_enabled == "True" else "",
@@ -203,9 +211,13 @@ class Downloader:
             "extractor_args": extractor_args,
         }
 
+        # Движок JS нужен для расшифровки ссылок YouTube. Ключи "ytdl_js" и
+        # "javascript_executable" из старых версий yt-dlp больше не читаются:
+        # теперь рантаймы задаются через js_runtimes. Из четырёх поддерживаемых
+        # (deno, node, quickjs, bun) в комплекте лежит только QuickJS, и его
+        # надо перечислить явно — по умолчанию включён один deno.
         if self.qjs_path:
-            extractor_args["ytdl_js"] = ["js"]
-            opts["javascript_executable"] = self.qjs_path
+            opts["js_runtimes"] = {"quickjs": {"path": self.qjs_path}}
 
         return opts
 

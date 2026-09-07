@@ -143,6 +143,11 @@ class UIChannel:
     def update_check_result(self, result: dict) -> None:
         pass
 
+    def self_update_progress(self, state: str, percent: int,
+                             message: str) -> None:
+        """state: downloading | installing | ready | error"""
+        pass
+
     # ------------------------------------------------------------------
     # Уведомления
     # ------------------------------------------------------------------

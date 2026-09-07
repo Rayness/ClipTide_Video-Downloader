@@ -60,6 +60,7 @@ class QtSignals(QObject):
     themes_reloaded = Signal(list)
     proxy_check_result = Signal(str, str)
     update_check_result = Signal(dict)
+    self_update_progress = Signal(str, int, str)
 
     # --- уведомления ---
     notifications_reloaded = Signal(list)
@@ -199,6 +200,10 @@ class QtChannel(UIChannel):
 
     def update_check_result(self, result: dict) -> None:
         self.signals.update_check_result.emit(dict(result))
+
+    def self_update_progress(self, state: str, percent: int,
+                             message: str) -> None:
+        self.signals.self_update_progress.emit(str(state), int(percent), str(message))
 
     # ------------------------------------------------------------------
     # Уведомления

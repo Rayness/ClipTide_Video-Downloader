@@ -20,12 +20,14 @@ import platform
 import shutil
 import subprocess
 import threading
+import webbrowser
 import zipfile
 
 from app.core.ui_channel import UIChannel
-from app.utils.const import MANIFEST_URL, THEME_DIR, UPDATER, VERSION_FILE, download_dir
+from app.utils.const import THEME_DIR, download_dir
 from app.utils.locale.translations import load_translations
-from app.utils.network import check_proxy_connection, get_session
+from app.utils.network import check_proxy_connection
+from app.utils.updates import check as check_updates, release_page_url
 
 
 def open_folder(folder_path):
@@ -45,6 +47,7 @@ def open_folder(folder_path):
 class SettingsManager:
     def __init__(self, context):
         self.ctx = context
+        self._self_updater = None
 
     @property
     def ui(self) -> UIChannel:
@@ -53,13 +56,36 @@ class SettingsManager:
     # ------------------------------------------------------------------
     # Обновления
     # ------------------------------------------------------------------
-    def launch_update(self):
+    def open_release_page(self, url: str = "") -> None:
+        """
+        Открывает страницу загрузки в браузере.
+
+        Скачиванием и установкой приложение не занимается: обновление ставится
+        вручную поверх старой версии. Подробности — в app/utils/updates.py.
+        """
         try:
-            from app.utils.paths import APP_DIR
-            updater_path = os.path.join(str(APP_DIR), UPDATER)
-            subprocess.Popen([updater_path], cwd=str(APP_DIR))
+            webbrowser.open(url or release_page_url())
         except Exception as e:
-            self.ui.log(f"Не удалось запустить апдейтер: {e}", "error")
+            self.ui.log(f"Не удалось открыть страницу загрузки: {e}", "error")
+
+    # --- самообновление ---
+    @property
+    def self_updater(self):
+        if self._self_updater is None:
+            from app.modules.updater.updater import SelfUpdater
+            self._self_updater = SelfUpdater(self.ctx)
+        return self._self_updater
+
+    def self_update_available(self) -> bool:
+        """Есть ли самообновление в этой сборке (только onefile)."""
+        from app.modules.updater.updater import self_update_supported
+        return self_update_supported()
+
+    def start_self_update(self, entry: dict) -> None:
+        self.self_updater.start(entry)
+
+    def restart_after_update(self) -> None:
+        self.self_updater.restart()
 
     def switch_update_setting(self, key, value):
         self.ctx.update_config_value("Updates", key, value)
@@ -70,42 +96,7 @@ class SettingsManager:
     def check_update_for_channel(self, channel):
         """Проверяет обновление для канала (stable/dev) и отдаёт результат в UI."""
         def _check():
-            try:
-                local = "0.0.0"
-                if os.path.exists(VERSION_FILE):
-                    with open(VERSION_FILE, "r", encoding="utf-8") as f:
-                        local = f.read().strip()
-
-                response = get_session().get(
-                    MANIFEST_URL,
-                    headers={"User-Agent": "ClipTide-App", "Accept": "application/json"},
-                    timeout=10,
-                )
-                if response.status_code != 200:
-                    self.ui.update_check_result(
-                        {"error": True, "message": f"HTTP {response.status_code}"}
-                    )
-                    return
-
-                data = response.json()
-                if channel not in data:
-                    self.ui.update_check_result(
-                        {"error": True, "message": "Канал не найден"}
-                    )
-                    return
-
-                channel_data = data[channel]
-                latest = channel_data.get("version", "0.0.0")
-                self.ui.update_check_result({
-                    "error": False,
-                    "has_update": latest != local,
-                    "latest_version": latest,
-                    "current_version": local,
-                    "description": channel_data.get("description", ""),
-                    "channel": channel,
-                })
-            except Exception as e:
-                self.ui.update_check_result({"error": True, "message": str(e)})
+            self.ui.update_check_result(check_updates(channel))
 
         threading.Thread(target=_check, daemon=True).start()
 

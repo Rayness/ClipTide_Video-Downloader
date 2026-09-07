@@ -8,6 +8,7 @@ from __future__ import annotations
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QWidget
+from ..i18n import t
 
 TITLEBAR_HEIGHT = 38
 
@@ -81,9 +82,9 @@ class TitleBar(QFrame):
 
         layout.addStretch(1)
 
-        self.btn_minimize = self._window_button("minimize", "Свернуть")
-        self.btn_maximize = self._window_button("maximize", "Развернуть")
-        self.btn_close = self._window_button("close", "Закрыть", close=True)
+        self.btn_minimize = self._window_button("minimize", t("ui.titlebar.minimize", "Свернуть"))
+        self.btn_maximize = self._window_button("maximize", t("ui.titlebar.maximize", "Развернуть"))
+        self.btn_close = self._window_button("close", t("ui.titlebar.close", "Закрыть"), close=True)
 
         self.btn_minimize.clicked.connect(self.minimize_requested)
         self.btn_maximize.clicked.connect(self.maximize_requested)

@@ -53,7 +53,7 @@ RESOLUTIONS = [
 
 IMAGE_RESIZES = [
     (t("converter.val_original", "Оригинал"), "original"), ("50%", "50%"), ("25%", "25%"),
-    ("Не больше 1920px", "1920"), ("Не больше 1080px", "1080"),
+    (t("ui.converter.limit_1920", "Не больше 1920px"), "1920"), (t("ui.converter.limit_1080", "Не больше 1080px"), "1080"),
 ]
 
 #: Расширения источников, которые обрабатываются как изображения/документы
@@ -152,7 +152,7 @@ class TaskCard(QFrame):
 
         self.btn_remove = QPushButton()
         self.btn_remove.setProperty("variant", "icon")
-        self.btn_remove.setToolTip("Убрать из очереди")
+        self.btn_remove.setToolTip(t("ui.common.remove_from_queue", "Убрать из очереди"))
         self.btn_remove.setCursor(Qt.PointingHandCursor)
         self.btn_remove.clicked.connect(lambda: self.remove_requested.emit(self.task_id))
         layout.addWidget(self.btn_remove, 0, Qt.AlignTop)
@@ -178,7 +178,7 @@ class TaskCard(QFrame):
             parts.append(f"{int(duration) // 60:02d}:{int(duration) % 60:02d}")
         if item.get("error"):
             return str(item["error"])
-        return "  ·  ".join(parts) if parts else "метаданные недоступны"
+        return "  ·  ".join(parts) if parts else t("ui.converter.meta_unavailable", "метаданные недоступны")
 
     def refresh_icons(self, color: str) -> None:
         self.btn_remove.setIcon(icons.icon("trash", color, 15))
@@ -221,7 +221,7 @@ class SkeletonCard(QFrame):
         name = QLabel(filename)
         name.setProperty("heading", "2")
         center.addWidget(name)
-        hint = QLabel("Чтение метаданных...")
+        hint = QLabel(t("ui.converter.reading_meta", "Чтение метаданных..."))
         hint.setProperty("muted", "true")
         center.addWidget(hint)
         bar = QProgressBar()
@@ -286,7 +286,7 @@ class ConverterPage(QWidget):
 
         column.addLayout(header)
 
-        self.hint = QLabel("Перетащите файлы сюда или нажмите «Добавить файлы»")
+        self.hint = QLabel(t("ui.converter.drop_hint", "Перетащите файлы сюда или нажмите «Добавить файлы»"))
         self.hint.setProperty("muted", "true")
         column.addWidget(self.hint)
 
@@ -307,7 +307,7 @@ class ConverterPage(QWidget):
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
         self.log_view.setFixedHeight(96)
-        self.log_view.setPlaceholderText("Журнал конвертации")
+        self.log_view.setPlaceholderText(t("ui.converter.log_title", "Журнал конвертации"))
         column.addWidget(self.log_view)
 
         return column
@@ -337,8 +337,8 @@ class ConverterPage(QWidget):
         layout.addWidget(heading)
 
         self.tabs = QTabWidget()
-        self.tabs.addTab(self._build_media_tab(), "Медиа")
-        self.tabs.addTab(self._build_image_tab(), "Изображения")
+        self.tabs.addTab(self._build_media_tab(), t("ui.converter.tab_media", "Медиа"))
+        self.tabs.addTab(self._build_image_tab(), t("ui.converter.tab_images", "Изображения"))
         layout.addWidget(self.tabs)
 
         separator = QFrame()
@@ -349,7 +349,7 @@ class ConverterPage(QWidget):
         self.lbl_output.setProperty("muted", "true")
         layout.addWidget(self.lbl_output)
 
-        self.btn_output = QPushButton("  Папка сохранения")
+        self.btn_output = QPushButton(t("ui.common.save_folder", "  Папка сохранения"))
         self.btn_output.setCursor(Qt.PointingHandCursor)
         self.btn_output.clicked.connect(self._choose_output)
         layout.addWidget(self.btn_output)
@@ -377,11 +377,13 @@ class ConverterPage(QWidget):
 
         grid.addWidget(self._label(t("converter.lbl_format", "Формат")), 0, 0)
         self.cmb_format = QComboBox()
+        suffix_video = t("ui.converter.suffix_video", " · видео")
         for label, value in VIDEO_CONTAINERS:
-            self.cmb_format.addItem(f"{label} · видео", value)
+            self.cmb_format.addItem(f"{label}{suffix_video}", value)
         self.cmb_format.insertSeparator(self.cmb_format.count())
+        suffix_audio = t("ui.converter.suffix_audio", " · аудио")
         for label, value in AUDIO_CONTAINERS:
-            self.cmb_format.addItem(f"{label} · аудио", value)
+            self.cmb_format.addItem(f"{label}{suffix_audio}", value)
         self.cmb_format.currentIndexChanged.connect(self._sync_controls)
         grid.addWidget(self.cmb_format, 0, 1)
 
@@ -451,7 +453,7 @@ class ConverterPage(QWidget):
         layout.addLayout(grid)
 
         row = QHBoxLayout()
-        caption = QLabel("Качество (%)")
+        caption = QLabel(t("ui.converter.quality_percent", "Качество (%)"))
         caption.setProperty("muted", "true")
         row.addWidget(caption)
         row.addStretch(1)
@@ -467,7 +469,7 @@ class ConverterPage(QWidget):
         )
         layout.addWidget(self.sld_img_quality)
 
-        hint = QLabel("Многостраничный PDF раскладывается в папку по страницам.")
+        hint = QLabel(t("ui.converter.pdf_hint", "Многостраничный PDF раскладывается в папку по страницам."))
         hint.setProperty("muted", "true")
         hint.setWordWrap(True)
         layout.addWidget(hint)
@@ -484,7 +486,7 @@ class ConverterPage(QWidget):
     def _fill_codecs(self) -> None:
         """В список попадают только кодировщики, реально доступные в сборке."""
         self.cmb_codec.clear()
-        self.cmb_codec.addItem("Автоматически", "auto")
+        self.cmb_codec.addItem(t("ui.common.auto", "Автоматически"), "auto")
 
         present = available_encoders()
         friendly = [
@@ -505,7 +507,7 @@ class ConverterPage(QWidget):
                 self.cmb_codec.addItem(label, value)
                 if VIDEO_ENCODERS.get(value, {}).get("hardware"):
                     hardware_found = True
-        self.cmb_codec.addItem("Без перекодирования (copy)", "copy")
+        self.cmb_codec.addItem(t("ui.converter.no_reencode_copy", "Без перекодирования (copy)"), "copy")
         self._hardware_found = hardware_found
 
     # ------------------------------------------------------------------
@@ -518,16 +520,16 @@ class ConverterPage(QWidget):
         self.cmb_resolution.setEnabled(not is_audio)
         self.sld_quality.setEnabled(not is_audio)
         self.lbl_quality.setText(
-            "Битрейт задаётся профилем" if is_audio else t("converter.lbl_quality", "Качество (CRF)")
+            t("ui.converter.bitrate_by_profile", "Битрейт задаётся профилем") if is_audio else t("converter.lbl_quality", "Качество (CRF)")
         )
 
         if getattr(self, "_hardware_found", False):
             self.lbl_encoder_hint.setText(
-                "Найдено аппаратное кодирование. «Автоматически» задействует GPU."
+                t("ui.converter.hw_found", "Найдено аппаратное кодирование. «Автоматически» задействует GPU.")
             )
         else:
             self.lbl_encoder_hint.setText(
-                "Аппаратное кодирование недоступно, используется CPU."
+                t("ui.converter.hw_absent", "Аппаратное кодирование недоступно, используется CPU.")
             )
 
     def _refresh_output_label(self) -> None:
@@ -535,12 +537,13 @@ class ConverterPage(QWidget):
         metrics = self.lbl_output.fontMetrics()
         # Длинный путь раньше переносился на пять строк и распирал панель
         elided = metrics.elidedText(folder, Qt.ElideMiddle, 250)
-        self.lbl_output.setText("Сохранять в:\n" + elided)
+        self.lbl_output.setText(
+            t("ui.common.save_to", "Сохранять в:") + "\n" + elided)
         self.lbl_output.setToolTip(folder)
 
     def _choose_output(self) -> None:
         folder = self.channel.pick_folder(
-            "Папка для сохранения", getattr(self.converter.ctx, "converter_folder", "")
+            t("ui.converter.folder_dialog", "Папка для сохранения"), getattr(self.converter.ctx, "converter_folder", "")
         )
         if folder:
             self.converter.ctx.converter_folder = folder
@@ -574,7 +577,7 @@ class ConverterPage(QWidget):
         with self.converter._lock:
             items = list(self.converter.queue)
         if not items:
-            self.append_log("Очередь пуста", "info")
+            self.append_log(t("ui.common.queue_empty", "Очередь пуста"), "info")
             return
 
         settings_map = {item["id"]: self._settings_for(item) for item in items}

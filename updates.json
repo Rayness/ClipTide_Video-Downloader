@@ -1,8 +1,10 @@
 {
     "stable": {
-        "version": "1.7.3f",
-        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v1.7.3f/ClipTide-1.7.3f.zip",
-        "description": "Стабильная версия. Рекомендуется для большинства пользователей. Содержит все основные функции и исправления ошибок."
+        "version": "2.0.0",
+        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v2.0.0/ClipTide-2.0.0.zip",
+        "exe": "https://github.com/Rayness/YT-Downloader/releases/download/v2.0.0/ClipTide.exe",
+        "page": "https://github.com/Rayness/YT-Downloader/releases/tag/v2.0.0",
+        "description": "Стабильная версия. Приложение стало одним файлом и обновляется само. Интерфейс переведён на девять языков."
     },
     "dev": {
         "version": "1.7.0-build_1.0",

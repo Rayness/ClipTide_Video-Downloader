@@ -76,14 +76,14 @@ class NotificationCard(QFrame):
 
         self.btn_open = QPushButton()
         self.btn_open.setProperty("variant", "icon")
-        self.btn_open.setToolTip("Открыть папку")
+        self.btn_open.setToolTip(t("ui.common.open_folder", "Открыть папку"))
         self.btn_open.setEnabled(bool(folder) and os.path.isdir(folder))
         self.btn_open.clicked.connect(lambda: self.open_requested.emit(folder))
         layout.addWidget(self.btn_open, 0, Qt.AlignTop)
 
         self.btn_remove = QPushButton()
         self.btn_remove.setProperty("variant", "icon")
-        self.btn_remove.setToolTip("Удалить запись")
+        self.btn_remove.setToolTip(t("ui.notifications.delete_entry", "Удалить запись"))
         self.btn_remove.clicked.connect(lambda: self.remove_requested.emit(self.entry_id))
         layout.addWidget(self.btn_remove, 0, Qt.AlignTop)
 
@@ -111,7 +111,7 @@ class NotificationsPage(QWidget):
         header.addWidget(title)
         header.addStretch(1)
 
-        self.btn_clear = QPushButton("Очистить всё")
+        self.btn_clear = QPushButton(t("ui.notifications.clear_all", "Очистить всё"))
         self.btn_clear.setProperty("variant", "danger")
         self.btn_clear.clicked.connect(self._clear_all)
         header.addWidget(self.btn_clear)

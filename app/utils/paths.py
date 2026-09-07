@@ -29,6 +29,15 @@ else:
 # в dev-режиме — корень проекта
 RESOURCE_DIR = Path(getattr(sys, '_MEIPASS', APP_DIR))
 
+# Сборка одним файлом: ресурсы распакованы во временную папку, а не лежат
+# рядом с exe. Отличать важно — на этом держатся самообновление (заменить
+# нужно ровно один файл) и уборка остатков прежней onedir-раскладки.
+IS_ONEFILE = (
+    IS_FROZEN
+    and RESOURCE_DIR != APP_DIR
+    and APP_DIR not in RESOURCE_DIR.parents
+)
+
 # Portable-режим: маркерный файл рядом с exe
 PORTABLE_MARKER = APP_DIR / 'portable.txt'
 IS_PORTABLE = PORTABLE_MARKER.exists()

@@ -25,7 +25,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..i18n import t
+from ..i18n import t, tf
 from ..widgets import icons
 from ..widgets.thumbnail import fit
 
@@ -33,8 +33,8 @@ THUMB_SIZE = QSize(112, 63)
 
 FORMATS = [
     ("MP4", "mp4"), ("MKV", "mkv"), ("WEBM", "webm"),
-    ("MP3 · только звук", "mp3"), ("M4A · только звук", "m4a"),
-    ("OPUS · только звук", "opus"), ("FLAC · только звук", "flac"),
+    (t("ui.downloader.audio_mp3", "MP3 · только звук"), "mp3"), (t("ui.downloader.audio_m4a", "M4A · только звук"), "m4a"),
+    (t("ui.downloader.audio_opus", "OPUS · только звук"), "opus"), (t("ui.downloader.audio_flac", "FLAC · только звук"), "flac"),
 ]
 
 RESOLUTIONS = [
@@ -62,20 +62,23 @@ class PlaylistDialog(QDialog):
 
     def __init__(self, playlist: dict, parent: QWidget | None = None):
         super().__init__(parent)
-        self.setWindowTitle("Плейлист")
+        self.setWindowTitle(t("ui.downloader.playlist", "Плейлист"))
         self.setMinimumSize(560, 480)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 18, 20, 18)
         layout.setSpacing(12)
 
-        title = QLabel(playlist.get("title", "Плейлист"))
+        title = QLabel(playlist.get("title", t("ui.downloader.playlist", "Плейлист")))
         title.setProperty("heading", "1")
         title.setWordWrap(True)
         layout.addWidget(title)
 
         items = playlist.get("items", [])
-        hint = QLabel(f"Найдено роликов: {len(items)}. Отметьте нужные.")
+        hint = QLabel(tf(
+            "ui.downloader.found_videos",
+            "Найдено роликов: {count}. Отметьте нужные.",
+            count=len(items)))
         hint.setProperty("muted", "true")
         layout.addWidget(hint)
 
@@ -89,10 +92,10 @@ class PlaylistDialog(QDialog):
         layout.addWidget(self.list, 1)
 
         toggles = QHBoxLayout()
-        select_all = QPushButton("Выбрать все")
+        select_all = QPushButton(t("ui.downloader.select_all", "Выбрать все"))
         select_all.setProperty("variant", "ghost")
         select_all.clicked.connect(lambda: self._set_all(Qt.Checked))
-        clear_all = QPushButton("Снять все")
+        clear_all = QPushButton(t("ui.downloader.deselect_all", "Снять все"))
         clear_all.setProperty("variant", "ghost")
         clear_all.clicked.connect(lambda: self._set_all(Qt.Unchecked))
         toggles.addWidget(select_all)
@@ -101,9 +104,9 @@ class PlaylistDialog(QDialog):
         layout.addLayout(toggles)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        buttons.button(QDialogButtonBox.Ok).setText("Добавить в очередь")
+        buttons.button(QDialogButtonBox.Ok).setText(t("add_to_queue", "Добавить в очередь"))
         buttons.button(QDialogButtonBox.Ok).setProperty("variant", "primary")
-        buttons.button(QDialogButtonBox.Cancel).setText("Отмена")
+        buttons.button(QDialogButtonBox.Cancel).setText(t("ui.common.cancel", "Отмена"))
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
@@ -223,7 +226,7 @@ class DownloadCard(QFrame):
 
         self.btn_remove = QPushButton()
         self.btn_remove.setProperty("variant", "icon")
-        self.btn_remove.setToolTip("Убрать из очереди")
+        self.btn_remove.setToolTip(t("ui.common.remove_from_queue", "Убрать из очереди"))
         self.btn_remove.clicked.connect(lambda: self.remove_requested.emit(self.task_id))
         side.addWidget(self.btn_remove)
         side.addStretch(1)
@@ -276,7 +279,8 @@ class DownloadCard(QFrame):
         if speed:
             details.append(speed)
         if eta:
-            details.append(f"осталось {eta}")
+            details.append(
+                tf("ui.downloader.eta_left", "осталось {time}", time=eta))
         self.stats.setText("  ·  ".join(details))
         self.stats.setVisible(True)
 
@@ -316,7 +320,7 @@ class DownloaderPage(QWidget):
         root.addLayout(self._build_header())
         root.addLayout(self._build_input_row())
 
-        self.hint = QLabel("Вставьте ссылку на ролик или плейлист и нажмите «Добавить»")
+        self.hint = QLabel(t("ui.downloader.placeholder", "Вставьте ссылку на ролик или плейлист и нажмите «Добавить»"))
         self.hint.setProperty("muted", "true")
         root.addWidget(self.hint)
 
@@ -334,7 +338,7 @@ class DownloaderPage(QWidget):
         self.log_view = QPlainTextEdit()
         self.log_view.setReadOnly(True)
         self.log_view.setFixedHeight(92)
-        self.log_view.setPlaceholderText("Журнал загрузок")
+        self.log_view.setPlaceholderText(t("ui.downloader.log_title", "Журнал загрузок"))
         root.addWidget(self.log_view)
 
         self._connect_channel()
@@ -352,7 +356,7 @@ class DownloaderPage(QWidget):
         header.addWidget(title)
         header.addStretch(1)
 
-        self.btn_start = QPushButton("  Начать загрузку")
+        self.btn_start = QPushButton(t("ui.downloader.start", "  Начать загрузку"))
         self.btn_start.setProperty("variant", "primary")
         self.btn_start.setCursor(Qt.PointingHandCursor)
         self.btn_start.clicked.connect(self._on_start)
@@ -367,7 +371,7 @@ class DownloaderPage(QWidget):
 
         self.btn_folder = QPushButton()
         self.btn_folder.setProperty("variant", "icon")
-        self.btn_folder.setToolTip("Открыть папку загрузок")
+        self.btn_folder.setToolTip(t("ui.downloader.open_folder", "Открыть папку загрузок"))
         self.btn_folder.setCursor(Qt.PointingHandCursor)
         self.btn_folder.clicked.connect(self.downloader.open_dl_folder)
         header.addWidget(self.btn_folder)
@@ -396,7 +400,7 @@ class DownloaderPage(QWidget):
         self.cmb_resolution.setFixedWidth(140)
         row.addWidget(self.cmb_resolution)
 
-        self.btn_add = QPushButton("  Добавить")
+        self.btn_add = QPushButton(t("ui.downloader.add", "  Добавить"))
         self.btn_add.setCursor(Qt.PointingHandCursor)
         self.btn_add.clicked.connect(self._on_add)
         row.addWidget(self.btn_add)
@@ -464,7 +468,10 @@ class DownloaderPage(QWidget):
             return
         fmt = self.cmb_format.currentData()
         res = self.cmb_resolution.currentData()
-        self.append_log(f"Добавляю из плейлиста: {len(urls)} шт.", "info")
+        self.append_log(tf(
+            "ui.downloader.adding_from_playlist",
+            "Добавляю из плейлиста: {count} шт.",
+            count=len(urls)), "info")
         for url in urls:
             self.downloader.addVideoToQueue(url, fmt, res)
 

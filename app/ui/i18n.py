@@ -81,6 +81,23 @@ def t(path: str, default: str = "") -> str:
     return default or path
 
 
+def tf(path: str, default: str, **fmt) -> str:
+    """
+    Перевод с подстановкой значений.
+
+    Словари правят руками, и плейсхолдер там недолго испортить опечаткой.
+    Если подстановка не удалась, берём запасной текст: лучше показать
+    строку на русском, чем уронить окно посреди отрисовки.
+    """
+    text = t(path, default)
+    if not fmt:
+        return text
+    try:
+        return text.format(**fmt)
+    except (KeyError, IndexError, ValueError):
+        return default.format(**fmt)
+
+
 def section(path: str) -> dict:
     """Вложенный раздел словаря (или пустой, если его нет)."""
     for source in _chain:

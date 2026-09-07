@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QApplication,
     QCheckBox,
     QComboBox,
     QFrame,
@@ -14,6 +15,7 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
+    QProgressBar,
     QPushButton,
     QScrollArea,
     QSlider,
@@ -22,7 +24,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..i18n import t
+from ..i18n import t, tf
 from ..widgets import icons
 
 LANGUAGES = [
@@ -32,23 +34,32 @@ LANGUAGES = [
 ]
 
 SUBTITLE_LANGS = [
-    ("Все доступные", "all"), ("Русские", "ru"), ("Английские", "en"),
-    ("Украинские", "uk"), ("Немецкие", "de"), ("Французские", "fr"),
+    (t("ui.settings.subs_all", "Все доступные"), "all"), (t("ui.settings.lang_ru", "Русские"), "ru"), (t("ui.settings.lang_en", "Английские"), "en"),
+    (t("ui.settings.lang_uk", "Украинские"), "uk"), (t("ui.settings.lang_de", "Немецкие"), "de"), (t("ui.settings.lang_fr", "Французские"), "fr"),
 ]
 
 AUDIO_LANGS = [
-    ("Оригинальная дорожка", "none"), ("Все дорожки", "all_tracks"),
-    ("Русская", "ru"), ("Английская", "en"), ("Украинская", "uk"),
+    (t("ui.settings.audio_original", "Оригинальная дорожка"), "none"), (t("ui.settings.audio_all", "Все дорожки"), "all_tracks"),
+    (t("ui.settings.audio_ru", "Русская"), "ru"), (t("ui.settings.audio_en", "Английская"), "en"), (t("ui.settings.audio_uk", "Украинская"), "uk"),
 ]
 
 EDITOR_PRESETS = [
-    ("Очень быстро", "ultrafast"), ("Быстро", "fast"),
-    ("Сбалансированно", "medium"), ("Качественно", "slow"),
+    (t("ui.settings.preset_ultrafast", "Очень быстро"), "ultrafast"), (t("ui.settings.preset_fast", "Быстро"), "fast"),
+    (t("ui.settings.preset_medium", "Сбалансированно"), "medium"), (t("ui.settings.preset_slow", "Качественно"), "slow"),
 ]
 
 EDITOR_FORMATS = [("MP4", "mp4"), ("MKV", "mkv")]
 
-UPDATE_CHANNELS = [("Стабильный", "stable"), ("Тестовый (dev)", "dev")]
+#: Каналы обновлений: ключ перевода, запасной текст, значение в конфиге
+UPDATE_CHANNELS = [
+    ("stable_label", "Стабильный", "stable"),
+    ("dev_label", "Тестовый (dev)", "dev"),
+]
+
+
+def _ut(key: str, default: str, **fmt) -> str:
+    """Строка раздела «Обновления»: ключи лежат в settings.updates.*"""
+    return tf(f"settings.updates.{key}", default, **fmt)
 
 
 def _section(title: str) -> QLabel:
@@ -96,6 +107,11 @@ class SettingsPage(QWidget):
         self.version = version
         self._on_theme_applied = on_theme_applied
         self._loading = True
+        #: Заполняется после проверки обновлений
+        self._release_url = ""
+        self._update_entry: dict = {}
+        #: Новый exe уже подменён и ждёт перезапуска
+        self._update_ready = False
 
         root = QVBoxLayout(self)
         root.setContentsMargins(24, 20, 24, 16)
@@ -106,11 +122,11 @@ class SettingsPage(QWidget):
         root.addWidget(title)
 
         self.tabs = QTabWidget()
-        self.tabs.addTab(_scrollable(self._build_general_tab()), "Общие")
-        self.tabs.addTab(_scrollable(self._build_appearance_tab()), "Внешний вид")
-        self.tabs.addTab(_scrollable(self._build_download_tab()), "Загрузка")
-        self.tabs.addTab(_scrollable(self._build_editor_tab()), "Редактор")
-        self.tabs.addTab(_scrollable(self._build_network_tab()), "Сеть и обновления")
+        self.tabs.addTab(_scrollable(self._build_general_tab()), t("ui.settings.tab_general", "Общие"))
+        self.tabs.addTab(_scrollable(self._build_appearance_tab()), t("ui.settings.tab_appearance", "Внешний вид"))
+        self.tabs.addTab(_scrollable(self._build_download_tab()), t("ui.settings.tab_download", "Загрузка"))
+        self.tabs.addTab(_scrollable(self._build_editor_tab()), t("ui.settings.tab_editor", "Редактор"))
+        self.tabs.addTab(_scrollable(self._build_network_tab()), t("ui.settings.tab_network", "Сеть и обновления"))
         root.addWidget(self.tabs, 1)
 
         self._connect_channel()
@@ -125,7 +141,7 @@ class SettingsPage(QWidget):
         layout.setContentsMargins(4, 16, 12, 16)
         layout.setSpacing(12)
 
-        layout.addWidget(_section("Язык интерфейса"))
+        layout.addWidget(_section(t("ui.settings.ui_language", "Язык интерфейса")))
         self.cmb_language = QComboBox()
         for label, code in LANGUAGES:
             self.cmb_language.addItem(label, code)
@@ -140,33 +156,33 @@ class SettingsPage(QWidget):
         layout.addWidget(self.lbl_language_hint)
 
         layout.addWidget(_separator())
-        layout.addWidget(_section("Папки"))
+        layout.addWidget(_section(t("ui.settings.folders", "Папки")))
 
         self.lbl_download_dir = _caption("")
         layout.addWidget(self.lbl_download_dir)
-        self.btn_download_dir = QPushButton("  Папка загрузок")
+        self.btn_download_dir = QPushButton(t("ui.settings.folder_downloads", "  Папка загрузок"))
         self.btn_download_dir.clicked.connect(self.settings.choose_folder)
         layout.addLayout(_left(self.btn_download_dir))
 
         self.lbl_converter_dir = _caption("")
         layout.addWidget(self.lbl_converter_dir)
-        self.btn_converter_dir = QPushButton("  Папка конвертации")
+        self.btn_converter_dir = QPushButton(t("ui.settings.folder_converter", "  Папка конвертации"))
         self.btn_converter_dir.clicked.connect(self.settings.choose_converter_folder)
         layout.addLayout(_left(self.btn_converter_dir))
 
         layout.addWidget(_separator())
-        layout.addWidget(_section("Открывать папку по завершении"))
+        layout.addWidget(_section(t("ui.settings.open_on_finish", "Открывать папку по завершении")))
 
-        self.chk_open_dl = self._checkbox("после загрузки", "Folders", "dl")
-        self.chk_open_cv = self._checkbox("после конвертации", "Folders", "cv")
-        self.chk_open_ed = self._checkbox("после обрезки", "Folders", "editor")
+        self.chk_open_dl = self._checkbox(t("ui.settings.after_download", "после загрузки"), "Folders", "dl")
+        self.chk_open_cv = self._checkbox(t("ui.settings.after_conversion", "после конвертации"), "Folders", "cv")
+        self.chk_open_ed = self._checkbox(t("ui.settings.after_trim", "после обрезки"), "Folders", "editor")
         for widget in (self.chk_open_dl, self.chk_open_cv, self.chk_open_ed):
             layout.addWidget(widget)
 
         layout.addWidget(_separator())
-        layout.addWidget(_section("Уведомления"))
-        self.chk_notify_dl = self._checkbox("о завершении загрузок", "Notifications", "downloads")
-        self.chk_notify_cv = self._checkbox("о завершении конвертации", "Notifications", "conversion")
+        layout.addWidget(_section(t("ui.settings.notifications", "Уведомления")))
+        self.chk_notify_dl = self._checkbox(t("ui.settings.notify_downloads", "о завершении загрузок"), "Notifications", "downloads")
+        self.chk_notify_cv = self._checkbox(t("ui.settings.notify_conversion", "о завершении конвертации"), "Notifications", "conversion")
         layout.addWidget(self.chk_notify_dl)
         layout.addWidget(self.chk_notify_cv)
 
@@ -183,13 +199,13 @@ class SettingsPage(QWidget):
         layout.setContentsMargins(4, 16, 12, 16)
         layout.setSpacing(12)
 
-        layout.addWidget(_section("Тема"))
+        layout.addWidget(_section(t("ui.settings.theme", "Тема")))
         self.cmb_theme = QComboBox()
         self._fill_themes()
         self.cmb_theme.currentIndexChanged.connect(self._on_theme)
         layout.addWidget(self.cmb_theme)
 
-        layout.addWidget(_caption("Вариант темы"))
+        layout.addWidget(_caption(t("ui.settings.theme_variant", "Вариант темы")))
         self.cmb_style = QComboBox()
         self.cmb_style.currentIndexChanged.connect(self._on_style)
         layout.addWidget(self.cmb_style)
@@ -197,11 +213,11 @@ class SettingsPage(QWidget):
 
         row = QHBoxLayout()
         row.setSpacing(8)
-        self.btn_import_theme = QPushButton("  Установить из ZIP")
+        self.btn_import_theme = QPushButton(t("ui.settings.install_zip", "  Установить из ZIP"))
         self.btn_import_theme.clicked.connect(self.settings.import_theme_from_zip)
         row.addWidget(self.btn_import_theme)
 
-        self.btn_delete_theme = QPushButton("Удалить тему")
+        self.btn_delete_theme = QPushButton(t("ui.settings.delete_theme", "Удалить тему"))
         self.btn_delete_theme.setProperty("variant", "danger")
         self.btn_delete_theme.clicked.connect(self._on_delete_theme)
         row.addWidget(self.btn_delete_theme)
@@ -213,11 +229,12 @@ class SettingsPage(QWidget):
         layout.addWidget(self.lbl_theme_info)
 
         layout.addWidget(_separator())
-        layout.addWidget(_section("О программе"))
+        layout.addWidget(_section(t("ui.settings.about", "О программе")))
         about = _caption(
             f"ClipTide {self.version}\n"
-            "Свободное ПО по лицензии GPLv3.\n"
-            "Темы читаются из папки themes в данных приложения."
+            + t("ui.settings.about_text",
+                "Свободное ПО по лицензии GPLv3.\n"
+                "Темы читаются из папки themes в данных приложения.")
         )
         about.setWordWrap(True)
         layout.addWidget(about)
@@ -235,18 +252,18 @@ class SettingsPage(QWidget):
         layout.setContentsMargins(4, 16, 12, 16)
         layout.setSpacing(12)
 
-        layout.addWidget(_section("Субтитры"))
-        self.chk_subs = self._checkbox("Скачивать субтитры", "Subtitles", "enabled")
+        layout.addWidget(_section(t("ui.settings.subtitles", "Субтитры")))
+        self.chk_subs = self._checkbox(t("ui.settings.subs_download", "Скачивать субтитры"), "Subtitles", "enabled")
         self.chk_subs.stateChanged.connect(self._sync_subtitle_controls)
         layout.addWidget(self.chk_subs)
 
-        self.chk_subs_auto = self._checkbox("Включая автоматические", "Subtitles", "auto")
+        self.chk_subs_auto = self._checkbox(t("ui.settings.subs_auto", "Включая автоматические"), "Subtitles", "auto")
         layout.addWidget(self.chk_subs_auto)
 
-        self.chk_subs_embed = self._checkbox("Встраивать в видеофайл", "Subtitles", "embed")
+        self.chk_subs_embed = self._checkbox(t("ui.settings.subs_embed", "Встраивать в видеофайл"), "Subtitles", "embed")
         layout.addWidget(self.chk_subs_embed)
 
-        layout.addWidget(_caption("Языки субтитров"))
+        layout.addWidget(_caption(t("ui.settings.subs_langs", "Языки субтитров")))
         self.cmb_subs_lang = QComboBox()
         for label, code in SUBTITLE_LANGS:
             self.cmb_subs_lang.addItem(label, code)
@@ -258,7 +275,7 @@ class SettingsPage(QWidget):
         layout.addWidget(self.cmb_subs_lang)
 
         layout.addWidget(_separator())
-        layout.addWidget(_section("Аудиодорожки"))
+        layout.addWidget(_section(t("ui.settings.audio_tracks", "Аудиодорожки")))
         self.cmb_audio = QComboBox()
         for label, code in AUDIO_LANGS:
             self.cmb_audio.addItem(label, code)
@@ -267,10 +284,11 @@ class SettingsPage(QWidget):
             lambda: self.settings.switch_audio_setting("lang", self.cmb_audio.currentData())
         )
         layout.addWidget(self.cmb_audio)
-        layout.addWidget(_caption(
+        layout.addWidget(_caption(t(
+            "ui.settings.audio_mkv_hint",
             "«Все дорожки» принудительно сохраняет результат в MKV: "
             "MP4 плохо склеивает несколько звуковых дорожек."
-        ))
+        )))
 
         layout.addStretch(1)
         self._sync_subtitle_controls()
@@ -289,7 +307,7 @@ class SettingsPage(QWidget):
         grid.setVerticalSpacing(10)
         grid.setHorizontalSpacing(10)
 
-        grid.addWidget(_caption("Пресет кодирования"), 0, 0)
+        grid.addWidget(_caption(t("ui.settings.encode_preset", "Пресет кодирования")), 0, 0)
         self.cmb_preset = QComboBox()
         for label, value in EDITOR_PRESETS:
             self.cmb_preset.addItem(label, value)
@@ -299,7 +317,7 @@ class SettingsPage(QWidget):
         )
         grid.addWidget(self.cmb_preset, 0, 1)
 
-        grid.addWidget(_caption("Контейнер"), 1, 0)
+        grid.addWidget(_caption(t("ui.settings.container", "Контейнер")), 1, 0)
         self.cmb_editor_format = QComboBox()
         for label, value in EDITOR_FORMATS:
             self.cmb_editor_format.addItem(label, value)
@@ -313,7 +331,7 @@ class SettingsPage(QWidget):
         layout.addLayout(grid)
 
         row = QHBoxLayout()
-        row.addWidget(_caption("Качество (CRF)"))
+        row.addWidget(_caption(t("ui.common.quality_crf", "Качество (CRF)")))
         row.addStretch(1)
         self.lbl_crf = QLabel(self.ctx.config.get("Editor", "crf", fallback="18"))
         row.addWidget(self.lbl_crf)
@@ -324,7 +342,7 @@ class SettingsPage(QWidget):
         self.sld_crf.setValue(int(self.ctx.config.get("Editor", "crf", fallback="18")))
         self.sld_crf.valueChanged.connect(self._on_crf)
         layout.addWidget(self.sld_crf)
-        layout.addWidget(_caption("Меньше значение — выше качество и больше размер файла."))
+        layout.addWidget(_caption(t("ui.settings.crf_hint", "Меньше значение — выше качество и больше размер файла.")))
 
         layout.addStretch(1)
         return page
@@ -338,8 +356,8 @@ class SettingsPage(QWidget):
         layout.setContentsMargins(4, 16, 12, 16)
         layout.setSpacing(12)
 
-        layout.addWidget(_section("Прокси"))
-        self.chk_proxy = QCheckBox("Использовать прокси")
+        layout.addWidget(_section(t("ui.settings.proxy", "Прокси")))
+        self.chk_proxy = QCheckBox(t("ui.settings.proxy_use", "Использовать прокси"))
         self.chk_proxy.setChecked(str(self.ctx.proxy_enabled) == "True")
         self.chk_proxy.stateChanged.connect(self._on_proxy_toggle)
         layout.addWidget(self.chk_proxy)
@@ -352,7 +370,7 @@ class SettingsPage(QWidget):
         layout.addWidget(self.txt_proxy)
 
         row = QHBoxLayout()
-        self.btn_test_proxy = QPushButton("Проверить соединение")
+        self.btn_test_proxy = QPushButton(t("ui.settings.proxy_test", "Проверить соединение"))
         self.btn_test_proxy.clicked.connect(
             lambda: self.settings.test_user_proxy(self.txt_proxy.text().strip())
         )
@@ -363,12 +381,13 @@ class SettingsPage(QWidget):
         layout.addLayout(row)
 
         layout.addWidget(_separator())
-        layout.addWidget(_section("Обновления"))
+        layout.addWidget(_section(_ut("title", "Обновления")))
 
-        layout.addWidget(_caption("Канал обновлений"))
+        layout.addWidget(_caption(
+            _ut("update_channel_label", "Канал обновлений")))
         self.cmb_channel = QComboBox()
-        for label, value in UPDATE_CHANNELS:
-            self.cmb_channel.addItem(label, value)
+        for key, default, value in UPDATE_CHANNELS:
+            self.cmb_channel.addItem(_ut(key, default), value)
         self._select(self.cmb_channel,
                      self.ctx.config.get("Updates", "channel", fallback="stable"))
         self.cmb_channel.currentIndexChanged.connect(
@@ -377,19 +396,37 @@ class SettingsPage(QWidget):
         layout.addWidget(self.cmb_channel)
 
         row2 = QHBoxLayout()
-        self.btn_check_update = QPushButton("Проверить обновления")
+        self.btn_check_update = QPushButton(
+            _ut("check_button", "Проверить обновления"))
         self.btn_check_update.clicked.connect(self._on_check_update)
         row2.addWidget(self.btn_check_update)
 
-        self.btn_install_update = QPushButton("Установить")
-        self.btn_install_update.setProperty("variant", "primary")
-        self.btn_install_update.setEnabled(False)
-        self.btn_install_update.clicked.connect(self.settings.launch_update)
-        row2.addWidget(self.btn_install_update)
+        # Основное действие: программа скачивает сборку и подменяет себя
+        self.btn_self_update = QPushButton(_ut("update_button", "Обновить"))
+        self.btn_self_update.setProperty("variant", "primary")
+        self.btn_self_update.setEnabled(False)
+        self.btn_self_update.clicked.connect(self._on_self_update)
+        row2.addWidget(self.btn_self_update)
+
+        # Запасной путь: сборки до 2.0 подменить себя не могут
+        self.btn_open_release = QPushButton(
+            _ut("manual_button", "Скачать вручную"))
+        self.btn_open_release.setEnabled(False)
+        self.btn_open_release.clicked.connect(
+            lambda: self.settings.open_release_page(self._release_url)
+        )
+        row2.addWidget(self.btn_open_release)
         row2.addStretch(1)
         layout.addLayout(row2)
 
-        self.lbl_update_status = _caption(f"Текущая версия: {self.version}")
+        self.bar_update = QProgressBar()
+        self.bar_update.setRange(0, 100)
+        self.bar_update.hide()
+        layout.addWidget(self.bar_update)
+
+        self.lbl_update_status = _caption(
+            _ut("current_version", "Текущая версия: {version}",
+                version=self.version))
         self.lbl_update_status.setWordWrap(True)
         layout.addWidget(self.lbl_update_status)
 
@@ -437,7 +474,7 @@ class SettingsPage(QWidget):
         self.cmb_theme.blockSignals(True)
         self.cmb_theme.clear()
         for theme in self.themes.as_ui_list():
-            suffix = "" if theme["builtin"] else "  ·  установлена"
+            suffix = "" if theme["builtin"] else t("ui.settings.theme_installed", "  ·  установлена")
             self.cmb_theme.addItem(f"{theme['name']}{suffix}", theme["id"])
         self._select(self.cmb_theme, self.ctx.theme)
         self.cmb_theme.blockSignals(False)
@@ -451,7 +488,7 @@ class SettingsPage(QWidget):
             styles.insert(0, "default")
         for style in styles:
             self.cmb_style.addItem(
-                {"default": "Основной", "light": "Светлый"}.get(style, style.title()),
+                {"default": t("ui.settings.style_default", "Основной"), "light": t("ui.settings.style_light", "Светлый")}.get(style, style.title()),
                 style,
             )
         self._select(self.cmb_style, self.ctx.style)
@@ -462,10 +499,14 @@ class SettingsPage(QWidget):
         if theme is None:
             self.lbl_theme_info.setText("")
             return
-        parts = [f"Автор: {theme.author or 'не указан'}"]
+        author = theme.author or t(
+            "ui.settings.theme_author_unknown", "не указан")
+        parts = [tf("ui.settings.theme_author", "Автор: {author}",
+                    author=author)]
         if theme.version:
-            parts.append(f"версия {theme.version}")
-        parts.append("встроенная" if theme.builtin else "установленная")
+            parts.append(tf("ui.settings.theme_version", "версия {version}",
+                            version=theme.version))
+        parts.append(t("ui.settings.theme_builtin", "встроенная") if theme.builtin else t("ui.settings.theme_external", "установленная"))
         self.lbl_theme_info.setText("  ·  ".join(parts))
         self.btn_delete_theme.setEnabled(not theme.builtin)
 
@@ -536,9 +577,28 @@ class SettingsPage(QWidget):
             widget.setEnabled(enabled)
 
     def _on_check_update(self) -> None:
-        self.lbl_update_status.setText("Проверяю...")
+        self.lbl_update_status.setText(_ut("checking_text", "Проверяю..."))
         self.btn_check_update.setEnabled(False)
         self.settings.check_update_for_channel(self.cmb_channel.currentData())
+
+    def _on_self_update(self) -> None:
+        # Та же кнопка после установки превращается в «Перезапустить»
+        if self._update_ready:
+            self._restart_after_update()
+            return
+        self.btn_self_update.setEnabled(False)
+        self.btn_check_update.setEnabled(False)
+        self.bar_update.setValue(0)
+        self.bar_update.show()
+        self.lbl_update_status.setText(_ut("downloading", "Скачивание..."))
+        self.settings.start_self_update(self._update_entry)
+
+    def _restart_after_update(self) -> None:
+        try:
+            self.settings.restart_after_update()
+        except Exception:
+            return                      # сообщение уже ушло в лог
+        QApplication.quit()
 
     # ------------------------------------------------------------------
     # События канала
@@ -549,6 +609,7 @@ class SettingsPage(QWidget):
         signals.converter_folder_changed.connect(lambda _p: self._refresh_folder_labels())
         signals.proxy_check_result.connect(self.on_proxy_result)
         signals.update_check_result.connect(self.on_update_result)
+        signals.self_update_progress.connect(self.on_self_update_progress)
         signals.themes_reloaded.connect(self.on_themes_reloaded)
 
     def on_proxy_result(self, state: str, message: str) -> None:
@@ -558,20 +619,81 @@ class SettingsPage(QWidget):
     def on_update_result(self, result: dict) -> None:
         self.btn_check_update.setEnabled(True)
         if result.get("error"):
-            self.lbl_update_status.setText(f"Ошибка: {result.get('message', '')}")
+            self.lbl_update_status.setText(_ut(
+                "check_failed", "Ошибка проверки: {reason}",
+                reason=result.get("message", "")))
             return
         if result.get("has_update"):
-            self.lbl_update_status.setText(
-                f"Доступна версия {result.get('latest_version')} "
-                f"(установлена {result.get('current_version')})\n"
-                f"{result.get('description', '')}"
+            self._release_url = result.get("page_url", "")
+            self._update_entry = result.get("entry", {})
+            can_self_update = self.settings.self_update_available()
+            description = result.get("description", "")
+            head = _ut(
+                "available", "Доступна версия {latest} (установлена {current}).",
+                latest=result.get("latest_version", ""),
+                current=result.get("current_version", ""))
+            tail = (
+                _ut("hint_self_update",
+                    "Нажмите «Обновить» — программа заменит себя "
+                    "и попросит перезапуск.")
+                if can_self_update else
+                _ut("hint_manual",
+                    "Эта сборка обновляться сама не умеет: скачайте "
+                    "новую версию вручную и запустите её.")
             )
-            self.btn_install_update.setEnabled(True)
+            self.lbl_update_status.setText(
+                head + "\n" + tail
+                + (f"\n{description}" if description else "")
+            )
+            self.btn_self_update.setEnabled(can_self_update)
+            self.btn_open_release.setEnabled(True)
         else:
+            self.lbl_update_status.setText(_ut(
+                "latest_installed", "Установлена последняя версия ({version})",
+                version=result.get("current_version", "")))
+            self.btn_self_update.setEnabled(False)
+            self.btn_open_release.setEnabled(False)
+
+    def on_self_update_progress(self, state: str, percent: int,
+                                detail: str) -> None:
+        # Модуль обновления присылает состояние, текст собираем здесь:
+        # переводы живут в интерфейсе, а не в слое логики
+        if state == "downloading":
+            self.bar_update.show()
+            self.bar_update.setValue(percent)
             self.lbl_update_status.setText(
-                f"Установлена последняя версия ({result.get('current_version')})"
+                f'{_ut("downloading", "Скачивание...")} {percent}%')
+            return
+        if state == "installing":
+            self.bar_update.setValue(100)
+            self.lbl_update_status.setText(_ut("installing", "Установка..."))
+            return
+
+        self.bar_update.hide()
+        self.btn_check_update.setEnabled(True)
+        if state == "ready":
+            self._update_ready = True
+            self.lbl_update_status.setText(
+                _ut("ready_restart_version",
+                    "Версия {version} установлена. Перезапустите программу.",
+                    version=detail)
+                if detail else
+                _ut("ready_restart",
+                    "Обновление установлено. Перезапустите программу.")
             )
-            self.btn_install_update.setEnabled(False)
+            self.btn_self_update.setText(_ut("restart_button", "Перезапустить"))
+            self.btn_self_update.setEnabled(True)
+            return
+
+        # error: старый файл на месте, предлагаем ручной путь
+        self.lbl_update_status.setText(
+            _ut("failed", "Обновление не удалось: {reason}", reason=detail)
+            + "\n"
+            + _ut("failed_hint",
+                  "Программа не пострадала — можно скачать версию вручную.")
+        )
+        self.btn_self_update.setEnabled(True)
+        self.btn_open_release.setEnabled(True)
 
     def on_themes_reloaded(self, _themes: list) -> None:
         self.themes.reload()

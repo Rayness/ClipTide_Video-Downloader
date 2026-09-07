@@ -24,7 +24,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..i18n import t
+from ..i18n import t, tf
 from ..widgets import icons
 from ..widgets.thumbnail import fit, pixmap_from_data_uri
 
@@ -109,13 +109,13 @@ class EditorPage(QWidget):
         header.addWidget(title)
         header.addStretch(1)
 
-        self.btn_open = QPushButton("  Открыть видео")
+        self.btn_open = QPushButton(t("ui.editor.open_video", "  Открыть видео"))
         self.btn_open.setCursor(Qt.PointingHandCursor)
         self.btn_open.clicked.connect(self.editor.open_file)
         header.addWidget(self.btn_open)
         column.addLayout(header)
 
-        self.file_label = QLabel("Файл не выбран — откройте видео или перетащите его сюда")
+        self.file_label = QLabel(t("ui.editor.no_file", "Файл не выбран — откройте видео или перетащите его сюда"))
         self.file_label.setProperty("muted", "true")
         column.addWidget(self.file_label)
 
@@ -123,7 +123,7 @@ class EditorPage(QWidget):
         self.preview.setObjectName("DropZone")
         self.preview.setMinimumSize(PREVIEW_SIZE)
         self.preview.setAlignment(Qt.AlignCenter)
-        self.preview.setText("Кадр появится после открытия файла")
+        self.preview.setText(t("ui.editor.frame_hint", "Кадр появится после открытия файла"))
         column.addWidget(self.preview, 1)
 
         # --- таймлайн ---
@@ -144,11 +144,11 @@ class EditorPage(QWidget):
 
         marks = QHBoxLayout()
         marks.setSpacing(8)
-        self.btn_mark_in = QPushButton("Отметить начало")
+        self.btn_mark_in = QPushButton(t("ui.editor.mark_start", "Отметить начало"))
         self.btn_mark_in.clicked.connect(self._mark_in)
         marks.addWidget(self.btn_mark_in)
 
-        self.btn_mark_out = QPushButton("Отметить конец")
+        self.btn_mark_out = QPushButton(t("ui.editor.mark_end", "Отметить конец"))
         self.btn_mark_out.clicked.connect(self._mark_out)
         marks.addWidget(self.btn_mark_out)
 
@@ -180,12 +180,12 @@ class EditorPage(QWidget):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
 
-        heading = QLabel("Сегменты")
+        heading = QLabel(t("ui.editor.segments", "Сегменты"))
         heading.setProperty("heading", "2")
         layout.addWidget(heading)
 
         self.table = QTableWidget(0, 3)
-        self.table.setHorizontalHeaderLabels(["Начало", "Конец", "Длина"])
+        self.table.setHorizontalHeaderLabels([t("ui.editor.col_start", "Начало"), t("ui.editor.col_end", "Конец"), t("ui.editor.col_length", "Длина")])
         self.table.verticalHeader().setVisible(False)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setEditTriggers(QTableWidget.NoEditTriggers)
@@ -194,12 +194,12 @@ class EditorPage(QWidget):
 
         row = QHBoxLayout()
         row.setSpacing(8)
-        self.btn_remove_segment = QPushButton("Удалить")
+        self.btn_remove_segment = QPushButton(t("ui.common.delete", "Удалить"))
         self.btn_remove_segment.setProperty("variant", "danger")
         self.btn_remove_segment.clicked.connect(self._remove_selected_segment)
         row.addWidget(self.btn_remove_segment)
 
-        self.btn_clear_segments = QPushButton("Очистить")
+        self.btn_clear_segments = QPushButton(t("ui.common.clear", "Очистить"))
         self.btn_clear_segments.setProperty("variant", "ghost")
         self.btn_clear_segments.clicked.connect(self._clear_segments)
         row.addWidget(self.btn_clear_segments)
@@ -209,23 +209,23 @@ class EditorPage(QWidget):
         separator.setProperty("separator", "true")
         layout.addWidget(separator)
 
-        mode_label = QLabel("Результат")
+        mode_label = QLabel(t("ui.editor.result", "Результат"))
         mode_label.setProperty("muted", "true")
         layout.addWidget(mode_label)
 
         self.cmb_mode = QComboBox()
-        self.cmb_mode.addItem("Отдельными файлами", "separate")
-        self.cmb_mode.addItem("Склеить в один файл", "merge")
+        self.cmb_mode.addItem(t("ui.editor.separate_files", "Отдельными файлами"), "separate")
+        self.cmb_mode.addItem(t("ui.editor.join_one", "Склеить в один файл"), "merge")
         layout.addWidget(self.cmb_mode)
 
-        codec_label = QLabel("Кодек")
+        codec_label = QLabel(t("ui.common.codec", "Кодек"))
         codec_label.setProperty("muted", "true")
         layout.addWidget(codec_label)
 
         self.cmb_codec = QComboBox()
         self.cmb_codec.addItem("H.264", "h264")
         self.cmb_codec.addItem("H.265 / HEVC", "h265")
-        self.cmb_codec.addItem("Без перекодирования (быстро)", "copy")
+        self.cmb_codec.addItem(t("ui.editor.no_reencode_fast", "Без перекодирования (быстро)"), "copy")
         self.cmb_codec.currentIndexChanged.connect(self._save_codec)
         layout.addWidget(self.cmb_codec)
 
@@ -233,18 +233,18 @@ class EditorPage(QWidget):
         self.lbl_output.setProperty("muted", "true")
         layout.addWidget(self.lbl_output)
 
-        self.btn_output = QPushButton("  Папка сохранения")
+        self.btn_output = QPushButton(t("ui.common.save_folder", "  Папка сохранения"))
         self.btn_output.clicked.connect(self._choose_output)
         layout.addWidget(self.btn_output)
 
         layout.addStretch(1)
 
-        self.btn_trim = QPushButton("  Обрезать")
+        self.btn_trim = QPushButton(t("ui.editor.trim", "  Обрезать"))
         self.btn_trim.setProperty("variant", "primary")
         self.btn_trim.clicked.connect(self._start_trim)
         layout.addWidget(self.btn_trim)
 
-        self.btn_stop = QPushButton("  Остановить")
+        self.btn_stop = QPushButton(t("ui.editor.stop", "  Остановить"))
         self.btn_stop.setProperty("variant", "danger")
         self.btn_stop.setEnabled(False)
         self.btn_stop.clicked.connect(self.editor.stop_trim)
@@ -331,16 +331,18 @@ class EditorPage(QWidget):
     # ------------------------------------------------------------------
     def _mark_in(self) -> None:
         self._pending_start = self._current_time()
-        self.lbl_pending.setText(f"Начало: {format_timecode(self._pending_start)}")
+        self.lbl_pending.setText(tf(
+            "ui.editor.start_at", "Начало: {time}",
+            time=format_timecode(self._pending_start)))
 
     def _mark_out(self) -> None:
         start = getattr(self, "_pending_start", None)
         if start is None:
-            self.lbl_pending.setText("Сначала отметьте начало")
+            self.lbl_pending.setText(t("ui.editor.mark_start_first", "Сначала отметьте начало"))
             return
         end = self._current_time()
         if end <= start:
-            self.lbl_pending.setText("Конец должен быть позже начала")
+            self.lbl_pending.setText(t("ui.editor.end_after_start", "Конец должен быть позже начала"))
             return
         self.segments.append({"start": start, "end": end})
         self._pending_start = None
@@ -388,11 +390,12 @@ class EditorPage(QWidget):
     def _refresh_output_label(self) -> None:
         metrics = self.lbl_output.fontMetrics()
         elided = metrics.elidedText(self.output_dir, Qt.ElideMiddle, 270)
-        self.lbl_output.setText(f"Сохранять в:\n{elided}")
+        self.lbl_output.setText(
+            t("ui.common.save_to", "Сохранять в:") + f"\n{elided}")
         self.lbl_output.setToolTip(self.output_dir)
 
     def _choose_output(self) -> None:
-        folder = self.channel.pick_folder("Папка для результата", self.output_dir)
+        folder = self.channel.pick_folder(t("ui.editor.folder_dialog", "Папка для результата"), self.output_dir)
         if folder:
             self.output_dir = folder
             self._refresh_output_label()
@@ -430,18 +433,21 @@ class EditorPage(QWidget):
 
     def on_trim_done(self, mode: str, folder: str) -> None:
         self.progress.setValue(100)
-        self.lbl_progress.setText(f"Готово · {folder}")
+        self.lbl_progress.setText(
+            tf("ui.editor.done_with", "Готово · {name}", name=folder))
         self._reset_buttons()
 
     def on_trim_error(self, message: str) -> None:
-        self.lbl_progress.setText(f"Ошибка: {message}" if message else "Ошибка обрезки")
+        self.lbl_progress.setText(
+            tf("ui.editor.error_prefix", "Ошибка: {reason}", reason=message)
+            if message else t("ui.editor.trim_error", "Ошибка обрезки"))
         self.progress.setProperty("state", "error")
         self.progress.style().unpolish(self.progress)
         self.progress.style().polish(self.progress)
         self._reset_buttons()
 
     def on_trim_stopped(self) -> None:
-        self.lbl_progress.setText("Остановлено")
+        self.lbl_progress.setText(t("ui.common.stopped", "Остановлено"))
         self._reset_buttons()
 
     def _reset_buttons(self) -> None:

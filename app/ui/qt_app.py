@@ -24,10 +24,10 @@ from app.utils.config.config import load_config, update_config
 from app.utils.notifications.notifications import load_notifications
 from app.utils.paths import resource_path
 from app.utils.queue.queue import load_queue_from_file
-from app.utils.utils import check_for_update, get_local_version
+from app.utils.updates import check as check_updates, local_version
 
 from .channel import QtChannel
-from .i18n import set_language, t
+from .i18n import set_language, t, tf
 from .theme_manager import ThemeManager
 from .widgets.thumbnail import ThumbnailLoader
 from .window import MainWindow
@@ -79,7 +79,7 @@ class Application:
         self.channel = QtChannel()
         self.ctx.ui = self.channel
 
-        self.version = f"v{get_local_version()}".replace("vv", "v")
+        self.version = f"v{local_version()}".replace("vv", "v")
         self.window = MainWindow("ClipTide", self.version)
         self.channel.parent = self.window
 
@@ -190,10 +190,35 @@ class Application:
         """Сетевой запрос уводим с пути запуска, чтобы окно открывалось сразу."""
         def worker():
             try:
-                if check_for_update():
-                    self.channel.status("Доступна новая версия — откройте «Настройки»")
+                channel = self.ctx.config.get(
+                    "Updates", "channel", fallback="stable")
+                result = check_updates(channel)
+                if result.get("error") or not result.get("has_update"):
+                    return
+                self.channel.status(tf(
+                    "ui.status.update_available",
+                    "Доступна версия {version} — "
+                    "обновиться можно в «Настройках»",
+                    version=result["latest_version"]))
             except Exception as e:
                 print(f"[WARN] Проверка обновлений не удалась: {e}")
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _cleanup_legacy_async(self) -> None:
+        """Убирает прошлый exe и остатки onedir-раскладки."""
+        def worker():
+            try:
+                from app.modules.updater.updater import cleanup_backup
+                from app.utils.migrate import cleanup_legacy_install
+                # Прошлый exe удаляем только теперь: пока программа из него
+                # работала, файл был занят
+                freed = cleanup_legacy_install() + cleanup_backup()
+                if freed:
+                    print(f"[INFO] Удалены остатки прошлой версии: "
+                          f"{freed / 1024 / 1024:.0f} МБ")
+            except Exception as e:
+                print(f"[WARN] Уборка прошлой версии не удалась: {e}")
 
         threading.Thread(target=worker, daemon=True).start()
 
@@ -216,6 +241,7 @@ class Application:
             self.app.setWindowIcon(QIcon(pixmap))
 
         self.window.show()
+        self._cleanup_legacy_async()
         self._check_updates_async()
         return self.app.exec()
 

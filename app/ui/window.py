@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
 
 from .widgets import icons
 from .widgets.titlebar import TitleBar
+from .i18n import t
 
 # Ширина зоны захвата у края окна для изменения размера
 RESIZE_MARGIN = 6
@@ -145,7 +146,7 @@ class MainWindow(QWidget):
         self.statusbar.setObjectName("StatusBar")
         status_layout = QHBoxLayout(self.statusbar)
         status_layout.setContentsMargins(12, 0, 12, 0)
-        self.status_label = QLabel("Готово")
+        self.status_label = QLabel(t("ui.status.ready", "Готово"))
         status_layout.addWidget(self.status_label)
         status_layout.addStretch(1)
         self.status_right = QLabel("")

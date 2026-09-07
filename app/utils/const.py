@@ -22,16 +22,9 @@ QUEUE_FILE = os.path.join(appdata_local, "queue.json")
 
 COOKIES_FILE = os.path.join(appdata_local, "cookies.txt")
 
-UPDATER = "update.exe"
-
 VERSION_FILE = resource_path("data/version.txt")
 
 GITHUB_REPO = "Rayness/YT-Downloader"
-
-HEADERS = {
-    "User-Agent": "Updater-App",
-    "Accept": "application/vnd.github.v3+json"
-}
 
 MANIFEST_URL = "https://raw.githubusercontent.com/Rayness/ClipTide_Video-Downloader/refs/heads/main/updates.json"
 # Путь к папке с переводами
