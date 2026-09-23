@@ -127,6 +127,11 @@ class Downloader:
         #: Флаги остановки конкретных задач
         self.interrupt_flags: dict[str, bool] = {}
 
+        #: Какие задачи качает менеджер: None — всю очередь (кнопка «Начать»),
+        #: множество id — только эти (ссылка извне, запуск одной карточки).
+        #: Остальное, что человек оставил в очереди на потом, не трогаем.
+        self._only: set[str] | None = None
+
         self.qjs_path = resource_path(os.path.join("data", "bin", "qjs.exe"))
         if not os.path.exists(self.qjs_path):
             print(f"[WARN] QuickJS не найден: {self.qjs_path}")
@@ -224,17 +229,27 @@ class Downloader:
     # ------------------------------------------------------------------
     # Добавление в очередь
     # ------------------------------------------------------------------
-    def addVideoToQueue(self, video_url, selected_format, selectedResolution, temp_id=None):
+    def addVideoToQueue(self, video_url, selected_format, selectedResolution, temp_id=None,
+                        autostart=False):
+        """
+        autostart — сразу качать, без кнопки «Начать загрузку»: так приходят
+        ссылки извне (Islet, `ClipTide.exe --download`).
+        """
         task_id = str(uuid.uuid4())
+        # temp_id связывает начало разбора с его итогом — по нему внешние
+        # подписчики видят, что ссылка ещё разбирается
+        temp_id = temp_id or f"a-{task_id}"
         self.log(f"{self.get_trans('status', 'status_text', 'Анализ')} ({video_url})", "info")
+        self.ui.downloader_analysis_started(temp_id, video_url)
 
         threading.Thread(
             target=self._analyze,
-            args=(task_id, video_url, selected_format, selectedResolution, temp_id),
+            args=(task_id, video_url, selected_format, selectedResolution, temp_id, autostart),
             daemon=True,
         ).start()
 
-    def _analyze(self, task_id, video_url, selected_format, selected_resolution, temp_id):
+    def _analyze(self, task_id, video_url, selected_format, selected_resolution, temp_id,
+                 autostart=False):
         import yt_dlp
 
         try:
@@ -246,7 +261,7 @@ class Downloader:
                 info = ydl.extract_info(video_url, download=False)
 
             if "entries" in info:
-                self._emit_playlist(info, temp_id)
+                self._emit_playlist(info, temp_id, selected_format, selected_resolution, autostart)
                 return
 
             # 2. Полный разбор одиночного ролика
@@ -260,8 +275,13 @@ class Downloader:
             with self._queue_lock:
                 self.ctx.download_queue.append(item)
                 save_queue_to_file(self.ctx.download_queue)
+                self.ui.downloader_item_added(item)
+                # Под тем же локом, что и выход менеджера из цикла: иначе задача
+                # могла попасть в очередь в тот миг, когда он уже решил, что
+                # всё скачано, и осталась бы ждать кнопки
+                if autostart:
+                    self.startDownload(only=[task_id])
 
-            self.ui.downloader_item_added(item)
             self.log(f"{self.get_trans('status', 'to_queue', 'Добавлено')}: {item['title']}",
                      "success")
 
@@ -269,11 +289,17 @@ class Downloader:
             self.log(f"{self.get_trans('status', 'error_adding', 'Ошибка добавления')}: {e}",
                      "error", "DL_GENERIC_ERR")
             if temp_id:
+                self.ui.downloader_analysis_failed(temp_id, video_url, str(e))
                 self.ui.downloader_placeholder_removed(temp_id)
 
-    def _emit_playlist(self, info: dict, temp_id: str | None) -> None:
+    def _emit_playlist(self, info: dict, temp_id: str | None, selected_format=None,
+                       selected_resolution=None, autostart=False) -> None:
         self.log(f"Найден плейлист: {info.get('title')}", "info")
         playlist = {
+            # Выбор роликов — за человеком, а формат и автозапуск — от исходного запроса
+            "format": selected_format,
+            "resolution": selected_resolution,
+            "autostart": autostart,
             "title": info.get("title", "Playlist"),
             "items": [
                 {
@@ -382,18 +408,23 @@ class Downloader:
                     item["status"] = "queued"
                     self.ui.downloader_progress(task_id, 0, "", "")
                     break
-        if not self.is_running:
-            self.startDownload()
+            self.startDownload(only=[task_id])
 
     # ------------------------------------------------------------------
     # Запуск и остановка
     # ------------------------------------------------------------------
-    def startDownload(self):
-        if self.is_running:
-            self.log("Менеджер загрузок уже запущен", "warn")
-            return
-
+    def startDownload(self, only=None):
+        """only — id задач, которые надо скачать; None — вся очередь."""
         with self._queue_lock:
+            if self.is_running:
+                if only is None:
+                    self.log("Менеджер загрузок уже запущен", "warn")
+                elif self._only is not None:
+                    # Менеджер качает выборочно — добавляем к его списку.
+                    # Если он качает всю очередь, новая задача и так в ней.
+                    self._only.update(only)
+                return
+
             if not self.ctx.download_queue:
                 self.log(self.get_trans("status", "the_queue_is_empty", "Очередь пуста"), "warn")
                 return
@@ -406,28 +437,43 @@ class Downloader:
                     resumed += 1
                     self.ui.downloader_progress(task["id"], 0, "", "")
 
+            # Флаг — под тем же локом, что и проверка: два запуска сразу
+            # (ссылки извне приходят из разных потоков) не поднимут двух менеджеров
+            self._only = set(only) if only is not None else None
+            self.stop_requested = False
+            self.is_running = True
+
         if resumed:
             self.log(f"{self.get_trans('status', 'resuming', 'Возобновление')} ({resumed})", "info")
 
-        self.stop_requested = False
-        self.is_running = True
+        self.ui.downloader_started()
         threading.Thread(target=self._download_manager, daemon=True).start()
 
     def stopDownload(self):
         self.stop_requested = True
         self.log(self.get_trans("status", "stopping", "Остановка..."), "info")
 
+    def _wanted(self, task: dict) -> bool:
+        """Ждёт ли задача этого запуска менеджера. Звать под _queue_lock."""
+        return task.get("status") == "queued" and (self._only is None or task.get("id") in self._only)
+
     def _download_manager(self):
         self.log(self.get_trans("status", "manager_started", "Менеджер запущен"), "info")
 
         while self.is_running and not self.stop_requested:
             with self._queue_lock:
-                queued = [v for v in self.ctx.download_queue if v.get("status") == "queued"]
+                queued = [v for v in self.ctx.download_queue if self._wanted(v)]
 
             with self._active_lock:
                 active = self.active_tasks
 
             if not queued and active == 0:
+                with self._queue_lock:
+                    # Пока шла проверка, в очередь могли добавить задачу с
+                    # автозапуском — она увидела is_running и менеджер не звала
+                    if any(self._wanted(v) for v in self.ctx.download_queue):
+                        continue
+                    self.is_running = False
                 self.log(self.get_trans("status", "queue_finished", "Очередь завершена"),
                          "success")
                 break

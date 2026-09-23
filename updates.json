@@ -1,10 +1,10 @@
 {
     "stable": {
-        "version": "2.0.0",
-        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v2.0.0/ClipTide-2.0.0.zip",
-        "exe": "https://github.com/Rayness/YT-Downloader/releases/download/v2.0.0/ClipTide.exe",
-        "page": "https://github.com/Rayness/YT-Downloader/releases/tag/v2.0.0",
-        "description": "Стабильная версия. Приложение стало одним файлом и обновляется само. Интерфейс переведён на девять языков."
+        "version": "2.1.0",
+        "url": "https://github.com/Rayness/YT-Downloader/releases/download/v2.1.0/ClipTide-2.1.0.zip",
+        "exe": "https://github.com/Rayness/YT-Downloader/releases/download/v2.1.0/ClipTide.exe",
+        "page": "https://github.com/Rayness/YT-Downloader/releases/tag/v2.1.0",
+        "description": "Стабильная версия. Ссылки из других программ и из Islet: ClipTide сразу качает видео, прогресс виден в капсуле островка."
     },
     "dev": {
         "version": "1.7.0-build_1.0",

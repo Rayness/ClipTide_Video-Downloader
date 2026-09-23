@@ -73,6 +73,17 @@ class UIChannel:
     def downloader_placeholder_removed(self, temp_id: str) -> None:
         pass
 
+    def downloader_analysis_started(self, temp_id: str, url: str) -> None:
+        """Ссылка ушла на разбор; дальше — item_added или placeholder_removed."""
+        pass
+
+    def downloader_analysis_failed(self, temp_id: str, url: str, message: str) -> None:
+        pass
+
+    def downloader_started(self) -> None:
+        """Менеджер загрузок запущен — не обязательно кнопкой."""
+        pass
+
     def downloader_playlist_found(self, playlist: dict) -> None:
         pass
 

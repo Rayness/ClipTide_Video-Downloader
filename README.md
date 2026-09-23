@@ -90,6 +90,21 @@ Proxy support, subtitle downloads, audio language selection, and more
 
 > **💡 Tip:** The download queue is automatically saved. You can close the app anytime and resume later!
 
+### 🔗 From other programs
+
+ClipTide takes links from outside and downloads them right away — no need to press “Start”:
+
+```powershell
+ClipTide.exe --download "https://youtu.be/..." --format mp3 --quality 720 --minimized
+ClipTide.exe --show
+```
+
+If ClipTide is already running, the second launch hands it the command and exits. Programs can
+also write to the `\\.\pipe\ClipTide.<user name>` pipe directly — one JSON line per message
+(`download`, `show`, `subscribe` for live progress); the format is described in
+`app/core/remote.py`. That is how [Islet](https://github.com/Rayness/Islet) works: `ct <link>`
+on the island queues the video, and its capsule shows the progress.
+
 ---
 
 ## 🛠️ Development

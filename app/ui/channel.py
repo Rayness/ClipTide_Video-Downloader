@@ -34,6 +34,9 @@ class QtSignals(QObject):
     downloader_item_removed = Signal(str)
     downloader_progress = Signal(str, float, str, str)   # id, %, скорость, ETA
     downloader_placeholder_removed = Signal(str)
+    downloader_analysis_started = Signal(str, str)        # temp_id, ссылка
+    downloader_analysis_failed = Signal(str, str, str)    # temp_id, ссылка, ошибка
+    downloader_started = Signal()
     downloader_playlist_found = Signal(dict)
     downloader_finished = Signal()
 
@@ -131,6 +134,15 @@ class QtChannel(UIChannel):
 
     def downloader_placeholder_removed(self, temp_id: str) -> None:
         self.signals.downloader_placeholder_removed.emit(str(temp_id))
+
+    def downloader_analysis_started(self, temp_id: str, url: str) -> None:
+        self.signals.downloader_analysis_started.emit(str(temp_id), str(url))
+
+    def downloader_analysis_failed(self, temp_id: str, url: str, message: str) -> None:
+        self.signals.downloader_analysis_failed.emit(str(temp_id), str(url), str(message))
+
+    def downloader_started(self) -> None:
+        self.signals.downloader_started.emit()
 
     def downloader_playlist_found(self, playlist: dict) -> None:
         self.signals.downloader_playlist_found.emit(dict(playlist))

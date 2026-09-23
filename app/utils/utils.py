@@ -49,9 +49,9 @@ def ffmpegreg():
 def restart_app():
     if getattr(sys, 'frozen', False):
         # В собранном виде sys.executable — это сам ClipTide.exe
-        subprocess.Popen([sys.executable])
+        subprocess.Popen([sys.executable, "--restarted"])  # см. app/core/remote.py
     else:
-        subprocess.Popen([sys.executable] + sys.argv)
+        subprocess.Popen([sys.executable] + sys.argv + ["--restarted"])
     sys.exit(0)  # Корректно закрываем текущий процесс
 
 def get_appdata_path(app_name: str, roaming: bool = False) -> Path:

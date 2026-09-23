@@ -15,10 +15,11 @@ from __future__ import annotations
 import sys
 import threading
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QObject, Qt, QTimer, Signal
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import QApplication, QMessageBox
 
+from app.core import remote
 from app.core.context import AppContext
 from app.utils.config.config import load_config, update_config
 from app.utils.notifications.notifications import load_notifications
@@ -64,10 +65,18 @@ def build_context() -> AppContext:
     return ctx
 
 
+class RemoteSignals(QObject):
+    """Команды из канала приходят в фоновом потоке — в главный их везёт сигнал."""
+
+    command = Signal(dict)
+
+
 class Application:
     """Связывает окно, страницы и модули логики."""
 
-    def __init__(self, argv: list[str] | None = None):
+    def __init__(self, argv: list[str] | None = None,
+                 request: remote.Request | None = None):
+        self.request = request
         QApplication.setHighDpiScaleFactorRoundingPolicy(
             Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
         )
@@ -94,6 +103,7 @@ class Application:
         self._build_modules()
         self._build_pages()
         self._connect_global_signals()
+        self._start_remote()
         self._apply_palette()
 
         self.window.sidebar.set_footer(f"ClipTide {self.version}")
@@ -153,6 +163,48 @@ class Application:
         signals.log.connect(self._on_log)
         signals.download_folder_changed.connect(self._on_download_folder)
         signals.converter_folder_changed.connect(self._on_converter_folder)
+
+    # ------------------------------------------------------------------
+    # Канал для других программ (app/core/remote.py)
+    # ------------------------------------------------------------------
+    def _start_remote(self) -> None:
+        self.remote_signals = RemoteSignals()
+        self.remote_signals.command.connect(self._on_remote_command)
+        self.remote = remote.PipeServer(self.remote_signals.command.emit)
+
+        state = remote.DownloadState(self.remote, lambda: self.ctx.download_queue)
+        signals = self.channel.signals
+        signals.downloader_analysis_started.connect(state.analysis_started)
+        signals.downloader_analysis_failed.connect(state.analysis_failed)
+        signals.downloader_placeholder_removed.connect(state.placeholder_removed)
+        signals.downloader_item_added.connect(state.item_added)
+        signals.downloader_item_removed.connect(state.item_removed)
+        signals.downloader_progress.connect(state.progress)
+        signals.downloader_finished.connect(state.finished)
+        signals.log.connect(state.log)
+        self.download_state = state
+
+        self.remote.start()
+        remote.write_launch_info(self.version)
+
+    def _on_remote_command(self, message: dict) -> None:
+        kind = message.get("type")
+        if kind == "show":
+            self._bring_to_front()
+        elif kind == "download":
+            args = remote.download_args(message)
+            if args is None:
+                return
+            url, fmt, quality = args
+            self.downloader.addVideoToQueue(
+                url, fmt, quality, temp_id=remote.new_remote_id(), autostart=True)
+
+    def _bring_to_front(self) -> None:
+        if self.window.isMinimized():
+            self.window.showNormal()
+        self.window.show()
+        self.window.raise_()
+        self.window.activateWindow()
 
     def _on_log(self, message: str, level: str, code: str, source: str) -> None:
         # Последнее сообщение любого модуля дублируем в строку состояния
@@ -223,6 +275,7 @@ class Application:
         threading.Thread(target=worker, daemon=True).start()
 
     def _on_close(self) -> None:
+        self.remote.stop()
         try:
             self.downloader.stopDownload()
             self.converter.stop_conversion()
@@ -240,20 +293,37 @@ class Application:
             )
             self.app.setWindowIcon(QIcon(pixmap))
 
-        self.window.show()
+        # Ссылка из командной строки: окно можно не показывать поверх всего —
+        # прогресс виден в Islet, а готовый файл — в уведомлении
+        if self.request is not None and self.request.minimized:
+            self.window.showMinimized()
+        else:
+            self.window.show()
+        if self.request is not None:
+            message = self.request.message
+            QTimer.singleShot(0, lambda: self._on_remote_command(message))
         self._cleanup_legacy_async()
         self._check_updates_async()
         return self.app.exec()
 
 
 def main() -> int:
+    # Уже запущен — отдаём ему команду (или просьбу показать окно) и выходим,
+    # не поднимая Qt. Перезапуск после обновления — исключение: старый
+    # процесс ещё жив и вот-вот закроется.
+    argv = sys.argv[1:]
+    request = remote.parse_args(argv)
+    if not remote.is_restart(argv):
+        if remote.send(request.message if request else {"type": "show"}):
+            return 0
+
     from app.utils.logs.logs import logs
     from app.utils.utils import ffmpegreg, unicodefix
 
     unicodefix()
     ffmpegreg()
     logs()
-    return Application().run()
+    return Application(request=request).run()
 
 
 if __name__ == "__main__":

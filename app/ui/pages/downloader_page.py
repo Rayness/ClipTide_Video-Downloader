@@ -432,6 +432,7 @@ class DownloaderPage(QWidget):
         signals.downloader_progress.connect(self.on_progress)
         signals.downloader_playlist_found.connect(self.on_playlist)
         signals.downloader_finished.connect(self.on_finished)
+        signals.downloader_started.connect(self.on_started)
         signals.log.connect(self.append_log)
 
     def on_item_added(self, item: dict) -> None:
@@ -460,20 +461,33 @@ class DownloaderPage(QWidget):
             card.set_progress(percent, speed, eta)
 
     def on_playlist(self, playlist: dict) -> None:
+        # Плейлист мог прийти извне, пока окно свёрнуто: без выбора роликов
+        # дальше не пойти, поэтому окно — вперёд
+        window = self.window()
+        if window.isMinimized():
+            window.showNormal()
+        window.raise_()
+        window.activateWindow()
+
         dialog = PlaylistDialog(playlist, self)
         if dialog.exec() != QDialog.Accepted:
             return
         urls = dialog.selected_urls()
         if not urls:
             return
-        fmt = self.cmb_format.currentData()
-        res = self.cmb_resolution.currentData()
+        fmt = playlist.get("format") or self.cmb_format.currentData()
+        res = playlist.get("resolution") or self.cmb_resolution.currentData()
+        autostart = bool(playlist.get("autostart"))
         self.append_log(tf(
             "ui.downloader.adding_from_playlist",
             "Добавляю из плейлиста: {count} шт.",
             count=len(urls)), "info")
         for url in urls:
-            self.downloader.addVideoToQueue(url, fmt, res)
+            self.downloader.addVideoToQueue(url, fmt, res, autostart=autostart)
+
+    def on_started(self) -> None:
+        self.btn_start.setEnabled(False)
+        self.btn_stop.setEnabled(True)
 
     def on_finished(self) -> None:
         self.btn_start.setEnabled(True)

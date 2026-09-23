@@ -236,7 +236,9 @@ class SelfUpdater:
         """Запускает обновлённый exe. Закрытие текущего окна — на стороне UI."""
         target = current_executable()
         try:
-            subprocess.Popen([str(target)], cwd=str(target.parent),
+            # Ключ перезапуска: иначе новый процесс отдал бы команду старому
+            # через канал и закрылся (см. app/core/remote.py)
+            subprocess.Popen([str(target), "--restarted"], cwd=str(target.parent),
                              close_fds=True)
         except Exception as e:                    # noqa: BLE001
             self.ui.log(f"Не удалось перезапустить программу: {e}", "error")
